@@ -6,5 +6,6 @@ project.addAssets('Assets/**');
 project.addShaders('Shaders/**');
 project.addSources('Sources');
 await project.addProject('khawy');
+project.addLibrary('tiled');
 
 resolve(project);

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="tiles.png">
+	<!-- Created with Adobe Animate version 19.0.0.326 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="Symbol 60000" x="2" y="2" width="30" height="30"/>
+	<SubTexture name="Symbol 60001" x="2" y="34" width="30" height="30"/>
+	<SubTexture name="Symbol 60002" x="2" y="66" width="30" height="30"/>
+</TextureAtlas>
