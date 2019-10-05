@@ -26,8 +26,9 @@ class Test extends State {
         resources.add(new DataLoader("level_tmx"));
         var atlas=new JoinAtlas(2048,2048);
         atlas.add(new SparrowLoader("Untitled_1","Untitled_1_xml"));
-        atlas.add(new TilesheetLoader("tiles", 10,10,0));
+        atlas.add(new TilesheetLoader("tiles", 10,10,1));
         atlas.add(new SparrowLoader("ivanka", "ivanka_xml"));
+        atlas.add(new ImageLoader("ivankaArm"));
         resources.add(atlas);
     }
 
@@ -44,7 +45,9 @@ class Test extends State {
         simulationLayer.addChild(ivanka.display);
         addChild(ivanka);
         
-        
+       // stage.defaultCamera().offsetX=-1280/2;
+       // stage.defaultCamera().offsetX=-720/2;
+       // stage.defaultCamera().rotation=Math.PI/4;
         
         stage.addChild(simulationLayer);
         var tilemap:Tilemap=new Tilemap();
