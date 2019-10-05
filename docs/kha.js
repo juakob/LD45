@@ -4880,8 +4880,19 @@ com_gEngine_display_BasicSprite.prototype = {
 	,height: function() {
 		return this.animationData.frames[this.timeline.currentFrame].drawArea.get_height();
 	}
+	,get_smooth: function() {
+		return this.textureFilter == 1;
+	}
+	,set_smooth: function(value) {
+		if(!value) {
+			this.textureFilter = 0;
+		} else {
+			this.textureFilter = 1;
+		}
+		return value;
+	}
 	,__class__: com_gEngine_display_BasicSprite
-	,__properties__: {set_skewY:"set_skewY",set_skewX:"set_skewX",set_rotation:"set_rotation"}
+	,__properties__: {set_smooth:"set_smooth",get_smooth:"get_smooth",set_skewY:"set_skewY",set_skewX:"set_skewX",set_rotation:"set_rotation"}
 };
 var com_gEngine_display_Blend = function() {
 };
@@ -5017,14 +5028,14 @@ com_gEngine_display_Layer.prototype = {
 	,scaleArea: null
 	,transform: null
 	,calculateTransform: function(transform) {
-		var _this__00 = 1;
+		var _this__00 = this.scaleX;
 		var _this__10 = 0;
 		var _this__20 = 0;
-		var _this__30 = -this.pivotX;
+		var _this__30 = 0;
 		var _this__01 = 0;
-		var _this__11 = 1;
+		var _this__11 = this.scaleY;
 		var _this__21 = 0;
-		var _this__31 = -this.pivotY;
+		var _this__31 = 0;
 		var _this__02 = 0;
 		var _this__12 = 0;
 		var _this__22 = 1;
@@ -5033,14 +5044,14 @@ com_gEngine_display_Layer.prototype = {
 		var _this__13 = 0;
 		var _this__23 = 0;
 		var _this__33 = 1;
-		var m__00 = this.scaleX;
+		var m__00 = 1;
 		var m__10 = 0;
 		var m__20 = 0;
-		var m__30 = 0;
+		var m__30 = -this.pivotX;
 		var m__01 = 0;
-		var m__11 = this.scaleY;
+		var m__11 = 1;
 		var m__21 = 0;
-		var m__31 = 0;
+		var m__31 = -this.pivotY;
 		var m__02 = 0;
 		var m__12 = 0;
 		var m__22 = 1;
@@ -5049,102 +5060,102 @@ com_gEngine_display_Layer.prototype = {
 		var m__13 = 0;
 		var m__23 = 0;
 		var m__33 = 1;
-		var model1__00 = _this__00 * m__00 + _this__10 * m__01 + _this__20 * m__02 + _this__30 * m__03;
-		var model1__10 = _this__00 * m__10 + _this__10 * m__11 + _this__20 * m__12 + _this__30 * m__13;
-		var model1__20 = _this__00 * m__20 + _this__10 * m__21 + _this__20 * m__22 + _this__30 * m__23;
-		var model1__30 = _this__00 * m__30 + _this__10 * m__31 + _this__20 * m__32 + _this__30 * m__33;
-		var model1__01 = _this__01 * m__00 + _this__11 * m__01 + _this__21 * m__02 + _this__31 * m__03;
-		var model1__11 = _this__01 * m__10 + _this__11 * m__11 + _this__21 * m__12 + _this__31 * m__13;
-		var model1__21 = _this__01 * m__20 + _this__11 * m__21 + _this__21 * m__22 + _this__31 * m__23;
-		var model1__31 = _this__01 * m__30 + _this__11 * m__31 + _this__21 * m__32 + _this__31 * m__33;
-		var model1__02 = _this__02 * m__00 + _this__12 * m__01 + _this__22 * m__02 + _this__32 * m__03;
-		var model1__12 = _this__02 * m__10 + _this__12 * m__11 + _this__22 * m__12 + _this__32 * m__13;
-		var model1__22 = _this__02 * m__20 + _this__12 * m__21 + _this__22 * m__22 + _this__32 * m__23;
-		var model1__32 = _this__02 * m__30 + _this__12 * m__31 + _this__22 * m__32 + _this__32 * m__33;
-		var model1__03 = _this__03 * m__00 + _this__13 * m__01 + _this__23 * m__02 + _this__33 * m__03;
-		var model1__13 = _this__03 * m__10 + _this__13 * m__11 + _this__23 * m__12 + _this__33 * m__13;
-		var model1__23 = _this__03 * m__20 + _this__13 * m__21 + _this__23 * m__22 + _this__33 * m__23;
-		var model1__33 = _this__03 * m__30 + _this__13 * m__31 + _this__23 * m__32 + _this__33 * m__33;
-		var m__001 = this.cosAng;
-		var m__101 = -this.sinAng;
-		var m__201 = 0;
-		var m__301 = 0;
-		var m__011 = this.sinAng;
-		var m__111 = this.cosAng;
-		var m__211 = 0;
-		var m__311 = 0;
-		var m__021 = 0;
-		var m__121 = 0;
-		var m__221 = 1;
-		var m__321 = 0;
-		var m__031 = 0;
-		var m__131 = 0;
-		var m__231 = 0;
-		var m__331 = 1;
-		var model2__00 = model1__00 * m__001 + model1__10 * m__011 + model1__20 * m__021 + model1__30 * m__031;
-		var model2__10 = model1__00 * m__101 + model1__10 * m__111 + model1__20 * m__121 + model1__30 * m__131;
-		var model2__20 = model1__00 * m__201 + model1__10 * m__211 + model1__20 * m__221 + model1__30 * m__231;
-		var model2__30 = model1__00 * m__301 + model1__10 * m__311 + model1__20 * m__321 + model1__30 * m__331;
-		var model2__01 = model1__01 * m__001 + model1__11 * m__011 + model1__21 * m__021 + model1__31 * m__031;
-		var model2__11 = model1__01 * m__101 + model1__11 * m__111 + model1__21 * m__121 + model1__31 * m__131;
-		var model2__21 = model1__01 * m__201 + model1__11 * m__211 + model1__21 * m__221 + model1__31 * m__231;
-		var model2__31 = model1__01 * m__301 + model1__11 * m__311 + model1__21 * m__321 + model1__31 * m__331;
-		var model2__02 = model1__02 * m__001 + model1__12 * m__011 + model1__22 * m__021 + model1__32 * m__031;
-		var model2__12 = model1__02 * m__101 + model1__12 * m__111 + model1__22 * m__121 + model1__32 * m__131;
-		var model2__22 = model1__02 * m__201 + model1__12 * m__211 + model1__22 * m__221 + model1__32 * m__231;
-		var model2__32 = model1__02 * m__301 + model1__12 * m__311 + model1__22 * m__321 + model1__32 * m__331;
-		var model2__03 = model1__03 * m__001 + model1__13 * m__011 + model1__23 * m__021 + model1__33 * m__031;
-		var model2__13 = model1__03 * m__101 + model1__13 * m__111 + model1__23 * m__121 + model1__33 * m__131;
-		var model2__23 = model1__03 * m__201 + model1__13 * m__211 + model1__23 * m__221 + model1__33 * m__231;
-		var model2__33 = model1__03 * m__301 + model1__13 * m__311 + model1__23 * m__321 + model1__33 * m__331;
-		var m__002 = 1;
-		var m__102 = 0;
-		var m__202 = 0;
-		var m__302 = this.x;
-		var m__012 = 0;
-		var m__112 = 1;
-		var m__212 = 0;
-		var m__312 = this.y;
-		var m__022 = 0;
-		var m__122 = 0;
-		var m__222 = 1;
-		var m__322 = this.z;
-		var m__032 = 0;
-		var m__132 = 0;
-		var m__232 = 0;
-		var m__332 = 1;
-		var model3__00 = model2__00 * m__002 + model2__10 * m__012 + model2__20 * m__022 + model2__30 * m__032;
-		var model3__10 = model2__00 * m__102 + model2__10 * m__112 + model2__20 * m__122 + model2__30 * m__132;
-		var model3__20 = model2__00 * m__202 + model2__10 * m__212 + model2__20 * m__222 + model2__30 * m__232;
-		var model3__30 = model2__00 * m__302 + model2__10 * m__312 + model2__20 * m__322 + model2__30 * m__332;
-		var model3__01 = model2__01 * m__002 + model2__11 * m__012 + model2__21 * m__022 + model2__31 * m__032;
-		var model3__11 = model2__01 * m__102 + model2__11 * m__112 + model2__21 * m__122 + model2__31 * m__132;
-		var model3__21 = model2__01 * m__202 + model2__11 * m__212 + model2__21 * m__222 + model2__31 * m__232;
-		var model3__31 = model2__01 * m__302 + model2__11 * m__312 + model2__21 * m__322 + model2__31 * m__332;
-		var model3__02 = model2__02 * m__002 + model2__12 * m__012 + model2__22 * m__022 + model2__32 * m__032;
-		var model3__12 = model2__02 * m__102 + model2__12 * m__112 + model2__22 * m__122 + model2__32 * m__132;
-		var model3__22 = model2__02 * m__202 + model2__12 * m__212 + model2__22 * m__222 + model2__32 * m__232;
-		var model3__32 = model2__02 * m__302 + model2__12 * m__312 + model2__22 * m__322 + model2__32 * m__332;
-		var model3__03 = model2__03 * m__002 + model2__13 * m__012 + model2__23 * m__022 + model2__33 * m__032;
-		var model3__13 = model2__03 * m__102 + model2__13 * m__112 + model2__23 * m__122 + model2__33 * m__132;
-		var model3__23 = model2__03 * m__202 + model2__13 * m__212 + model2__23 * m__222 + model2__33 * m__232;
-		var model3__33 = model2__03 * m__302 + model2__13 * m__312 + model2__23 * m__322 + model2__33 * m__332;
-		var model__00 = transform._00 * model3__00 + transform._10 * model3__01 + transform._20 * model3__02 + transform._30 * model3__03;
-		var model__10 = transform._00 * model3__10 + transform._10 * model3__11 + transform._20 * model3__12 + transform._30 * model3__13;
-		var model__20 = transform._00 * model3__20 + transform._10 * model3__21 + transform._20 * model3__22 + transform._30 * model3__23;
-		var model__30 = transform._00 * model3__30 + transform._10 * model3__31 + transform._20 * model3__32 + transform._30 * model3__33;
-		var model__01 = transform._01 * model3__00 + transform._11 * model3__01 + transform._21 * model3__02 + transform._31 * model3__03;
-		var model__11 = transform._01 * model3__10 + transform._11 * model3__11 + transform._21 * model3__12 + transform._31 * model3__13;
-		var model__21 = transform._01 * model3__20 + transform._11 * model3__21 + transform._21 * model3__22 + transform._31 * model3__23;
-		var model__31 = transform._01 * model3__30 + transform._11 * model3__31 + transform._21 * model3__32 + transform._31 * model3__33;
-		var model__02 = transform._02 * model3__00 + transform._12 * model3__01 + transform._22 * model3__02 + transform._32 * model3__03;
-		var model__12 = transform._02 * model3__10 + transform._12 * model3__11 + transform._22 * model3__12 + transform._32 * model3__13;
-		var model__22 = transform._02 * model3__20 + transform._12 * model3__21 + transform._22 * model3__22 + transform._32 * model3__23;
-		var model__32 = transform._02 * model3__30 + transform._12 * model3__31 + transform._22 * model3__32 + transform._32 * model3__33;
-		var model__03 = transform._03 * model3__00 + transform._13 * model3__01 + transform._23 * model3__02 + transform._33 * model3__03;
-		var model__13 = transform._03 * model3__10 + transform._13 * model3__11 + transform._23 * model3__12 + transform._33 * model3__13;
-		var model__23 = transform._03 * model3__20 + transform._13 * model3__21 + transform._23 * model3__22 + transform._33 * model3__23;
-		var model__33 = transform._03 * model3__30 + transform._13 * model3__31 + transform._23 * model3__32 + transform._33 * model3__33;
+		var scale__00 = _this__00 * m__00 + _this__10 * m__01 + _this__20 * m__02 + _this__30 * m__03;
+		var scale__10 = _this__00 * m__10 + _this__10 * m__11 + _this__20 * m__12 + _this__30 * m__13;
+		var scale__20 = _this__00 * m__20 + _this__10 * m__21 + _this__20 * m__22 + _this__30 * m__23;
+		var scale__30 = _this__00 * m__30 + _this__10 * m__31 + _this__20 * m__32 + _this__30 * m__33;
+		var scale__01 = _this__01 * m__00 + _this__11 * m__01 + _this__21 * m__02 + _this__31 * m__03;
+		var scale__11 = _this__01 * m__10 + _this__11 * m__11 + _this__21 * m__12 + _this__31 * m__13;
+		var scale__21 = _this__01 * m__20 + _this__11 * m__21 + _this__21 * m__22 + _this__31 * m__23;
+		var scale__31 = _this__01 * m__30 + _this__11 * m__31 + _this__21 * m__32 + _this__31 * m__33;
+		var scale__02 = _this__02 * m__00 + _this__12 * m__01 + _this__22 * m__02 + _this__32 * m__03;
+		var scale__12 = _this__02 * m__10 + _this__12 * m__11 + _this__22 * m__12 + _this__32 * m__13;
+		var scale__22 = _this__02 * m__20 + _this__12 * m__21 + _this__22 * m__22 + _this__32 * m__23;
+		var scale__32 = _this__02 * m__30 + _this__12 * m__31 + _this__22 * m__32 + _this__32 * m__33;
+		var scale__03 = _this__03 * m__00 + _this__13 * m__01 + _this__23 * m__02 + _this__33 * m__03;
+		var scale__13 = _this__03 * m__10 + _this__13 * m__11 + _this__23 * m__12 + _this__33 * m__13;
+		var scale__23 = _this__03 * m__20 + _this__13 * m__21 + _this__23 * m__22 + _this__33 * m__23;
+		var scale__33 = _this__03 * m__30 + _this__13 * m__31 + _this__23 * m__32 + _this__33 * m__33;
+		var rotation__00 = this.cosAng;
+		var rotation__10 = -this.sinAng;
+		var rotation__20 = 0;
+		var rotation__30 = 0;
+		var rotation__01 = this.sinAng;
+		var rotation__11 = this.cosAng;
+		var rotation__21 = 0;
+		var rotation__31 = 0;
+		var rotation__02 = 0;
+		var rotation__12 = 0;
+		var rotation__22 = 1;
+		var rotation__32 = 0;
+		var rotation__03 = 0;
+		var rotation__13 = 0;
+		var rotation__23 = 0;
+		var rotation__33 = 1;
+		var translation__00 = 1;
+		var translation__10 = 0;
+		var translation__20 = 0;
+		var translation__30 = this.x;
+		var translation__01 = 0;
+		var translation__11 = 1;
+		var translation__21 = 0;
+		var translation__31 = this.y;
+		var translation__02 = 0;
+		var translation__12 = 0;
+		var translation__22 = 1;
+		var translation__32 = this.z;
+		var translation__03 = 0;
+		var translation__13 = 0;
+		var translation__23 = 0;
+		var translation__33 = 1;
+		var _this__001 = translation__00 * scale__00 + translation__10 * scale__01 + translation__20 * scale__02 + translation__30 * scale__03;
+		var _this__101 = translation__00 * scale__10 + translation__10 * scale__11 + translation__20 * scale__12 + translation__30 * scale__13;
+		var _this__201 = translation__00 * scale__20 + translation__10 * scale__21 + translation__20 * scale__22 + translation__30 * scale__23;
+		var _this__301 = translation__00 * scale__30 + translation__10 * scale__31 + translation__20 * scale__32 + translation__30 * scale__33;
+		var _this__011 = translation__01 * scale__00 + translation__11 * scale__01 + translation__21 * scale__02 + translation__31 * scale__03;
+		var _this__111 = translation__01 * scale__10 + translation__11 * scale__11 + translation__21 * scale__12 + translation__31 * scale__13;
+		var _this__211 = translation__01 * scale__20 + translation__11 * scale__21 + translation__21 * scale__22 + translation__31 * scale__23;
+		var _this__311 = translation__01 * scale__30 + translation__11 * scale__31 + translation__21 * scale__32 + translation__31 * scale__33;
+		var _this__021 = translation__02 * scale__00 + translation__12 * scale__01 + translation__22 * scale__02 + translation__32 * scale__03;
+		var _this__121 = translation__02 * scale__10 + translation__12 * scale__11 + translation__22 * scale__12 + translation__32 * scale__13;
+		var _this__221 = translation__02 * scale__20 + translation__12 * scale__21 + translation__22 * scale__22 + translation__32 * scale__23;
+		var _this__321 = translation__02 * scale__30 + translation__12 * scale__31 + translation__22 * scale__32 + translation__32 * scale__33;
+		var _this__031 = translation__03 * scale__00 + translation__13 * scale__01 + translation__23 * scale__02 + translation__33 * scale__03;
+		var _this__131 = translation__03 * scale__10 + translation__13 * scale__11 + translation__23 * scale__12 + translation__33 * scale__13;
+		var _this__231 = translation__03 * scale__20 + translation__13 * scale__21 + translation__23 * scale__22 + translation__33 * scale__23;
+		var _this__331 = translation__03 * scale__30 + translation__13 * scale__31 + translation__23 * scale__32 + translation__33 * scale__33;
+		var m__001 = _this__001 * rotation__00 + _this__101 * rotation__01 + _this__201 * rotation__02 + _this__301 * rotation__03;
+		var m__101 = _this__001 * rotation__10 + _this__101 * rotation__11 + _this__201 * rotation__12 + _this__301 * rotation__13;
+		var m__201 = _this__001 * rotation__20 + _this__101 * rotation__21 + _this__201 * rotation__22 + _this__301 * rotation__23;
+		var m__301 = _this__001 * rotation__30 + _this__101 * rotation__31 + _this__201 * rotation__32 + _this__301 * rotation__33;
+		var m__011 = _this__011 * rotation__00 + _this__111 * rotation__01 + _this__211 * rotation__02 + _this__311 * rotation__03;
+		var m__111 = _this__011 * rotation__10 + _this__111 * rotation__11 + _this__211 * rotation__12 + _this__311 * rotation__13;
+		var m__211 = _this__011 * rotation__20 + _this__111 * rotation__21 + _this__211 * rotation__22 + _this__311 * rotation__23;
+		var m__311 = _this__011 * rotation__30 + _this__111 * rotation__31 + _this__211 * rotation__32 + _this__311 * rotation__33;
+		var m__021 = _this__021 * rotation__00 + _this__121 * rotation__01 + _this__221 * rotation__02 + _this__321 * rotation__03;
+		var m__121 = _this__021 * rotation__10 + _this__121 * rotation__11 + _this__221 * rotation__12 + _this__321 * rotation__13;
+		var m__221 = _this__021 * rotation__20 + _this__121 * rotation__21 + _this__221 * rotation__22 + _this__321 * rotation__23;
+		var m__321 = _this__021 * rotation__30 + _this__121 * rotation__31 + _this__221 * rotation__32 + _this__321 * rotation__33;
+		var m__031 = _this__031 * rotation__00 + _this__131 * rotation__01 + _this__231 * rotation__02 + _this__331 * rotation__03;
+		var m__131 = _this__031 * rotation__10 + _this__131 * rotation__11 + _this__231 * rotation__12 + _this__331 * rotation__13;
+		var m__231 = _this__031 * rotation__20 + _this__131 * rotation__21 + _this__231 * rotation__22 + _this__331 * rotation__23;
+		var m__331 = _this__031 * rotation__30 + _this__131 * rotation__31 + _this__231 * rotation__32 + _this__331 * rotation__33;
+		var model__00 = transform._00 * m__001 + transform._10 * m__011 + transform._20 * m__021 + transform._30 * m__031;
+		var model__10 = transform._00 * m__101 + transform._10 * m__111 + transform._20 * m__121 + transform._30 * m__131;
+		var model__20 = transform._00 * m__201 + transform._10 * m__211 + transform._20 * m__221 + transform._30 * m__231;
+		var model__30 = transform._00 * m__301 + transform._10 * m__311 + transform._20 * m__321 + transform._30 * m__331;
+		var model__01 = transform._01 * m__001 + transform._11 * m__011 + transform._21 * m__021 + transform._31 * m__031;
+		var model__11 = transform._01 * m__101 + transform._11 * m__111 + transform._21 * m__121 + transform._31 * m__131;
+		var model__21 = transform._01 * m__201 + transform._11 * m__211 + transform._21 * m__221 + transform._31 * m__231;
+		var model__31 = transform._01 * m__301 + transform._11 * m__311 + transform._21 * m__321 + transform._31 * m__331;
+		var model__02 = transform._02 * m__001 + transform._12 * m__011 + transform._22 * m__021 + transform._32 * m__031;
+		var model__12 = transform._02 * m__101 + transform._12 * m__111 + transform._22 * m__121 + transform._32 * m__131;
+		var model__22 = transform._02 * m__201 + transform._12 * m__211 + transform._22 * m__221 + transform._32 * m__231;
+		var model__32 = transform._02 * m__301 + transform._12 * m__311 + transform._22 * m__321 + transform._32 * m__331;
+		var model__03 = transform._03 * m__001 + transform._13 * m__011 + transform._23 * m__021 + transform._33 * m__031;
+		var model__13 = transform._03 * m__101 + transform._13 * m__111 + transform._23 * m__121 + transform._33 * m__131;
+		var model__23 = transform._03 * m__201 + transform._13 * m__211 + transform._23 * m__221 + transform._33 * m__231;
+		var model__33 = transform._03 * m__301 + transform._13 * m__311 + transform._23 * m__321 + transform._33 * m__331;
 		model__30 *= this.paralaxX;
 		model__31 *= this.paralaxY;
 		var _this = this.transform;
@@ -5166,161 +5177,15 @@ com_gEngine_display_Layer.prototype = {
 		_this._33 = model__33;
 	}
 	,render: function(paintMode,transform) {
-		var _this__00 = 1;
-		var _this__10 = 0;
-		var _this__20 = 0;
-		var _this__30 = -this.pivotX;
-		var _this__01 = 0;
-		var _this__11 = 1;
-		var _this__21 = 0;
-		var _this__31 = -this.pivotY;
-		var _this__02 = 0;
-		var _this__12 = 0;
-		var _this__22 = 1;
-		var _this__32 = 0;
-		var _this__03 = 0;
-		var _this__13 = 0;
-		var _this__23 = 0;
-		var _this__33 = 1;
-		var m__00 = this.scaleX;
-		var m__10 = 0;
-		var m__20 = 0;
-		var m__30 = 0;
-		var m__01 = 0;
-		var m__11 = this.scaleY;
-		var m__21 = 0;
-		var m__31 = 0;
-		var m__02 = 0;
-		var m__12 = 0;
-		var m__22 = 1;
-		var m__32 = 0;
-		var m__03 = 0;
-		var m__13 = 0;
-		var m__23 = 0;
-		var m__33 = 1;
-		var model1__00 = _this__00 * m__00 + _this__10 * m__01 + _this__20 * m__02 + _this__30 * m__03;
-		var model1__10 = _this__00 * m__10 + _this__10 * m__11 + _this__20 * m__12 + _this__30 * m__13;
-		var model1__20 = _this__00 * m__20 + _this__10 * m__21 + _this__20 * m__22 + _this__30 * m__23;
-		var model1__30 = _this__00 * m__30 + _this__10 * m__31 + _this__20 * m__32 + _this__30 * m__33;
-		var model1__01 = _this__01 * m__00 + _this__11 * m__01 + _this__21 * m__02 + _this__31 * m__03;
-		var model1__11 = _this__01 * m__10 + _this__11 * m__11 + _this__21 * m__12 + _this__31 * m__13;
-		var model1__21 = _this__01 * m__20 + _this__11 * m__21 + _this__21 * m__22 + _this__31 * m__23;
-		var model1__31 = _this__01 * m__30 + _this__11 * m__31 + _this__21 * m__32 + _this__31 * m__33;
-		var model1__02 = _this__02 * m__00 + _this__12 * m__01 + _this__22 * m__02 + _this__32 * m__03;
-		var model1__12 = _this__02 * m__10 + _this__12 * m__11 + _this__22 * m__12 + _this__32 * m__13;
-		var model1__22 = _this__02 * m__20 + _this__12 * m__21 + _this__22 * m__22 + _this__32 * m__23;
-		var model1__32 = _this__02 * m__30 + _this__12 * m__31 + _this__22 * m__32 + _this__32 * m__33;
-		var model1__03 = _this__03 * m__00 + _this__13 * m__01 + _this__23 * m__02 + _this__33 * m__03;
-		var model1__13 = _this__03 * m__10 + _this__13 * m__11 + _this__23 * m__12 + _this__33 * m__13;
-		var model1__23 = _this__03 * m__20 + _this__13 * m__21 + _this__23 * m__22 + _this__33 * m__23;
-		var model1__33 = _this__03 * m__30 + _this__13 * m__31 + _this__23 * m__32 + _this__33 * m__33;
-		var m__001 = this.cosAng;
-		var m__101 = -this.sinAng;
-		var m__201 = 0;
-		var m__301 = 0;
-		var m__011 = this.sinAng;
-		var m__111 = this.cosAng;
-		var m__211 = 0;
-		var m__311 = 0;
-		var m__021 = 0;
-		var m__121 = 0;
-		var m__221 = 1;
-		var m__321 = 0;
-		var m__031 = 0;
-		var m__131 = 0;
-		var m__231 = 0;
-		var m__331 = 1;
-		var model2__00 = model1__00 * m__001 + model1__10 * m__011 + model1__20 * m__021 + model1__30 * m__031;
-		var model2__10 = model1__00 * m__101 + model1__10 * m__111 + model1__20 * m__121 + model1__30 * m__131;
-		var model2__20 = model1__00 * m__201 + model1__10 * m__211 + model1__20 * m__221 + model1__30 * m__231;
-		var model2__30 = model1__00 * m__301 + model1__10 * m__311 + model1__20 * m__321 + model1__30 * m__331;
-		var model2__01 = model1__01 * m__001 + model1__11 * m__011 + model1__21 * m__021 + model1__31 * m__031;
-		var model2__11 = model1__01 * m__101 + model1__11 * m__111 + model1__21 * m__121 + model1__31 * m__131;
-		var model2__21 = model1__01 * m__201 + model1__11 * m__211 + model1__21 * m__221 + model1__31 * m__231;
-		var model2__31 = model1__01 * m__301 + model1__11 * m__311 + model1__21 * m__321 + model1__31 * m__331;
-		var model2__02 = model1__02 * m__001 + model1__12 * m__011 + model1__22 * m__021 + model1__32 * m__031;
-		var model2__12 = model1__02 * m__101 + model1__12 * m__111 + model1__22 * m__121 + model1__32 * m__131;
-		var model2__22 = model1__02 * m__201 + model1__12 * m__211 + model1__22 * m__221 + model1__32 * m__231;
-		var model2__32 = model1__02 * m__301 + model1__12 * m__311 + model1__22 * m__321 + model1__32 * m__331;
-		var model2__03 = model1__03 * m__001 + model1__13 * m__011 + model1__23 * m__021 + model1__33 * m__031;
-		var model2__13 = model1__03 * m__101 + model1__13 * m__111 + model1__23 * m__121 + model1__33 * m__131;
-		var model2__23 = model1__03 * m__201 + model1__13 * m__211 + model1__23 * m__221 + model1__33 * m__231;
-		var model2__33 = model1__03 * m__301 + model1__13 * m__311 + model1__23 * m__321 + model1__33 * m__331;
-		var m__002 = 1;
-		var m__102 = 0;
-		var m__202 = 0;
-		var m__302 = this.x;
-		var m__012 = 0;
-		var m__112 = 1;
-		var m__212 = 0;
-		var m__312 = this.y;
-		var m__022 = 0;
-		var m__122 = 0;
-		var m__222 = 1;
-		var m__322 = this.z;
-		var m__032 = 0;
-		var m__132 = 0;
-		var m__232 = 0;
-		var m__332 = 1;
-		var model3__00 = model2__00 * m__002 + model2__10 * m__012 + model2__20 * m__022 + model2__30 * m__032;
-		var model3__10 = model2__00 * m__102 + model2__10 * m__112 + model2__20 * m__122 + model2__30 * m__132;
-		var model3__20 = model2__00 * m__202 + model2__10 * m__212 + model2__20 * m__222 + model2__30 * m__232;
-		var model3__30 = model2__00 * m__302 + model2__10 * m__312 + model2__20 * m__322 + model2__30 * m__332;
-		var model3__01 = model2__01 * m__002 + model2__11 * m__012 + model2__21 * m__022 + model2__31 * m__032;
-		var model3__11 = model2__01 * m__102 + model2__11 * m__112 + model2__21 * m__122 + model2__31 * m__132;
-		var model3__21 = model2__01 * m__202 + model2__11 * m__212 + model2__21 * m__222 + model2__31 * m__232;
-		var model3__31 = model2__01 * m__302 + model2__11 * m__312 + model2__21 * m__322 + model2__31 * m__332;
-		var model3__02 = model2__02 * m__002 + model2__12 * m__012 + model2__22 * m__022 + model2__32 * m__032;
-		var model3__12 = model2__02 * m__102 + model2__12 * m__112 + model2__22 * m__122 + model2__32 * m__132;
-		var model3__22 = model2__02 * m__202 + model2__12 * m__212 + model2__22 * m__222 + model2__32 * m__232;
-		var model3__32 = model2__02 * m__302 + model2__12 * m__312 + model2__22 * m__322 + model2__32 * m__332;
-		var model3__03 = model2__03 * m__002 + model2__13 * m__012 + model2__23 * m__022 + model2__33 * m__032;
-		var model3__13 = model2__03 * m__102 + model2__13 * m__112 + model2__23 * m__122 + model2__33 * m__132;
-		var model3__23 = model2__03 * m__202 + model2__13 * m__212 + model2__23 * m__222 + model2__33 * m__232;
-		var model3__33 = model2__03 * m__302 + model2__13 * m__312 + model2__23 * m__322 + model2__33 * m__332;
-		var model__00 = transform._00 * model3__00 + transform._10 * model3__01 + transform._20 * model3__02 + transform._30 * model3__03;
-		var model__10 = transform._00 * model3__10 + transform._10 * model3__11 + transform._20 * model3__12 + transform._30 * model3__13;
-		var model__20 = transform._00 * model3__20 + transform._10 * model3__21 + transform._20 * model3__22 + transform._30 * model3__23;
-		var model__30 = transform._00 * model3__30 + transform._10 * model3__31 + transform._20 * model3__32 + transform._30 * model3__33;
-		var model__01 = transform._01 * model3__00 + transform._11 * model3__01 + transform._21 * model3__02 + transform._31 * model3__03;
-		var model__11 = transform._01 * model3__10 + transform._11 * model3__11 + transform._21 * model3__12 + transform._31 * model3__13;
-		var model__21 = transform._01 * model3__20 + transform._11 * model3__21 + transform._21 * model3__22 + transform._31 * model3__23;
-		var model__31 = transform._01 * model3__30 + transform._11 * model3__31 + transform._21 * model3__32 + transform._31 * model3__33;
-		var model__02 = transform._02 * model3__00 + transform._12 * model3__01 + transform._22 * model3__02 + transform._32 * model3__03;
-		var model__12 = transform._02 * model3__10 + transform._12 * model3__11 + transform._22 * model3__12 + transform._32 * model3__13;
-		var model__22 = transform._02 * model3__20 + transform._12 * model3__21 + transform._22 * model3__22 + transform._32 * model3__23;
-		var model__32 = transform._02 * model3__30 + transform._12 * model3__31 + transform._22 * model3__32 + transform._32 * model3__33;
-		var model__03 = transform._03 * model3__00 + transform._13 * model3__01 + transform._23 * model3__02 + transform._33 * model3__03;
-		var model__13 = transform._03 * model3__10 + transform._13 * model3__11 + transform._23 * model3__12 + transform._33 * model3__13;
-		var model__23 = transform._03 * model3__20 + transform._13 * model3__21 + transform._23 * model3__22 + transform._33 * model3__23;
-		var model__33 = transform._03 * model3__30 + transform._13 * model3__31 + transform._23 * model3__32 + transform._33 * model3__33;
-		model__30 *= this.paralaxX;
-		model__31 *= this.paralaxY;
-		var _this = this.transform;
-		_this._00 = model__00;
-		_this._10 = model__10;
-		_this._20 = model__20;
-		_this._30 = model__30;
-		_this._01 = model__01;
-		_this._11 = model__11;
-		_this._21 = model__21;
-		_this._31 = model__31;
-		_this._02 = model__02;
-		_this._12 = model__12;
-		_this._22 = model__22;
-		_this._32 = model__32;
-		_this._03 = model__03;
-		_this._13 = model__13;
-		_this._23 = model__23;
-		_this._33 = model__33;
+		this.calculateTransform(transform);
 		if(!this.visible) {
 			return;
 		}
 		if(this.drawArea != null) {
 			paintMode.render();
-			var _this1 = this.scaleArea;
+			var _this = this.scaleArea;
 			var minMax = this.drawArea;
-			var _this2 = _this1.max;
+			var _this1 = _this.max;
 			var x = minMax.max.x;
 			var y = minMax.max.y;
 			if(y == null) {
@@ -5329,9 +5194,9 @@ com_gEngine_display_Layer.prototype = {
 			if(x == null) {
 				x = 0;
 			}
-			_this2.x = x;
-			_this2.y = y;
-			var _this3 = _this1.min;
+			_this1.x = x;
+			_this1.y = y;
+			var _this2 = _this.min;
 			var x1 = minMax.min.x;
 			var y1 = minMax.min.y;
 			if(y1 == null) {
@@ -5340,18 +5205,18 @@ com_gEngine_display_Layer.prototype = {
 			if(x1 == null) {
 				x1 = 0;
 			}
-			_this3.x = x1;
-			_this3.y = y1;
-			_this1.minZ = -869.1168;
-			_this1.maxZ = -869.1168;
-			_this1.isEmpty = _this1.width() < 0 || _this1.height() < 0;
-			var _this4 = this.scaleArea;
+			_this2.x = x1;
+			_this2.y = y1;
+			_this.minZ = -869.1168;
+			_this.maxZ = -869.1168;
+			_this.isEmpty = _this.width() < 0 || _this.height() < 0;
+			var _this3 = this.scaleArea;
 			var scaleX = com_gEngine_GEngine.get_i().scaleWidth;
 			var scaleY = com_gEngine_GEngine.get_i().scaleHeigth;
-			_this4.min.x *= scaleX;
-			_this4.min.y *= scaleY;
-			_this4.max.x *= scaleX;
-			_this4.max.y *= scaleY;
+			_this3.min.x *= scaleX;
+			_this3.min.y *= scaleY;
+			_this3.max.x *= scaleX;
+			_this3.max.y *= scaleY;
 			paintMode.adjustRenderArea(this.scaleArea);
 		}
 		if(this.filter == null) {
@@ -5372,155 +5237,9 @@ com_gEngine_display_Layer.prototype = {
 	}
 	,drawAreaTemp: null
 	,getDrawArea: function(value,transform) {
-		var _this__00 = 1;
-		var _this__10 = 0;
-		var _this__20 = 0;
-		var _this__30 = -this.pivotX;
-		var _this__01 = 0;
-		var _this__11 = 1;
-		var _this__21 = 0;
-		var _this__31 = -this.pivotY;
-		var _this__02 = 0;
-		var _this__12 = 0;
-		var _this__22 = 1;
-		var _this__32 = 0;
-		var _this__03 = 0;
-		var _this__13 = 0;
-		var _this__23 = 0;
-		var _this__33 = 1;
-		var m__00 = this.scaleX;
-		var m__10 = 0;
-		var m__20 = 0;
-		var m__30 = 0;
-		var m__01 = 0;
-		var m__11 = this.scaleY;
-		var m__21 = 0;
-		var m__31 = 0;
-		var m__02 = 0;
-		var m__12 = 0;
-		var m__22 = 1;
-		var m__32 = 0;
-		var m__03 = 0;
-		var m__13 = 0;
-		var m__23 = 0;
-		var m__33 = 1;
-		var model1__00 = _this__00 * m__00 + _this__10 * m__01 + _this__20 * m__02 + _this__30 * m__03;
-		var model1__10 = _this__00 * m__10 + _this__10 * m__11 + _this__20 * m__12 + _this__30 * m__13;
-		var model1__20 = _this__00 * m__20 + _this__10 * m__21 + _this__20 * m__22 + _this__30 * m__23;
-		var model1__30 = _this__00 * m__30 + _this__10 * m__31 + _this__20 * m__32 + _this__30 * m__33;
-		var model1__01 = _this__01 * m__00 + _this__11 * m__01 + _this__21 * m__02 + _this__31 * m__03;
-		var model1__11 = _this__01 * m__10 + _this__11 * m__11 + _this__21 * m__12 + _this__31 * m__13;
-		var model1__21 = _this__01 * m__20 + _this__11 * m__21 + _this__21 * m__22 + _this__31 * m__23;
-		var model1__31 = _this__01 * m__30 + _this__11 * m__31 + _this__21 * m__32 + _this__31 * m__33;
-		var model1__02 = _this__02 * m__00 + _this__12 * m__01 + _this__22 * m__02 + _this__32 * m__03;
-		var model1__12 = _this__02 * m__10 + _this__12 * m__11 + _this__22 * m__12 + _this__32 * m__13;
-		var model1__22 = _this__02 * m__20 + _this__12 * m__21 + _this__22 * m__22 + _this__32 * m__23;
-		var model1__32 = _this__02 * m__30 + _this__12 * m__31 + _this__22 * m__32 + _this__32 * m__33;
-		var model1__03 = _this__03 * m__00 + _this__13 * m__01 + _this__23 * m__02 + _this__33 * m__03;
-		var model1__13 = _this__03 * m__10 + _this__13 * m__11 + _this__23 * m__12 + _this__33 * m__13;
-		var model1__23 = _this__03 * m__20 + _this__13 * m__21 + _this__23 * m__22 + _this__33 * m__23;
-		var model1__33 = _this__03 * m__30 + _this__13 * m__31 + _this__23 * m__32 + _this__33 * m__33;
-		var m__001 = this.cosAng;
-		var m__101 = -this.sinAng;
-		var m__201 = 0;
-		var m__301 = 0;
-		var m__011 = this.sinAng;
-		var m__111 = this.cosAng;
-		var m__211 = 0;
-		var m__311 = 0;
-		var m__021 = 0;
-		var m__121 = 0;
-		var m__221 = 1;
-		var m__321 = 0;
-		var m__031 = 0;
-		var m__131 = 0;
-		var m__231 = 0;
-		var m__331 = 1;
-		var model2__00 = model1__00 * m__001 + model1__10 * m__011 + model1__20 * m__021 + model1__30 * m__031;
-		var model2__10 = model1__00 * m__101 + model1__10 * m__111 + model1__20 * m__121 + model1__30 * m__131;
-		var model2__20 = model1__00 * m__201 + model1__10 * m__211 + model1__20 * m__221 + model1__30 * m__231;
-		var model2__30 = model1__00 * m__301 + model1__10 * m__311 + model1__20 * m__321 + model1__30 * m__331;
-		var model2__01 = model1__01 * m__001 + model1__11 * m__011 + model1__21 * m__021 + model1__31 * m__031;
-		var model2__11 = model1__01 * m__101 + model1__11 * m__111 + model1__21 * m__121 + model1__31 * m__131;
-		var model2__21 = model1__01 * m__201 + model1__11 * m__211 + model1__21 * m__221 + model1__31 * m__231;
-		var model2__31 = model1__01 * m__301 + model1__11 * m__311 + model1__21 * m__321 + model1__31 * m__331;
-		var model2__02 = model1__02 * m__001 + model1__12 * m__011 + model1__22 * m__021 + model1__32 * m__031;
-		var model2__12 = model1__02 * m__101 + model1__12 * m__111 + model1__22 * m__121 + model1__32 * m__131;
-		var model2__22 = model1__02 * m__201 + model1__12 * m__211 + model1__22 * m__221 + model1__32 * m__231;
-		var model2__32 = model1__02 * m__301 + model1__12 * m__311 + model1__22 * m__321 + model1__32 * m__331;
-		var model2__03 = model1__03 * m__001 + model1__13 * m__011 + model1__23 * m__021 + model1__33 * m__031;
-		var model2__13 = model1__03 * m__101 + model1__13 * m__111 + model1__23 * m__121 + model1__33 * m__131;
-		var model2__23 = model1__03 * m__201 + model1__13 * m__211 + model1__23 * m__221 + model1__33 * m__231;
-		var model2__33 = model1__03 * m__301 + model1__13 * m__311 + model1__23 * m__321 + model1__33 * m__331;
-		var m__002 = 1;
-		var m__102 = 0;
-		var m__202 = 0;
-		var m__302 = this.x;
-		var m__012 = 0;
-		var m__112 = 1;
-		var m__212 = 0;
-		var m__312 = this.y;
-		var m__022 = 0;
-		var m__122 = 0;
-		var m__222 = 1;
-		var m__322 = this.z;
-		var m__032 = 0;
-		var m__132 = 0;
-		var m__232 = 0;
-		var m__332 = 1;
-		var model3__00 = model2__00 * m__002 + model2__10 * m__012 + model2__20 * m__022 + model2__30 * m__032;
-		var model3__10 = model2__00 * m__102 + model2__10 * m__112 + model2__20 * m__122 + model2__30 * m__132;
-		var model3__20 = model2__00 * m__202 + model2__10 * m__212 + model2__20 * m__222 + model2__30 * m__232;
-		var model3__30 = model2__00 * m__302 + model2__10 * m__312 + model2__20 * m__322 + model2__30 * m__332;
-		var model3__01 = model2__01 * m__002 + model2__11 * m__012 + model2__21 * m__022 + model2__31 * m__032;
-		var model3__11 = model2__01 * m__102 + model2__11 * m__112 + model2__21 * m__122 + model2__31 * m__132;
-		var model3__21 = model2__01 * m__202 + model2__11 * m__212 + model2__21 * m__222 + model2__31 * m__232;
-		var model3__31 = model2__01 * m__302 + model2__11 * m__312 + model2__21 * m__322 + model2__31 * m__332;
-		var model3__02 = model2__02 * m__002 + model2__12 * m__012 + model2__22 * m__022 + model2__32 * m__032;
-		var model3__12 = model2__02 * m__102 + model2__12 * m__112 + model2__22 * m__122 + model2__32 * m__132;
-		var model3__22 = model2__02 * m__202 + model2__12 * m__212 + model2__22 * m__222 + model2__32 * m__232;
-		var model3__32 = model2__02 * m__302 + model2__12 * m__312 + model2__22 * m__322 + model2__32 * m__332;
-		var model3__03 = model2__03 * m__002 + model2__13 * m__012 + model2__23 * m__022 + model2__33 * m__032;
-		var model3__13 = model2__03 * m__102 + model2__13 * m__112 + model2__23 * m__122 + model2__33 * m__132;
-		var model3__23 = model2__03 * m__202 + model2__13 * m__212 + model2__23 * m__222 + model2__33 * m__232;
-		var model3__33 = model2__03 * m__302 + model2__13 * m__312 + model2__23 * m__322 + model2__33 * m__332;
-		var model__00 = transform._00 * model3__00 + transform._10 * model3__01 + transform._20 * model3__02 + transform._30 * model3__03;
-		var model__10 = transform._00 * model3__10 + transform._10 * model3__11 + transform._20 * model3__12 + transform._30 * model3__13;
-		var model__20 = transform._00 * model3__20 + transform._10 * model3__21 + transform._20 * model3__22 + transform._30 * model3__23;
-		var model__30 = transform._00 * model3__30 + transform._10 * model3__31 + transform._20 * model3__32 + transform._30 * model3__33;
-		var model__01 = transform._01 * model3__00 + transform._11 * model3__01 + transform._21 * model3__02 + transform._31 * model3__03;
-		var model__11 = transform._01 * model3__10 + transform._11 * model3__11 + transform._21 * model3__12 + transform._31 * model3__13;
-		var model__21 = transform._01 * model3__20 + transform._11 * model3__21 + transform._21 * model3__22 + transform._31 * model3__23;
-		var model__31 = transform._01 * model3__30 + transform._11 * model3__31 + transform._21 * model3__32 + transform._31 * model3__33;
-		var model__02 = transform._02 * model3__00 + transform._12 * model3__01 + transform._22 * model3__02 + transform._32 * model3__03;
-		var model__12 = transform._02 * model3__10 + transform._12 * model3__11 + transform._22 * model3__12 + transform._32 * model3__13;
-		var model__22 = transform._02 * model3__20 + transform._12 * model3__21 + transform._22 * model3__22 + transform._32 * model3__23;
-		var model__32 = transform._02 * model3__30 + transform._12 * model3__31 + transform._22 * model3__32 + transform._32 * model3__33;
-		var model__03 = transform._03 * model3__00 + transform._13 * model3__01 + transform._23 * model3__02 + transform._33 * model3__03;
-		var model__13 = transform._03 * model3__10 + transform._13 * model3__11 + transform._23 * model3__12 + transform._33 * model3__13;
-		var model__23 = transform._03 * model3__20 + transform._13 * model3__21 + transform._23 * model3__22 + transform._33 * model3__23;
-		var model__33 = transform._03 * model3__30 + transform._13 * model3__31 + transform._23 * model3__32 + transform._33 * model3__33;
-		model__30 *= this.paralaxX;
-		model__31 *= this.paralaxY;
-		var _this = this.transform;
-		_this._00 = model__00;
-		_this._10 = model__10;
-		_this._20 = model__20;
-		_this._30 = model__30;
-		_this._01 = model__01;
-		_this._11 = model__11;
-		_this._21 = model__21;
-		_this._31 = model__31;
-		_this._02 = model__02;
-		_this._12 = model__12;
-		_this._22 = model__22;
-		_this._32 = model__32;
-		_this._03 = model__03;
-		_this._13 = model__13;
-		_this._23 = model__23;
-		_this._33 = model__33;
-		var _this1 = this.drawAreaTemp;
-		var _this2 = _this1.min;
+		this.calculateTransform(transform);
+		var _this = this.drawAreaTemp;
+		var _this1 = _this.min;
 		var x = Infinity;
 		var y = Infinity;
 		if(y == null) {
@@ -5529,9 +5248,9 @@ com_gEngine_display_Layer.prototype = {
 		if(x == null) {
 			x = 0;
 		}
-		_this2.x = x;
-		_this2.y = y;
-		var _this3 = _this1.max;
+		_this1.x = x;
+		_this1.y = y;
+		var _this2 = _this.max;
 		var x1 = -Infinity;
 		var y1 = -Infinity;
 		if(y1 == null) {
@@ -5540,11 +5259,11 @@ com_gEngine_display_Layer.prototype = {
 		if(x1 == null) {
 			x1 = 0;
 		}
-		_this3.x = x1;
-		_this3.y = y1;
-		_this1.minZ = Infinity;
-		_this1.maxZ = -Infinity;
-		_this1.isEmpty = true;
+		_this2.x = x1;
+		_this2.y = y1;
+		_this.minZ = Infinity;
+		_this.maxZ = -Infinity;
+		_this.isEmpty = true;
 		var _g = 0;
 		var _g1 = this.children;
 		while(_g < _g1.length) {
@@ -5556,9 +5275,9 @@ com_gEngine_display_Layer.prototype = {
 		}
 		value.merge(this.drawAreaTemp);
 		if(this.drawArea != null) {
-			var _this4 = this.scaleArea;
+			var _this3 = this.scaleArea;
 			var minMax = this.drawArea;
-			var _this5 = _this4.max;
+			var _this4 = _this3.max;
 			var x2 = minMax.max.x;
 			var y2 = minMax.max.y;
 			if(y2 == null) {
@@ -5567,9 +5286,9 @@ com_gEngine_display_Layer.prototype = {
 			if(x2 == null) {
 				x2 = 0;
 			}
-			_this5.x = x2;
-			_this5.y = y2;
-			var _this6 = _this4.min;
+			_this4.x = x2;
+			_this4.y = y2;
+			var _this5 = _this3.min;
 			var x3 = minMax.min.x;
 			var y3 = minMax.min.y;
 			if(y3 == null) {
@@ -5578,18 +5297,18 @@ com_gEngine_display_Layer.prototype = {
 			if(x3 == null) {
 				x3 = 0;
 			}
-			_this6.x = x3;
-			_this6.y = y3;
-			_this4.minZ = -869.1168;
-			_this4.maxZ = -869.1168;
-			_this4.isEmpty = _this4.width() < 0 || _this4.height() < 0;
-			var _this7 = this.scaleArea;
+			_this5.x = x3;
+			_this5.y = y3;
+			_this3.minZ = -869.1168;
+			_this3.maxZ = -869.1168;
+			_this3.isEmpty = _this3.width() < 0 || _this3.height() < 0;
+			var _this6 = this.scaleArea;
 			var scaleX = com_gEngine_GEngine.get_i().scaleWidth;
 			var scaleY = com_gEngine_GEngine.get_i().scaleHeigth;
-			_this7.min.x *= scaleX;
-			_this7.min.y *= scaleY;
-			_this7.max.x *= scaleX;
-			_this7.max.y *= scaleY;
+			_this6.min.x *= scaleX;
+			_this6.min.y *= scaleY;
+			_this6.max.x *= scaleX;
+			_this6.max.y *= scaleY;
 			value.intersection(this.scaleArea);
 		}
 	}
@@ -11494,18 +11213,34 @@ gameObjects_GameGlobals.__name__ = "gameObjects.GameGlobals";
 var gameObjects_Player = function() {
 	this.maxSpeed = 400;
 	com_framework_utils_Entity.call(this);
-	this.display = new com_gEngine_display_BasicSprite("ivanka");
-	this.display.z = 50;
+	this.display = new com_gEngine_display_Layer();
+	this.armR = new com_gEngine_display_BasicSprite("ivankaArm");
+	this.display.addChild(this.armR);
+	this.armR.set_smooth(false);
+	this.body = new com_gEngine_display_BasicSprite("ivanka");
+	this.display.addChild(this.body);
+	this.body.set_smooth(false);
+	this.armL = new com_gEngine_display_BasicSprite("ivankaArm");
+	this.display.addChild(this.armL);
+	this.armL.set_smooth(false);
 	this.display.scaleX = this.display.scaleY = 4;
-	this.display.offsetX = -9;
-	this.display.offsetY = -4;
+	this.body.x = -9;
+	this.body.y = -23;
+	this.armL.x = 2;
+	this.armL.y = -9;
+	this.armL.pivotX = 2;
+	this.armL.pivotY = 2;
+	this.armR.x = -6;
+	this.armR.y = -9;
+	this.armR.pivotX = 2;
+	this.armR.pivotY = 2;
 	this.collision = new com_collision_platformer_CollisionBox();
 	this.collision.width = 40;
 	this.collision.height = 84;
-	this.collision.x = 100;
-	this.collision.y = 200;
+	this.collision.maxVelocityX = this.maxSpeed;
+	this.display.x = this.collision.x = 500;
+	this.display.y = this.collision.y = 200;
 	this.collision.accelerationY = 1000;
-	this.display.textureFilter = 0;
 	this.collision.dragX = 0.9;
 };
 $hxClasses["gameObjects.Player"] = gameObjects_Player;
@@ -11515,20 +11250,31 @@ gameObjects_Player.prototype = $extend(com_framework_utils_Entity.prototype,{
 	display: null
 	,collision: null
 	,maxSpeed: null
+	,armL: null
+	,armR: null
+	,body: null
 	,update: function(dt) {
 		com_framework_utils_Entity.prototype.update.call(this,dt);
-		this.display.x = this.collision.x - this.display.offsetX * 2;
-		this.display.y = this.collision.y - this.display.offsetY * 2;
+		this.display.x = this.collision.x + 20;
+		this.display.y = this.collision.y + 84;
 		if(com_framework_utils_Input.i.isKeyCodeDown(37)) {
-			this.collision.velocityX = -this.maxSpeed;
-			this.display.scaleX = 4;
-		}
-		if(com_framework_utils_Input.i.isKeyCodeDown(39)) {
-			this.collision.velocityX = this.maxSpeed;
-			this.display.scaleX = -4;
+			this.collision.accelerationX = -this.maxSpeed * 4;
+			this.display.scaleX = Math.abs(this.display.scaleX);
+		} else if(com_framework_utils_Input.i.isKeyCodeDown(39)) {
+			this.collision.accelerationX = this.maxSpeed * 4;
+			this.display.scaleX = -Math.abs(this.display.scaleX);
+		} else {
+			this.collision.accelerationX = 0;
 		}
 		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
 			this.collision.velocityY = -500;
+		}
+		if(this.collision.velocityX != 0 && this.collision.isTouching(com_collision_platformer_Sides.BOTTOM)) {
+			this.display.set_rotation(Math.PI / 20 * Math.sin(com_TimeManager.time * 10));
+			this.armL.set_rotation(this.display.rotation * 2);
+			this.armR.set_rotation(-this.armL.rotation);
+		} else {
+			this.armR.set_rotation(this.armL.set_rotation(this.display.set_rotation(0)));
 		}
 		this.collision.update(dt);
 	}
@@ -14217,7 +13963,7 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Untitled_1","ivanka","neutron","pig","proton","tiles"];
+	this.names = ["Untitled_1","ivanka","ivankaArm","neutron","pig","proton","tiles"];
 	this.tilesDescription = { name : "tiles", original_height : 100, original_width : 100, files : ["tiles.png"], type : "image"};
 	this.tilesName = "tiles";
 	this.tiles = null;
@@ -14230,6 +13976,9 @@ var kha__$Assets_ImageList = function() {
 	this.neutronDescription = { name : "neutron", original_height : 13, original_width : 14, files : ["neutron.png"], type : "image"};
 	this.neutronName = "neutron";
 	this.neutron = null;
+	this.ivankaArmDescription = { name : "ivankaArm", original_height : 7, original_width : 4, files : ["ivankaArm.png"], type : "image"};
+	this.ivankaArmName = "ivankaArm";
+	this.ivankaArm = null;
 	this.ivankaDescription = { name : "ivanka", original_height : 23, original_width : 16, files : ["ivanka.png"], type : "image"};
 	this.ivankaName = "ivanka";
 	this.ivanka = null;
@@ -14266,6 +14015,18 @@ kha__$Assets_ImageList.prototype = {
 	,ivankaUnload: function() {
 		this.ivanka.unload();
 		this.ivanka = null;
+	}
+	,ivankaArm: null
+	,ivankaArmName: null
+	,ivankaArmDescription: null
+	,ivankaArmLoad: function(done,failure) {
+		kha_Assets.loadImage("ivankaArm",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "ivankaArmLoad"});
+	}
+	,ivankaArmUnload: function() {
+		this.ivankaArm.unload();
+		this.ivankaArm = null;
 	}
 	,neutron: null
 	,neutronName: null
@@ -35956,8 +35717,9 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		resources.add(new com_loading_basicResources_DataLoader("level_tmx"));
 		var atlas = new com_loading_basicResources_JoinAtlas(2048,2048);
 		atlas.add(new com_loading_basicResources_SparrowLoader("Untitled_1","Untitled_1_xml"));
-		atlas.add(new com_loading_basicResources_TilesheetLoader("tiles",10,10,0));
+		atlas.add(new com_loading_basicResources_TilesheetLoader("tiles",10,10,1));
 		atlas.add(new com_loading_basicResources_SparrowLoader("ivanka","ivanka_xml"));
+		atlas.add(new com_loading_basicResources_ImageLoader("ivankaArm"));
 		resources.add(atlas);
 	}
 	,init: function() {
