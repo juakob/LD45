@@ -6033,13 +6033,13 @@ com_gEngine_display_Camera.prototype = $extend(com_gEngine_display_Layer.prototy
 		com_gEngine_GEngine.get_i().endCanvas();
 	}
 	,limits: function(x,y,width,height) {
-		this.min = new com_helpers_FastPoint(x,y);
-		this.max = new com_helpers_FastPoint(x + width,y + height);
+		this.min = new com_helpers_FastPoint(x - this.width * 0.5,y - this.height * 0.5);
+		this.max = new com_helpers_FastPoint(x + width - this.width * 0.5,y + height - this.height * 0.5);
 	}
 	,setTarget: function(x,y) {
 		var _this = this.targetPos;
-		var x1 = -x;
-		var y1 = -y;
+		var x1 = -x + this.width * 0.5;
+		var y1 = -y + this.height * 0.5;
 		if(y1 == null) {
 			y1 = 0;
 		}
@@ -35969,10 +35969,12 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		this.stage.addChild(simulationLayer);
 		var tilemap = new com_collision_platformer_Tilemap();
 		this.tilemapCollision = tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
+		this.stage.cameras[0].limits(0,0,this.tilemapCollision.widthIntTiles * 40,this.tilemapCollision.heightInTiles * 40);
 	}
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
 		com_collision_platformer_CollisionEngine.collide(this.tilemapCollision,this.ivanka.collision);
+		this.stage.cameras[0].setTarget(this.ivanka.display.x,this.ivanka.display.y);
 	}
 	,__class__: states_Test
 });

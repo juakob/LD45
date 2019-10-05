@@ -49,10 +49,11 @@ class Test extends State {
         stage.addChild(simulationLayer);
         var tilemap:Tilemap=new Tilemap();
         tilemapCollision=tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
-        
+        stage.defaultCamera().limits(0,0,tilemapCollision.widthIntTiles*40,tilemapCollision.heightInTiles*40);
     }
     override function update(dt:Float) {
         super.update(dt);
         CollisionEngine.collide(tilemapCollision,ivanka.collision);
+        stage.defaultCamera().setTarget(ivanka.display.x,ivanka.display.y);
     }
 }
