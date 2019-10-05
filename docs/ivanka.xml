@@ -1,0 +1,7 @@
+<!--
+Created with Free texture packer v0.4.7 http://free-tex-packer.com
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="texture.png" width="16" height="23">
+  <SubTexture name="ivanka.png" x="1" y="1"  width="14" height="21" frameX="-3" frameY="-2" frameWidth="19" frameHeight="24"/>
+</TextureAtlas>

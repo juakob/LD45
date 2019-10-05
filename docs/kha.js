@@ -127,6 +127,21 @@ Reflect.field = function(o,field) {
 		return null;
 	}
 };
+Reflect.setProperty = function(o,field,value) {
+	var tmp;
+	var tmp1;
+	if(o.__properties__) {
+		tmp = o.__properties__["set_" + field];
+		tmp1 = tmp;
+	} else {
+		tmp1 = false;
+	}
+	if(tmp1) {
+		o[tmp](value);
+	} else {
+		o[field] = value;
+	}
+};
 Reflect.isFunction = function(f) {
 	if(typeof(f) == "function") {
 		return !(f.__name__ || f.__ename__);
@@ -434,6 +449,23 @@ Xml.prototype = {
 		}
 		return this.attributeMap.keys();
 	}
+	,elements: function() {
+		if(this.nodeType != Xml.Document && this.nodeType != Xml.Element) {
+			throw new js__$Boot_HaxeError("Bad node type, expected Element or Document but found " + _$Xml_XmlType_$Impl_$.toString(this.nodeType));
+		}
+		var _g = [];
+		var _g1 = 0;
+		var _g2 = this.children;
+		while(_g1 < _g2.length) {
+			var child = _g2[_g1];
+			++_g1;
+			if(child.nodeType == Xml.Element) {
+				_g.push(child);
+			}
+		}
+		var ret = _g;
+		return HxOverrides.iter(ret);
+	}
 	,elementsNamed: function(name) {
 		if(this.nodeType != Xml.Document && this.nodeType != Xml.Element) {
 			throw new js__$Boot_HaxeError("Bad node type, expected Element or Document but found " + _$Xml_XmlType_$Impl_$.toString(this.nodeType));
@@ -523,6 +555,7 @@ var com_basicDisplay_SpriteSheetDB = function() {
 $hxClasses["com.basicDisplay.SpriteSheetDB"] = com_basicDisplay_SpriteSheetDB;
 com_basicDisplay_SpriteSheetDB.__name__ = "com.basicDisplay.SpriteSheetDB";
 com_basicDisplay_SpriteSheetDB.__interfaces__ = [com_loading_ResourceHandler];
+com_basicDisplay_SpriteSheetDB.__properties__ = {get_i:"get_i"};
 com_basicDisplay_SpriteSheetDB.get_i = function() {
 	if(com_basicDisplay_SpriteSheetDB.i == null) {
 		com_basicDisplay_SpriteSheetDB.i = new com_basicDisplay_SpriteSheetDB();
@@ -550,6 +583,614 @@ com_basicDisplay_SpriteSheetDB.prototype = {
 		this.animations.splice(0,this.animations.length);
 	}
 	,__class__: com_basicDisplay_SpriteSheetDB
+};
+var com_collision_platformer_ICollider = function() { };
+$hxClasses["com.collision.platformer.ICollider"] = com_collision_platformer_ICollider;
+com_collision_platformer_ICollider.__name__ = "com.collision.platformer.ICollider";
+com_collision_platformer_ICollider.__isInterface__ = true;
+com_collision_platformer_ICollider.prototype = {
+	collide: null
+	,overlap: null
+	,collisionType: null
+	,userData: null
+	,parent: null
+	,removeFromParent: null
+	,__class__: com_collision_platformer_ICollider
+};
+var com_collision_platformer_CollisionBox = function() {
+	this.collisionAllow = com_collision_platformer_Sides.BOTTOM | com_collision_platformer_Sides.LEFT | com_collision_platformer_Sides.RIGHT | com_collision_platformer_Sides.TOP;
+	this.touching = com_collision_platformer_Sides.NONE;
+	this.maxVelocityY = Infinity;
+	this.maxVelocityX = Infinity;
+	this.Static = false;
+	this.dragY = 1;
+	this.dragX = 1;
+	this.accelerationY = 0;
+	this.accelerationX = 0;
+	this.velocityY = 0;
+	this.velocityX = 0;
+	this.height = 0;
+	this.width = 0;
+	this.y = 0;
+	this.x = 0;
+};
+$hxClasses["com.collision.platformer.CollisionBox"] = com_collision_platformer_CollisionBox;
+com_collision_platformer_CollisionBox.__name__ = "com.collision.platformer.CollisionBox";
+com_collision_platformer_CollisionBox.__interfaces__ = [com_collision_platformer_ICollider];
+com_collision_platformer_CollisionBox.prototype = {
+	x: null
+	,y: null
+	,width: null
+	,height: null
+	,velocityX: null
+	,velocityY: null
+	,accelerationX: null
+	,accelerationY: null
+	,dragX: null
+	,dragY: null
+	,Static: null
+	,maxVelocityX: null
+	,maxVelocityY: null
+	,touching: null
+	,collisionAllow: null
+	,userData: null
+	,parent: null
+	,removeFromParent: function() {
+		if(this.parent != null) {
+			this.parent.remove(this);
+		}
+	}
+	,collisionType: function() {
+		return com_collision_platformer_CollisionType.Box;
+	}
+	,isTouching: function(aSide) {
+		return (aSide & this.touching) > 0;
+	}
+	,update: function(aDt) {
+		this.touching = com_collision_platformer_Sides.NONE;
+		this.velocityX += this.accelerationX * aDt;
+		this.velocityY += this.accelerationY * aDt;
+		if(Math.abs(this.velocityX) > this.maxVelocityX) {
+			if(this.velocityX > 0) {
+				this.velocityX = this.maxVelocityX;
+			} else {
+				this.velocityX = -this.maxVelocityX;
+			}
+		}
+		if(Math.abs(this.velocityY) > this.maxVelocityY) {
+			if(this.velocityY > 0) {
+				this.velocityY = this.maxVelocityY;
+			} else {
+				this.velocityY = -this.maxVelocityY;
+			}
+		}
+		this.x += this.velocityX * aDt;
+		this.y += this.velocityY * aDt;
+		if(this.accelerationX == 0) {
+			this.velocityX *= this.dragX;
+			if(Math.abs(this.velocityX) < 70) {
+				this.velocityX = 0;
+			}
+		}
+		if(this.accelerationY == 0) {
+			this.velocityY *= this.dragY;
+			if(Math.abs(this.velocityY) < 70) {
+				this.velocityY = 0;
+			}
+		}
+	}
+	,collide: function(aCollider,NotifyCallback) {
+		if(aCollider == this) {
+			return false;
+		}
+		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Box) {
+			var boxCollider = aCollider;
+			var myPonderation = 0.5;
+			var colliderPonderation = 0.5;
+			if(this.Static) {
+				myPonderation = 0;
+				colliderPonderation = 1;
+			} else if(boxCollider.Static) {
+				myPonderation = 1;
+				colliderPonderation = 0;
+			}
+			if(this.overlapVsBox(boxCollider)) {
+				var overlapX;
+				var overlapY;
+				if(this.x < boxCollider.x) {
+					overlapX = boxCollider.x - (this.x + this.width);
+					if(this.y < boxCollider.y) {
+						overlapY = boxCollider.y - (this.y + this.height);
+						if(overlapY > overlapX) {
+							if((this.collisionAllow & com_collision_platformer_Sides.BOTTOM) > 0 && (boxCollider.collisionAllow & com_collision_platformer_Sides.TOP) > 0) {
+								boxCollider.y -= overlapY * colliderPonderation;
+								this.y += overlapY * myPonderation;
+								if(boxCollider.velocityY < 0) {
+									boxCollider.velocityY = 0;
+								}
+								if(this.velocityY > 0) {
+									this.velocityY = 0;
+								}
+								this.touching |= com_collision_platformer_Sides.BOTTOM;
+								boxCollider.touching |= com_collision_platformer_Sides.TOP;
+								if(NotifyCallback != null) {
+									NotifyCallback(this,boxCollider);
+								}
+								return true;
+							}
+						} else if((this.collisionAllow & com_collision_platformer_Sides.RIGHT) > 0 && (boxCollider.collisionAllow & com_collision_platformer_Sides.LEFT) > 0) {
+							boxCollider.x -= overlapX * colliderPonderation;
+							this.x += overlapX * myPonderation;
+							if(boxCollider.velocityX < 0) {
+								boxCollider.velocityX = 0;
+							}
+							if(this.velocityX > 0) {
+								this.velocityX = 0;
+							}
+							this.touching |= com_collision_platformer_Sides.RIGHT;
+							boxCollider.touching |= com_collision_platformer_Sides.LEFT;
+							if(NotifyCallback != null) {
+								NotifyCallback(this,boxCollider);
+							}
+							return true;
+						}
+					} else {
+						overlapY = this.y - (boxCollider.y + boxCollider.height);
+						if(overlapY > overlapX) {
+							if((this.collisionAllow & com_collision_platformer_Sides.TOP) > 0 && (boxCollider.collisionAllow & com_collision_platformer_Sides.BOTTOM) > 0) {
+								boxCollider.y += overlapY * colliderPonderation;
+								this.y -= overlapY * myPonderation;
+								if(boxCollider.velocityY > 0) {
+									boxCollider.velocityY = 0;
+								}
+								if(this.velocityY < 0) {
+									this.velocityY = 0;
+								}
+								this.touching |= com_collision_platformer_Sides.TOP;
+								boxCollider.touching |= com_collision_platformer_Sides.BOTTOM;
+								if(NotifyCallback != null) {
+									NotifyCallback(this,boxCollider);
+								}
+								return true;
+							}
+						} else if((this.collisionAllow & com_collision_platformer_Sides.RIGHT) > 0 && (boxCollider.collisionAllow & com_collision_platformer_Sides.LEFT) > 0) {
+							boxCollider.x -= overlapX * colliderPonderation;
+							this.x += overlapX * myPonderation;
+							if(boxCollider.velocityX < 0) {
+								boxCollider.velocityX = 0;
+							}
+							if(this.velocityX > 0) {
+								this.velocityX = 0;
+							}
+							this.touching |= com_collision_platformer_Sides.RIGHT;
+							boxCollider.touching |= com_collision_platformer_Sides.LEFT;
+							if(NotifyCallback != null) {
+								NotifyCallback(this,boxCollider);
+							}
+							return true;
+						}
+					}
+				} else {
+					overlapX = this.x - (boxCollider.x + boxCollider.width);
+					if(this.y < boxCollider.y) {
+						overlapY = boxCollider.y - (this.y + this.height);
+						if(overlapY > overlapX) {
+							if((this.collisionAllow & com_collision_platformer_Sides.BOTTOM) > 0 && (boxCollider.collisionAllow & com_collision_platformer_Sides.TOP) > 0) {
+								boxCollider.y -= overlapY * colliderPonderation;
+								this.y += overlapY * myPonderation;
+								if(boxCollider.velocityY < 0) {
+									boxCollider.velocityY = 0;
+								}
+								if(this.velocityY > 0) {
+									this.velocityY = 0;
+								}
+								this.touching |= com_collision_platformer_Sides.BOTTOM;
+								boxCollider.touching |= com_collision_platformer_Sides.TOP;
+								if(NotifyCallback != null) {
+									NotifyCallback(this,boxCollider);
+								}
+								return true;
+							}
+						} else if((this.collisionAllow & com_collision_platformer_Sides.LEFT) > 0 && (boxCollider.collisionAllow & com_collision_platformer_Sides.RIGHT) > 0) {
+							boxCollider.x += overlapX * colliderPonderation;
+							this.x -= overlapX * myPonderation;
+							if(boxCollider.velocityX > 0) {
+								boxCollider.velocityX = 0;
+							}
+							if(this.velocityX < 0) {
+								this.velocityX = 0;
+							}
+							this.touching |= com_collision_platformer_Sides.LEFT;
+							boxCollider.touching |= com_collision_platformer_Sides.RIGHT;
+							if(NotifyCallback != null) {
+								NotifyCallback(this,boxCollider);
+							}
+							return true;
+						}
+					} else {
+						overlapY = this.y - (boxCollider.y + boxCollider.height);
+						if(overlapY > overlapX) {
+							if((this.collisionAllow & com_collision_platformer_Sides.TOP) > 0 && (boxCollider.collisionAllow & com_collision_platformer_Sides.BOTTOM) > 0) {
+								boxCollider.y += overlapY * colliderPonderation;
+								this.y -= overlapY * myPonderation;
+								if(boxCollider.velocityY > 0) {
+									boxCollider.velocityY = 0;
+								}
+								if(this.velocityY < 0) {
+									this.velocityY = 0;
+								}
+								this.touching |= com_collision_platformer_Sides.TOP;
+								boxCollider.touching |= com_collision_platformer_Sides.BOTTOM;
+								if(NotifyCallback != null) {
+									NotifyCallback(this,boxCollider);
+								}
+								return true;
+							}
+						} else if((this.collisionAllow & com_collision_platformer_Sides.LEFT) > 0 && (boxCollider.collisionAllow & com_collision_platformer_Sides.RIGHT) > 0) {
+							boxCollider.x += overlapX * colliderPonderation;
+							this.x -= overlapX * myPonderation;
+							if(boxCollider.velocityX > 0) {
+								boxCollider.velocityX = 0;
+							}
+							if(this.velocityX < 0) {
+								this.velocityX = 0;
+							}
+							this.touching |= com_collision_platformer_Sides.LEFT;
+							boxCollider.touching |= com_collision_platformer_Sides.RIGHT;
+							if(NotifyCallback != null) {
+								NotifyCallback(this,boxCollider);
+							}
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.TileMap) {
+			return aCollider.collide(this);
+		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
+			return aCollider.collide(this);
+		}
+		return false;
+	}
+	,overlap: function(aCollider,NotifyCallback) {
+		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Box) {
+			if(this.overlapVsBox(aCollider)) {
+				if(NotifyCallback != null) {
+					NotifyCallback(this,aCollider);
+				}
+				return true;
+			}
+		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
+			if(aCollider.collide(this)) {
+				if(NotifyCallback != null) {
+					NotifyCallback(this,aCollider);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+	,bottom: function() {
+		return this.y + this.height;
+	}
+	,right: function() {
+		return this.x + this.width;
+	}
+	,topMiddle: function() {
+		return this.x + this.width / 2;
+	}
+	,bottomMiddle: function() {
+		return this.y + this.height / 2;
+	}
+	,overlapVsBox: function(aBox) {
+		if(aBox.x < this.x + this.width && aBox.x + aBox.width > this.x && aBox.y < this.y + this.height) {
+			return aBox.y + aBox.height > this.y;
+		} else {
+			return false;
+		}
+	}
+	,__class__: com_collision_platformer_CollisionBox
+};
+var com_collision_platformer_CollisionEngine = function() {
+};
+$hxClasses["com.collision.platformer.CollisionEngine"] = com_collision_platformer_CollisionEngine;
+com_collision_platformer_CollisionEngine.__name__ = "com.collision.platformer.CollisionEngine";
+com_collision_platformer_CollisionEngine.collide = function(A,B,aCallBack) {
+	if(A.collide(B)) {
+		if(aCallBack != null) {
+			aCallBack(A,B);
+			return true;
+		}
+	}
+	return false;
+};
+com_collision_platformer_CollisionEngine.prototype = {
+	__class__: com_collision_platformer_CollisionEngine
+};
+var com_collision_platformer_CollisionGroup = function() {
+	this.colliders = [];
+};
+$hxClasses["com.collision.platformer.CollisionGroup"] = com_collision_platformer_CollisionGroup;
+com_collision_platformer_CollisionGroup.__name__ = "com.collision.platformer.CollisionGroup";
+com_collision_platformer_CollisionGroup.__interfaces__ = [com_collision_platformer_ICollider];
+com_collision_platformer_CollisionGroup.prototype = {
+	colliders: null
+	,userData: null
+	,parent: null
+	,removeFromParent: function() {
+		if(this.parent != null) {
+			this.parent.remove(this);
+		}
+	}
+	,add: function(aCollider) {
+		this.colliders.push(aCollider);
+		aCollider.parent = this;
+	}
+	,remove: function(aCollider) {
+		HxOverrides.remove(this.colliders,aCollider);
+	}
+	,collide: function(aCollider,NotifyCallback) {
+		var toReturn = false;
+		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
+			var group = aCollider;
+			var _g = 0;
+			var _g1 = this.colliders;
+			while(_g < _g1.length) {
+				var col1 = _g1[_g];
+				++_g;
+				var _g2 = 0;
+				var _g11 = group.colliders;
+				while(_g2 < _g11.length) {
+					var col2 = _g11[_g2];
+					++_g2;
+					toReturn = col1.collide(col2,NotifyCallback) || toReturn;
+				}
+			}
+		} else {
+			var _g3 = 0;
+			var _g12 = this.colliders;
+			while(_g3 < _g12.length) {
+				var col = _g12[_g3];
+				++_g3;
+				toReturn = col.collide(aCollider,NotifyCallback) || toReturn;
+			}
+		}
+		return toReturn;
+	}
+	,overlap: function(aCollider,NotifyCallback) {
+		var toReturn = false;
+		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
+			var group = aCollider;
+			var _g = 0;
+			var _g1 = this.colliders;
+			while(_g < _g1.length) {
+				var col1 = _g1[_g];
+				++_g;
+				var _g2 = 0;
+				var _g11 = group.colliders;
+				while(_g2 < _g11.length) {
+					var col2 = _g11[_g2];
+					++_g2;
+					toReturn = col1.overlap(col2,NotifyCallback) || toReturn;
+				}
+			}
+		} else {
+			var _g3 = 0;
+			var _g12 = this.colliders;
+			while(_g3 < _g12.length) {
+				var col = _g12[_g3];
+				++_g3;
+				toReturn = col.overlap(aCollider,NotifyCallback) || toReturn;
+			}
+		}
+		return toReturn;
+	}
+	,collisionType: function() {
+		return com_collision_platformer_CollisionType.Group;
+	}
+	,__class__: com_collision_platformer_CollisionGroup
+};
+var com_collision_platformer_CollisionTileMap = function(aTiles,aTileWidth,aTileHeight,aWidthInTiles,aHeightInTiles) {
+	this.startingCollisionIndex = 1;
+	this.tiles = aTiles;
+	this.tileWidth = aTileWidth;
+	this.tileHeight = aTileHeight;
+	this.widthIntTiles = aWidthInTiles;
+	this.heightInTiles = aHeightInTiles;
+	this.helperTile = new com_collision_platformer_CollisionBox();
+	this.helperTile.width = aTileWidth;
+	this.helperTile.height = aTileHeight;
+	this.helperTile.Static = true;
+	this.edges = [];
+	var _g = 0;
+	var _g1 = this.tiles.length;
+	while(_g < _g1) {
+		var i = _g++;
+		this.edges.push(0);
+	}
+	this.calculateEdges(0,0,aWidthInTiles,aHeightInTiles);
+};
+$hxClasses["com.collision.platformer.CollisionTileMap"] = com_collision_platformer_CollisionTileMap;
+com_collision_platformer_CollisionTileMap.__name__ = "com.collision.platformer.CollisionTileMap";
+com_collision_platformer_CollisionTileMap.__interfaces__ = [com_collision_platformer_ICollider];
+com_collision_platformer_CollisionTileMap.prototype = {
+	tiles: null
+	,tileWidth: null
+	,tileHeight: null
+	,widthIntTiles: null
+	,heightInTiles: null
+	,startingCollisionIndex: null
+	,edges: null
+	,userData: null
+	,helperTile: null
+	,parent: null
+	,removeFromParent: function() {
+		if(this.parent != null) {
+			this.parent.remove(this);
+		}
+	}
+	,calculateEdges: function(minX,minY,maxX,maxY) {
+		var _g = minY;
+		var _g1 = maxY + 1;
+		while(_g < _g1) {
+			var tileY = _g++;
+			var _g2 = minX;
+			var _g11 = maxX + 1;
+			while(_g2 < _g11) {
+				var tileX = _g2++;
+				var edge = com_collision_platformer_Sides.NONE;
+				if(this.getTileId(tileX,tileY - 1) < this.startingCollisionIndex) {
+					edge |= com_collision_platformer_Sides.TOP;
+				}
+				if(this.getTileId(tileX - 1,tileY) < this.startingCollisionIndex) {
+					edge |= com_collision_platformer_Sides.LEFT;
+				}
+				if(this.getTileId(tileX + 1,tileY) < this.startingCollisionIndex) {
+					edge |= com_collision_platformer_Sides.RIGHT;
+				}
+				if(this.getTileId(tileX,tileY + 1) < this.startingCollisionIndex) {
+					edge |= com_collision_platformer_Sides.BOTTOM;
+				}
+				this.edges[tileX + tileY * this.widthIntTiles] = edge;
+			}
+		}
+	}
+	,collide: function(aCollider,NotifyCallback) {
+		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Box) {
+			var box = aCollider;
+			var minX = box.x / this.tileWidth | 0;
+			var minY = box.y / this.tileHeight | 0;
+			var maxX = ((box.x + box.width) / this.tileWidth | 0) + 1;
+			var maxY = ((box.y + box.height) / this.tileHeight | 0) + 1;
+			var toReturn = false;
+			var _g = minY;
+			var _g1 = maxY;
+			while(_g < _g1) {
+				var tileY = _g++;
+				var _g2 = minX;
+				var _g11 = maxX;
+				while(_g2 < _g11) {
+					var tileX = _g2++;
+					if(this.getTileId(tileX,tileY) >= this.startingCollisionIndex) {
+						this.helperTile.collisionAllow = this.edges[tileX + tileY * this.widthIntTiles];
+						this.helperTile.x = tileX * this.tileWidth;
+						this.helperTile.y = tileY * this.tileHeight;
+						toReturn = this.helperTile.collide(box,NotifyCallback) || toReturn;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	,getTileId: function(aX,aY) {
+		if(aX >= 0 && aY >= 0 && aX < this.widthIntTiles && aY < this.heightInTiles) {
+			return this.tiles[aX + aY * this.widthIntTiles];
+		}
+		return 0;
+	}
+	,getTileId2: function(aX,aY) {
+		return this.getTileId(aX / this.tileWidth | 0,aY / this.tileHeight | 0);
+	}
+	,overlap: function(aCollider,NotifyCallback) {
+		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Box) {
+			var box = aCollider;
+			var minX = box.x / this.tileWidth | 0;
+			var minY = box.y / this.tileHeight | 0;
+			var maxX = ((box.x + box.width) / this.tileWidth | 0) + 1;
+			var maxY = ((box.y + box.height) / this.tileHeight | 0) + 1;
+			var toReturn = false;
+			var _g = minY;
+			var _g1 = maxY;
+			while(_g < _g1) {
+				var tileY = _g++;
+				var _g2 = minX;
+				var _g11 = maxX;
+				while(_g2 < _g11) {
+					var tileX = _g2++;
+					if(this.getTileId(tileX,tileY) >= this.startingCollisionIndex) {
+						this.helperTile.collisionAllow = this.edges[tileX + tileY * this.widthIntTiles];
+						this.helperTile.x = tileX * this.tileWidth;
+						this.helperTile.y = tileY * this.tileHeight;
+						toReturn = this.helperTile.overlap(box,NotifyCallback) || toReturn;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	,collisionType: function() {
+		return com_collision_platformer_CollisionType.TileMap;
+	}
+	,changeTileId: function(aX,aY,aId) {
+		if(aX > 0 && aY > 0 && aX < this.widthIntTiles && aY < this.heightInTiles) {
+			this.tiles[aX + aY * this.widthIntTiles] = aId;
+			this.calculateEdges(aX - 1,aY - 1,aX + 1,aY + 1);
+		}
+	}
+	,edgeType: function(tileX,tileY) {
+		return this.edges[tileX + tileY * this.widthIntTiles];
+	}
+	,edgeType2: function(aX,aY) {
+		return this.edgeType(aX / this.tileWidth | 0,aY / this.tileHeight | 0);
+	}
+	,changeEdgeType: function(tileX,tileY,edgeType) {
+		this.edges[tileX + tileY * this.widthIntTiles] = edgeType;
+	}
+	,__class__: com_collision_platformer_CollisionTileMap
+};
+var com_collision_platformer_CollisionType = $hxEnums["com.collision.platformer.CollisionType"] = { __ename__ : true, __constructs__ : ["Box","TileMap","Group"]
+	,Box: {_hx_index:0,__enum__:"com.collision.platformer.CollisionType",toString:$estr}
+	,TileMap: {_hx_index:1,__enum__:"com.collision.platformer.CollisionType",toString:$estr}
+	,Group: {_hx_index:2,__enum__:"com.collision.platformer.CollisionType",toString:$estr}
+};
+var com_collision_platformer_Sides = function() { };
+$hxClasses["com.collision.platformer.Sides"] = com_collision_platformer_Sides;
+com_collision_platformer_Sides.__name__ = "com.collision.platformer.Sides";
+var com_collision_platformer_Tilemap = function() {
+};
+$hxClasses["com.collision.platformer.Tilemap"] = com_collision_platformer_Tilemap;
+com_collision_platformer_Tilemap.__name__ = "com.collision.platformer.Tilemap";
+com_collision_platformer_Tilemap.prototype = {
+	init: function(tmxData,tilesImg,tileWidth,tileHeight,displayLayer,scale) {
+		if(scale == null) {
+			scale = 1;
+		}
+		var r = new format_tmx_Reader();
+		var t = r.read(Xml.parse(kha_Assets.blobs.get(tmxData).toString()));
+		var collision = null;
+		var _g = 0;
+		var _g1 = t.layers;
+		while(_g < _g1.length) {
+			var layer = _g1[_g];
+			++_g;
+			if(layer._hx_index == 0) {
+				var tileMap = layer.layer;
+				var tiles = [];
+				var _g2 = 0;
+				var _g11 = tileMap.data.tiles;
+				while(_g2 < _g11.length) {
+					var tile = _g11[_g2];
+					++_g2;
+					tiles.push(tile.gid);
+				}
+				collision = new com_collision_platformer_CollisionTileMap(tiles,tileWidth * scale,tileHeight * scale,tileMap.width,tileMap.height);
+				var tiles1 = tileMap.data.tiles;
+				var tileMapDisplay = new com_gEngine_display_extra_TileMapDisplay(tilesImg,tileMap.width,tileMap.height,tileWidth,tileHeight);
+				tileMapDisplay.scaleX = tileMapDisplay.scaleY = scale;
+				displayLayer.addChild(tileMapDisplay);
+				var counter = 0;
+				var _g21 = 0;
+				while(_g21 < tiles1.length) {
+					var tile1 = tiles1[_g21];
+					++_g21;
+					tileMapDisplay.setTile2(counter++,tile1.gid - 1);
+				}
+			}
+		}
+		return collision;
+	}
+	,__class__: com_collision_platformer_Tilemap
 };
 var com_framework_Simulation = function(initialState,virtualWidth,virtualHeight,oversample,antiAlias) {
 	if(antiAlias == null) {
@@ -745,6 +1386,7 @@ com_framework_Simulation.prototype = {
 		}
 	}
 	,__class__: com_framework_Simulation
+	,__properties__: {set_manualLoad:"set_manualLoad",get_manualLoad:"get_manualLoad"}
 };
 var com_framework_utils_Entity = function() {
 	this.toDelete = [];
@@ -917,6 +1559,7 @@ var com_framework_utils_Input = function() {
 };
 $hxClasses["com.framework.utils.Input"] = com_framework_utils_Input;
 com_framework_utils_Input.__name__ = "com.framework.utils.Input";
+com_framework_utils_Input.__properties__ = {get_inst:"get_inst"};
 com_framework_utils_Input.get_inst = function() {
 	return com_framework_utils_Input.i;
 };
@@ -2481,6 +3124,7 @@ com_gEngine_DrawArea.prototype = {
 		return this.maxY;
 	}
 	,__class__: com_gEngine_DrawArea
+	,__properties__: {set_height:"set_height",get_height:"get_height",set_width:"set_width",get_width:"get_width",set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x"}
 };
 var com_gEngine_Filter = function(filters,r,g,b,a,cropScreen) {
 	if(cropScreen == null) {
@@ -2925,6 +3569,7 @@ var com_gEngine_GEngine = function(oversample,antiAlias) {
 };
 $hxClasses["com.gEngine.GEngine"] = com_gEngine_GEngine;
 com_gEngine_GEngine.__name__ = "com.gEngine.GEngine";
+com_gEngine_GEngine.__properties__ = {get_i:"get_i"};
 com_gEngine_GEngine.get_i = function() {
 	return com_gEngine_GEngine.i;
 };
@@ -3527,6 +4172,7 @@ var com_gEngine_PainterGarbage = function() {
 };
 $hxClasses["com.gEngine.PainterGarbage"] = com_gEngine_PainterGarbage;
 com_gEngine_PainterGarbage.__name__ = "com.gEngine.PainterGarbage";
+com_gEngine_PainterGarbage.__properties__ = {get_i:"get_i"};
 com_gEngine_PainterGarbage.get_i = function() {
 	return com_gEngine_PainterGarbage.i;
 };
@@ -4235,6 +4881,7 @@ com_gEngine_display_BasicSprite.prototype = {
 		return this.animationData.frames[this.timeline.currentFrame].drawArea.get_height();
 	}
 	,__class__: com_gEngine_display_BasicSprite
+	,__properties__: {set_skewY:"set_skewY",set_skewX:"set_skewX",set_rotation:"set_rotation"}
 };
 var com_gEngine_display_Blend = function() {
 };
@@ -5077,6 +5724,7 @@ com_gEngine_display_Layer.prototype = {
 		return this.children.length;
 	}
 	,__class__: com_gEngine_display_Layer
+	,__properties__: {set_rotation:"set_rotation",get_length:"get_length",set_drawArea:"set_drawArea"}
 };
 var com_gEngine_display_Camera = function() {
 	this.maxSeparationFromTarget = 10000;
@@ -5517,6 +6165,7 @@ com_gEngine_display_Camera.prototype = $extend(com_gEngine_display_Layer.prototy
 		this.time = this.totalTime = 0;
 	}
 	,__class__: com_gEngine_display_Camera
+	,__properties__: $extend(com_gEngine_display_Layer.prototype.__properties__,{set_smooth:"set_smooth",get_smooth:"get_smooth"})
 });
 var com_gEngine_display_Stage = function() {
 	this.world = new com_gEngine_display_Layer();
@@ -5602,7 +6251,45 @@ com_gEngine_display_Stage.prototype = {
 		return this.matrix._30 = value;
 	}
 	,__class__: com_gEngine_display_Stage
+	,__properties__: {set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x"}
 };
+var com_gEngine_display_extra_TileMapDisplay = function(tileType,widthInTiles,heightInTiles,tileWidth,tileHeight) {
+	com_gEngine_display_Layer.call(this);
+	this.widthInTiles = widthInTiles;
+	this.heightInTiles = heightInTiles;
+	var _g = 0;
+	var _g1 = widthInTiles * heightInTiles;
+	while(_g < _g1) {
+		var i = _g++;
+		var sprite = new com_gEngine_display_BasicSprite(tileType);
+		sprite.textureFilter = 0;
+		sprite.x = i % widthInTiles * tileWidth;
+		sprite.y = (i / widthInTiles | 0) * tileHeight;
+		sprite.visible = false;
+		sprite.timeline.playing = false;
+		this.addChild(sprite);
+	}
+};
+$hxClasses["com.gEngine.display.extra.TileMapDisplay"] = com_gEngine_display_extra_TileMapDisplay;
+com_gEngine_display_extra_TileMapDisplay.__name__ = "com.gEngine.display.extra.TileMapDisplay";
+com_gEngine_display_extra_TileMapDisplay.__super__ = com_gEngine_display_Layer;
+com_gEngine_display_extra_TileMapDisplay.prototype = $extend(com_gEngine_display_Layer.prototype,{
+	widthInTiles: null
+	,heightInTiles: null
+	,setTile: function(indexX,indexY,value) {
+		this.setTile2(indexX + this.widthInTiles * indexX,value);
+	}
+	,setTile2: function(index,value) {
+		var sprite = this.children[index];
+		if(value < 0) {
+			sprite.visible = false;
+		} else {
+			sprite.timeline.gotoAndStop(value);
+			sprite.visible = true;
+		}
+	}
+	,__class__: com_gEngine_display_extra_TileMapDisplay
+});
 var com_gEngine_helper_RectangleDisplay = function() {
 	this.animationData = com_gEngine_helper_RectangleDisplay.data;
 	com_gEngine_display_BasicSprite.call(this);
@@ -6277,6 +6964,32 @@ com_gEngine_shaders_ShRender.__super__ = com_gEngine_painters_Painter;
 com_gEngine_shaders_ShRender.prototype = $extend(com_gEngine_painters_Painter.prototype,{
 	directDraw: null
 	,__class__: com_gEngine_shaders_ShRender
+});
+var com_gEngine_shaders_ShRgbSplit = function(blend) {
+	com_gEngine_painters_Painter.call(this,true,blend);
+	this.resX = 2 / com_gEngine_GEngine.get_i().realWidth;
+	this.resY = 2 / com_gEngine_GEngine.get_i().realHeight;
+};
+$hxClasses["com.gEngine.shaders.ShRgbSplit"] = com_gEngine_shaders_ShRgbSplit;
+com_gEngine_shaders_ShRgbSplit.__name__ = "com.gEngine.shaders.ShRgbSplit";
+com_gEngine_shaders_ShRgbSplit.__super__ = com_gEngine_painters_Painter;
+com_gEngine_shaders_ShRgbSplit.prototype = $extend(com_gEngine_painters_Painter.prototype,{
+	resolutionID: null
+	,resX: null
+	,resY: null
+	,setShaders: function(pipeline) {
+		pipeline.vertexShader = kha_Shaders.simple_vert;
+		pipeline.fragmentShader = kha_Shaders.simpleRgbSplit_frag;
+	}
+	,getConstantLocations: function(pipeline) {
+		com_gEngine_painters_Painter.prototype.getConstantLocations.call(this,pipeline);
+		this.resolutionID = pipeline.getConstantLocation("resolution");
+	}
+	,setParameter: function(g) {
+		com_gEngine_painters_Painter.prototype.setParameter.call(this,g);
+		g.setFloat2(this.resolutionID,this.resX,this.resY);
+	}
+	,__class__: com_gEngine_shaders_ShRgbSplit
 });
 var com_helpers_FastPoint = function(x,y) {
 	if(y == null) {
@@ -7998,82 +8711,23 @@ com_loading_Resources.prototype = {
 	}
 	,__class__: com_loading_Resources
 };
-var com_loading_basicResources_JoinAtlas = function(width,height,separation) {
-	if(separation == null) {
-		separation = 2;
-	}
-	this.loadedCounter = 0;
-	this.width = width;
-	this.height = height;
-	this.separation = separation;
-	this.resources = [];
+var com_loading_basicResources_DataLoader = function(dataName) {
+	this.name = dataName;
 };
-$hxClasses["com.loading.basicResources.JoinAtlas"] = com_loading_basicResources_JoinAtlas;
-com_loading_basicResources_JoinAtlas.__name__ = "com.loading.basicResources.JoinAtlas";
-com_loading_basicResources_JoinAtlas.__interfaces__ = [com_loading_Resource];
-com_loading_basicResources_JoinAtlas.prototype = {
-	width: null
-	,height: null
-	,resources: null
-	,onFinish: null
-	,loadedCounter: null
-	,separation: null
-	,add: function(resource) {
-		this.resources.push(resource);
-	}
+$hxClasses["com.loading.basicResources.DataLoader"] = com_loading_basicResources_DataLoader;
+com_loading_basicResources_DataLoader.__name__ = "com.loading.basicResources.DataLoader";
+com_loading_basicResources_DataLoader.__interfaces__ = [com_loading_Resource];
+com_loading_basicResources_DataLoader.prototype = {
+	name: null
 	,load: function(callback) {
-		this.onFinish = callback;
-		var _g = 0;
-		var _g1 = this.resources;
-		while(_g < _g1.length) {
-			var resource = _g1[_g];
-			++_g;
-			resource.load($bind(this,this.onLoad));
-		}
-	}
-	,onLoad: function() {
-		++this.loadedCounter;
-		if(this.loadedCounter == this.resources.length) {
-			this.createAtlas();
-		}
-	}
-	,createAtlas: function() {
-		var bitmaps = [];
-		var _g = 0;
-		var _g1 = this.resources;
-		while(_g < _g1.length) {
-			var resource = _g1[_g];
-			++_g;
-			bitmaps = bitmaps.concat(resource.getBitmaps());
-		}
-		var img = com_imageAtlas_AtlasGenerator.generate(this.width,this.height,bitmaps,this.separation);
-		var _g2 = 0;
-		while(_g2 < bitmaps.length) {
-			var bitmap = bitmaps[_g2];
-			++_g2;
-			bitmap.image.unload();
-			kha_Assets.images[bitmap.name] = null;
-		}
-		var textureId = com_gEngine_GEngine.get_i().addTexture(img);
-		var _g3 = 0;
-		var _g4 = this.resources;
-		while(_g3 < _g4.length) {
-			var resource1 = _g4[_g3];
-			++_g3;
-			resource1.update(textureId);
-		}
-		this.onFinish();
+		kha_Assets.loadBlob(this.name,function(b) {
+			callback();
+		},null,{ fileName : "com/loading/basicResources/DataLoader.hx", lineNumber : 18, className : "com.loading.basicResources.DataLoader", methodName : "load"});
 	}
 	,unload: function() {
-		var _g = 0;
-		var _g1 = this.resources;
-		while(_g < _g1.length) {
-			var resource = _g1[_g];
-			++_g;
-			resource.unload();
-		}
+		Reflect.field(kha_Assets.blobs,this.name + "Unload").apply(kha_Assets.blobs,[]);
 	}
-	,__class__: com_loading_basicResources_JoinAtlas
+	,__class__: com_loading_basicResources_DataLoader
 };
 var com_loading_basicResources_TilesheetLoader = function(imageName,tileWidth,tileHeight,spacing) {
 	this.imageName = imageName;
@@ -8195,6 +8849,93 @@ com_loading_basicResources_TilesheetLoader.prototype = {
 	}
 	,__class__: com_loading_basicResources_TilesheetLoader
 };
+var com_loading_basicResources_ImageLoader = function(imageName) {
+	var description = Reflect.field(kha_Assets.images,imageName + "Description");
+	com_loading_basicResources_TilesheetLoader.call(this,imageName,description.original_width,description.original_height,0);
+};
+$hxClasses["com.loading.basicResources.ImageLoader"] = com_loading_basicResources_ImageLoader;
+com_loading_basicResources_ImageLoader.__name__ = "com.loading.basicResources.ImageLoader";
+com_loading_basicResources_ImageLoader.__super__ = com_loading_basicResources_TilesheetLoader;
+com_loading_basicResources_ImageLoader.prototype = $extend(com_loading_basicResources_TilesheetLoader.prototype,{
+	__class__: com_loading_basicResources_ImageLoader
+});
+var com_loading_basicResources_JoinAtlas = function(width,height,separation) {
+	if(separation == null) {
+		separation = 2;
+	}
+	this.loadedCounter = 0;
+	this.width = width;
+	this.height = height;
+	this.separation = separation;
+	this.resources = [];
+};
+$hxClasses["com.loading.basicResources.JoinAtlas"] = com_loading_basicResources_JoinAtlas;
+com_loading_basicResources_JoinAtlas.__name__ = "com.loading.basicResources.JoinAtlas";
+com_loading_basicResources_JoinAtlas.__interfaces__ = [com_loading_Resource];
+com_loading_basicResources_JoinAtlas.prototype = {
+	width: null
+	,height: null
+	,resources: null
+	,onFinish: null
+	,loadedCounter: null
+	,separation: null
+	,add: function(resource) {
+		this.resources.push(resource);
+	}
+	,load: function(callback) {
+		this.onFinish = callback;
+		var _g = 0;
+		var _g1 = this.resources;
+		while(_g < _g1.length) {
+			var resource = _g1[_g];
+			++_g;
+			resource.load($bind(this,this.onLoad));
+		}
+	}
+	,onLoad: function() {
+		++this.loadedCounter;
+		if(this.loadedCounter == this.resources.length) {
+			this.createAtlas();
+		}
+	}
+	,createAtlas: function() {
+		var bitmaps = [];
+		var _g = 0;
+		var _g1 = this.resources;
+		while(_g < _g1.length) {
+			var resource = _g1[_g];
+			++_g;
+			bitmaps = bitmaps.concat(resource.getBitmaps());
+		}
+		var img = com_imageAtlas_AtlasGenerator.generate(this.width,this.height,bitmaps,this.separation);
+		var _g2 = 0;
+		while(_g2 < bitmaps.length) {
+			var bitmap = bitmaps[_g2];
+			++_g2;
+			bitmap.image.unload();
+			kha_Assets.images[bitmap.name] = null;
+		}
+		var textureId = com_gEngine_GEngine.get_i().addTexture(img);
+		var _g3 = 0;
+		var _g4 = this.resources;
+		while(_g3 < _g4.length) {
+			var resource1 = _g4[_g3];
+			++_g3;
+			resource1.update(textureId);
+		}
+		this.onFinish();
+	}
+	,unload: function() {
+		var _g = 0;
+		var _g1 = this.resources;
+		while(_g < _g1.length) {
+			var resource = _g1[_g];
+			++_g;
+			resource.unload();
+		}
+	}
+	,__class__: com_loading_basicResources_JoinAtlas
+};
 var com_loading_basicResources_SparrowLoader = function(imageName,dataName) {
 	com_loading_basicResources_TilesheetLoader.call(this,imageName,0,0,0);
 	this.dataName = dataName;
@@ -8304,7 +9045,9 @@ com_loading_basicResources_SparrowLoader.prototype = $extend(com_loading_basicRe
 				labels.push(label);
 			}
 			++counter;
-			frames.push(com_loading_basicResources_TilesheetLoader.createFrame(-Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"frameX")),-Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"frameY")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"width")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"height")),rotated));
+			var frameX = trimmed ? -Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"frameX")) : 0;
+			var frameY = trimmed ? -Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"frameY")) : 0;
+			frames.push(com_loading_basicResources_TilesheetLoader.createFrame(frameX,frameY,Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"width")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"height")),rotated));
 			var bitmap = new com_imageAtlas_Bitmap();
 			bitmap.x = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"x"));
 			bitmap.y = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(texture,"y"));
@@ -8412,6 +9155,2385 @@ com_soundLib_SoundManager.unMuteMusic = function() {
 com_soundLib_SoundManager.reset = function() {
 	com_soundLib_SoundManager.map = new haxe_ds_StringMap();
 };
+var format_tmx_TmxOrientation = $hxEnums["format.tmx.TmxOrientation"] = { __ename__ : true, __constructs__ : ["Orthogonal","Isometric","Staggered","Hexagonal","Unknown"]
+	,Orthogonal: {_hx_index:0,__enum__:"format.tmx.TmxOrientation",toString:$estr}
+	,Isometric: {_hx_index:1,__enum__:"format.tmx.TmxOrientation",toString:$estr}
+	,Staggered: {_hx_index:2,__enum__:"format.tmx.TmxOrientation",toString:$estr}
+	,Hexagonal: {_hx_index:3,__enum__:"format.tmx.TmxOrientation",toString:$estr}
+	,Unknown: ($_=function(value) { return {_hx_index:4,value:value,__enum__:"format.tmx.TmxOrientation",toString:$estr}; },$_.__params__ = ["value"],$_)
+};
+var format_tmx_TmxRenderOrder = $hxEnums["format.tmx.TmxRenderOrder"] = { __ename__ : true, __constructs__ : ["RightDown","RightUp","LeftDown","LeftUp","Unknown"]
+	,RightDown: {_hx_index:0,__enum__:"format.tmx.TmxRenderOrder",toString:$estr}
+	,RightUp: {_hx_index:1,__enum__:"format.tmx.TmxRenderOrder",toString:$estr}
+	,LeftDown: {_hx_index:2,__enum__:"format.tmx.TmxRenderOrder",toString:$estr}
+	,LeftUp: {_hx_index:3,__enum__:"format.tmx.TmxRenderOrder",toString:$estr}
+	,Unknown: ($_=function(value) { return {_hx_index:4,value:value,__enum__:"format.tmx.TmxRenderOrder",toString:$estr}; },$_.__params__ = ["value"],$_)
+};
+var format_tmx_TmxStaggerIndex = $hxEnums["format.tmx.TmxStaggerIndex"] = { __ename__ : true, __constructs__ : ["Even","Odd","Unknown"]
+	,Even: {_hx_index:0,__enum__:"format.tmx.TmxStaggerIndex",toString:$estr}
+	,Odd: {_hx_index:1,__enum__:"format.tmx.TmxStaggerIndex",toString:$estr}
+	,Unknown: ($_=function(value) { return {_hx_index:2,value:value,__enum__:"format.tmx.TmxStaggerIndex",toString:$estr}; },$_.__params__ = ["value"],$_)
+};
+var format_tmx_TmxStaggerAxis = $hxEnums["format.tmx.TmxStaggerAxis"] = { __ename__ : true, __constructs__ : ["AxisX","AxisY","Unknown"]
+	,AxisX: {_hx_index:0,__enum__:"format.tmx.TmxStaggerAxis",toString:$estr}
+	,AxisY: {_hx_index:1,__enum__:"format.tmx.TmxStaggerAxis",toString:$estr}
+	,Unknown: ($_=function(value) { return {_hx_index:2,value:value,__enum__:"format.tmx.TmxStaggerAxis",toString:$estr}; },$_.__params__ = ["value"],$_)
+};
+var format_tmx_TmxMap = function(version,orientation,width,height,tileWidth,tileHeight,backgroundColor,renderOrder,staggerIndex,staggerAxis,hexSideLength,nextObjectId,properties,tilesets,layers,infinite) {
+	this.version = version;
+	this.orientation = orientation;
+	this.width = width;
+	this.height = height;
+	this.tileWidth = tileWidth;
+	this.tileHeight = tileHeight;
+	this.backgroundColor = backgroundColor;
+	this.renderOrder = renderOrder;
+	this.staggerIndex = staggerIndex;
+	this.staggerAxis = staggerAxis;
+	this.hexSideLength = hexSideLength;
+	this.nextObjectId = nextObjectId;
+	this.properties = properties;
+	this.tilesets = tilesets;
+	this.layers = layers;
+	this.infinite = infinite;
+};
+$hxClasses["format.tmx.TmxMap"] = format_tmx_TmxMap;
+format_tmx_TmxMap.__name__ = "format.tmx.TmxMap";
+format_tmx_TmxMap.prototype = {
+	version: null
+	,orientation: null
+	,width: null
+	,height: null
+	,tileWidth: null
+	,tileHeight: null
+	,backgroundColor: null
+	,renderOrder: null
+	,staggerIndex: null
+	,staggerAxis: null
+	,hexSideLength: null
+	,nextObjectId: null
+	,properties: null
+	,tilesets: null
+	,layers: null
+	,infinite: null
+	,__class__: format_tmx_TmxMap
+};
+var format_tmx_TmxTileset = function(firstGID,source,name,tileWidth,tileHeight,spacing,margin,tileCount,columns,tileOffset,properties,image,terrainTypes,tiles,grid,wangSets) {
+	this.firstGID = firstGID;
+	this.source = source;
+	this.name = name;
+	this.tileWidth = tileWidth;
+	this.tileHeight = tileHeight;
+	this.spacing = spacing;
+	this.margin = margin;
+	this.tileCount = tileCount;
+	this.columns = columns;
+	this.tileOffset = tileOffset;
+	this.properties = properties;
+	this.image = image;
+	this.terrainTypes = terrainTypes;
+	this.tiles = tiles;
+	this.grid = grid;
+	this.wangSets = wangSets;
+};
+$hxClasses["format.tmx.TmxTileset"] = format_tmx_TmxTileset;
+format_tmx_TmxTileset.__name__ = "format.tmx.TmxTileset";
+format_tmx_TmxTileset.prototype = {
+	firstGID: null
+	,source: null
+	,name: null
+	,tileWidth: null
+	,tileHeight: null
+	,spacing: null
+	,margin: null
+	,tileCount: null
+	,columns: null
+	,tileOffset: null
+	,properties: null
+	,image: null
+	,terrainTypes: null
+	,tiles: null
+	,grid: null
+	,wangSets: null
+	,__class__: format_tmx_TmxTileset
+};
+var format_tmx_TmxTilesetGrid = function(orientation,width,height) {
+	this.orientation = orientation;
+	this.width = width;
+	this.height = height;
+};
+$hxClasses["format.tmx.TmxTilesetGrid"] = format_tmx_TmxTilesetGrid;
+format_tmx_TmxTilesetGrid.__name__ = "format.tmx.TmxTilesetGrid";
+format_tmx_TmxTilesetGrid.prototype = {
+	orientation: null
+	,width: null
+	,height: null
+	,__class__: format_tmx_TmxTilesetGrid
+};
+var format_tmx_TmxTileOffset = function(x,y) {
+	this.x = x;
+	this.y = y;
+};
+$hxClasses["format.tmx.TmxTileOffset"] = format_tmx_TmxTileOffset;
+format_tmx_TmxTileOffset.__name__ = "format.tmx.TmxTileOffset";
+format_tmx_TmxTileOffset.prototype = {
+	x: null
+	,y: null
+	,__class__: format_tmx_TmxTileOffset
+};
+var format_tmx_TmxWangSet = function(name,tile,corners,edges,tiles) {
+	this.name = name;
+	this.tile = tile;
+	this.corners = corners;
+	this.edges = edges;
+	this.tiles = tiles;
+};
+$hxClasses["format.tmx.TmxWangSet"] = format_tmx_TmxWangSet;
+format_tmx_TmxWangSet.__name__ = "format.tmx.TmxWangSet";
+format_tmx_TmxWangSet.prototype = {
+	name: null
+	,tile: null
+	,corners: null
+	,edges: null
+	,tiles: null
+	,__class__: format_tmx_TmxWangSet
+};
+var format_tmx_TmxWangSetColor = function(name,color,tile,probability) {
+	this.name = name;
+	this.color = color;
+	this.tile = tile;
+	this.probability = probability;
+};
+$hxClasses["format.tmx.TmxWangSetColor"] = format_tmx_TmxWangSetColor;
+format_tmx_TmxWangSetColor.__name__ = "format.tmx.TmxWangSetColor";
+format_tmx_TmxWangSetColor.prototype = {
+	name: null
+	,color: null
+	,tile: null
+	,probability: null
+	,__class__: format_tmx_TmxWangSetColor
+};
+var format_tmx_TmxWangSetTile = function(tileID,wangID) {
+	this.tileID = tileID;
+	this.wangID = wangID;
+};
+$hxClasses["format.tmx.TmxWangSetTile"] = format_tmx_TmxWangSetTile;
+format_tmx_TmxWangSetTile.__name__ = "format.tmx.TmxWangSetTile";
+format_tmx_TmxWangSetTile.prototype = {
+	tileID: null
+	,wangID: null
+	,__class__: format_tmx_TmxWangSetTile
+};
+var format_tmx_TmxImage = function(format1,id,source,transparent,width,height,data) {
+	this.format = format1;
+	this.id = id;
+	this.source = source;
+	this.transparent = transparent;
+	this.width = width;
+	this.height = height;
+	this.data = data;
+};
+$hxClasses["format.tmx.TmxImage"] = format_tmx_TmxImage;
+format_tmx_TmxImage.__name__ = "format.tmx.TmxImage";
+format_tmx_TmxImage.prototype = {
+	format: null
+	,id: null
+	,source: null
+	,transparent: null
+	,width: null
+	,height: null
+	,data: null
+	,__class__: format_tmx_TmxImage
+};
+var format_tmx_TmxTerrain = function(name,tile,properties) {
+	this.name = name;
+	this.tile = tile;
+	this.properties = properties;
+};
+$hxClasses["format.tmx.TmxTerrain"] = format_tmx_TmxTerrain;
+format_tmx_TmxTerrain.__name__ = "format.tmx.TmxTerrain";
+format_tmx_TmxTerrain.prototype = {
+	name: null
+	,tile: null
+	,properties: null
+	,__class__: format_tmx_TmxTerrain
+};
+var format_tmx_TmxTilesetTile = function(id,type,terrain,probability,properties,image,objectGroup,animation) {
+	this.id = id;
+	this.type = type;
+	this.terrain = terrain;
+	this.probability = probability;
+	this.properties = properties;
+	this.image = image;
+	this.objectGroup = objectGroup;
+	this.animation = animation;
+};
+$hxClasses["format.tmx.TmxTilesetTile"] = format_tmx_TmxTilesetTile;
+format_tmx_TmxTilesetTile.__name__ = "format.tmx.TmxTilesetTile";
+format_tmx_TmxTilesetTile.prototype = {
+	id: null
+	,type: null
+	,terrain: null
+	,probability: null
+	,properties: null
+	,image: null
+	,objectGroup: null
+	,animation: null
+	,__class__: format_tmx_TmxTilesetTile
+};
+var format_tmx_TmxTilesetTileFrame = function(tileId,duration) {
+	this.tileId = tileId;
+	this.duration = duration;
+};
+$hxClasses["format.tmx.TmxTilesetTileFrame"] = format_tmx_TmxTilesetTileFrame;
+format_tmx_TmxTilesetTileFrame.__name__ = "format.tmx.TmxTilesetTileFrame";
+format_tmx_TmxTilesetTileFrame.prototype = {
+	tileId: null
+	,duration: null
+	,__class__: format_tmx_TmxTilesetTileFrame
+};
+var format_tmx_TmxLayer = $hxEnums["format.tmx.TmxLayer"] = { __ename__ : true, __constructs__ : ["LTileLayer","LObjectGroup","LImageLayer","LGroup"]
+	,LTileLayer: ($_=function(layer) { return {_hx_index:0,layer:layer,__enum__:"format.tmx.TmxLayer",toString:$estr}; },$_.__params__ = ["layer"],$_)
+	,LObjectGroup: ($_=function(group) { return {_hx_index:1,group:group,__enum__:"format.tmx.TmxLayer",toString:$estr}; },$_.__params__ = ["group"],$_)
+	,LImageLayer: ($_=function(layer) { return {_hx_index:2,layer:layer,__enum__:"format.tmx.TmxLayer",toString:$estr}; },$_.__params__ = ["layer"],$_)
+	,LGroup: ($_=function(group) { return {_hx_index:3,group:group,__enum__:"format.tmx.TmxLayer",toString:$estr}; },$_.__params__ = ["group"],$_)
+};
+var format_tmx_TmxGroup = function(name,offsetX,offsetY,opacity,visible,properties,layers) {
+	this.name = name;
+	this.offsetX = offsetX;
+	this.offsetY = offsetY;
+	this.opacity = opacity;
+	this.visible = visible;
+	this.properties = properties;
+	this.layers = layers;
+};
+$hxClasses["format.tmx.TmxGroup"] = format_tmx_TmxGroup;
+format_tmx_TmxGroup.__name__ = "format.tmx.TmxGroup";
+format_tmx_TmxGroup.prototype = {
+	name: null
+	,offsetX: null
+	,offsetY: null
+	,opacity: null
+	,visible: null
+	,properties: null
+	,layers: null
+	,__class__: format_tmx_TmxGroup
+};
+var format_tmx_TmxBaseLayer = function(name,x,y,offsetX,offsetY,width,height,opacity,visible,properties) {
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	this.offsetX = offsetX;
+	this.offsetY = offsetY;
+	this.width = width;
+	this.height = height;
+	this.opacity = opacity;
+	this.visible = visible;
+	this.properties = properties;
+};
+$hxClasses["format.tmx.TmxBaseLayer"] = format_tmx_TmxBaseLayer;
+format_tmx_TmxBaseLayer.__name__ = "format.tmx.TmxBaseLayer";
+format_tmx_TmxBaseLayer.prototype = {
+	name: null
+	,x: null
+	,y: null
+	,width: null
+	,height: null
+	,opacity: null
+	,visible: null
+	,offsetX: null
+	,offsetY: null
+	,properties: null
+	,__class__: format_tmx_TmxBaseLayer
+};
+var format_tmx_TmxImageLayer = function(image,name,x,y,offsetX,offsetY,width,height,opacity,visible,properties) {
+	format_tmx_TmxBaseLayer.call(this,name,x,y,offsetX,offsetY,width,height,opacity,visible,properties);
+	this.image = image;
+};
+$hxClasses["format.tmx.TmxImageLayer"] = format_tmx_TmxImageLayer;
+format_tmx_TmxImageLayer.__name__ = "format.tmx.TmxImageLayer";
+format_tmx_TmxImageLayer.__super__ = format_tmx_TmxBaseLayer;
+format_tmx_TmxImageLayer.prototype = $extend(format_tmx_TmxBaseLayer.prototype,{
+	image: null
+	,__class__: format_tmx_TmxImageLayer
+});
+var format_tmx_TmxTileLayer = function(data,name,x,y,offsetX,offsetY,width,height,opacity,visible,properties) {
+	format_tmx_TmxBaseLayer.call(this,name,x,y,offsetX,offsetY,width,height,opacity,visible,properties);
+	this.data = data;
+};
+$hxClasses["format.tmx.TmxTileLayer"] = format_tmx_TmxTileLayer;
+format_tmx_TmxTileLayer.__name__ = "format.tmx.TmxTileLayer";
+format_tmx_TmxTileLayer.__super__ = format_tmx_TmxBaseLayer;
+format_tmx_TmxTileLayer.prototype = $extend(format_tmx_TmxBaseLayer.prototype,{
+	data: null
+	,__class__: format_tmx_TmxTileLayer
+});
+var format_tmx_TmxDataEncoding = $hxEnums["format.tmx.TmxDataEncoding"] = { __ename__ : true, __constructs__ : ["None","Base64","CSV","Unknown"]
+	,None: {_hx_index:0,__enum__:"format.tmx.TmxDataEncoding",toString:$estr}
+	,Base64: {_hx_index:1,__enum__:"format.tmx.TmxDataEncoding",toString:$estr}
+	,CSV: {_hx_index:2,__enum__:"format.tmx.TmxDataEncoding",toString:$estr}
+	,Unknown: ($_=function(value) { return {_hx_index:3,value:value,__enum__:"format.tmx.TmxDataEncoding",toString:$estr}; },$_.__params__ = ["value"],$_)
+};
+var format_tmx_TmxDataCompression = $hxEnums["format.tmx.TmxDataCompression"] = { __ename__ : true, __constructs__ : ["None","GZip","ZLib","Unknown"]
+	,None: {_hx_index:0,__enum__:"format.tmx.TmxDataCompression",toString:$estr}
+	,GZip: {_hx_index:1,__enum__:"format.tmx.TmxDataCompression",toString:$estr}
+	,ZLib: {_hx_index:2,__enum__:"format.tmx.TmxDataCompression",toString:$estr}
+	,Unknown: ($_=function(value) { return {_hx_index:3,value:value,__enum__:"format.tmx.TmxDataCompression",toString:$estr}; },$_.__params__ = ["value"],$_)
+};
+var format_tmx_TmxData = function(encoding,compression,tiles,chunks,data) {
+	this.encoding = encoding;
+	this.compression = compression;
+	this.tiles = tiles;
+	this.chunks = chunks;
+	this.data = data;
+};
+$hxClasses["format.tmx.TmxData"] = format_tmx_TmxData;
+format_tmx_TmxData.__name__ = "format.tmx.TmxData";
+format_tmx_TmxData.prototype = {
+	encoding: null
+	,compression: null
+	,tiles: null
+	,chunks: null
+	,data: null
+	,__class__: format_tmx_TmxData
+};
+var format_tmx_TmxChunk = function(x,y,width,height,tiles) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.tiles = tiles;
+};
+$hxClasses["format.tmx.TmxChunk"] = format_tmx_TmxChunk;
+format_tmx_TmxChunk.__name__ = "format.tmx.TmxChunk";
+format_tmx_TmxChunk.prototype = {
+	x: null
+	,y: null
+	,width: null
+	,height: null
+	,tiles: null
+	,__class__: format_tmx_TmxChunk
+};
+var format_tmx_TmxTile = function(gid,flippedHorizontally,flippedVertically,flippedDiagonally) {
+	this.gid = gid;
+	this.flippedHorizontally = flippedHorizontally;
+	this.flippedVertically = flippedVertically;
+	this.flippedDiagonally = flippedDiagonally;
+};
+$hxClasses["format.tmx.TmxTile"] = format_tmx_TmxTile;
+format_tmx_TmxTile.__name__ = "format.tmx.TmxTile";
+format_tmx_TmxTile.prototype = {
+	gid: null
+	,flippedHorizontally: null
+	,flippedVertically: null
+	,flippedDiagonally: null
+	,__class__: format_tmx_TmxTile
+};
+var format_tmx_TmxObjectGroupDrawOrder = $hxEnums["format.tmx.TmxObjectGroupDrawOrder"] = { __ename__ : true, __constructs__ : ["Index","Topdown","Unknown"]
+	,Index: {_hx_index:0,__enum__:"format.tmx.TmxObjectGroupDrawOrder",toString:$estr}
+	,Topdown: {_hx_index:1,__enum__:"format.tmx.TmxObjectGroupDrawOrder",toString:$estr}
+	,Unknown: ($_=function(value) { return {_hx_index:2,value:value,__enum__:"format.tmx.TmxObjectGroupDrawOrder",toString:$estr}; },$_.__params__ = ["value"],$_)
+};
+var format_tmx_TmxObjectGroup = function(drawOrder,objects,color,name,x,y,offsetX,offsetY,width,height,opacity,visible,properties) {
+	format_tmx_TmxBaseLayer.call(this,name,x,y,offsetX,offsetY,width,height,opacity,visible,properties);
+	this.color = color;
+	this.drawOrder = drawOrder;
+	this.objects = objects;
+};
+$hxClasses["format.tmx.TmxObjectGroup"] = format_tmx_TmxObjectGroup;
+format_tmx_TmxObjectGroup.__name__ = "format.tmx.TmxObjectGroup";
+format_tmx_TmxObjectGroup.__super__ = format_tmx_TmxBaseLayer;
+format_tmx_TmxObjectGroup.prototype = $extend(format_tmx_TmxBaseLayer.prototype,{
+	color: null
+	,drawOrder: null
+	,objects: null
+	,__class__: format_tmx_TmxObjectGroup
+});
+var format_tmx_TmxPoint = function(x,y) {
+	this.x = x;
+	this.y = y;
+};
+$hxClasses["format.tmx.TmxPoint"] = format_tmx_TmxPoint;
+format_tmx_TmxPoint.__name__ = "format.tmx.TmxPoint";
+format_tmx_TmxPoint.prototype = {
+	x: null
+	,y: null
+	,__class__: format_tmx_TmxPoint
+};
+var format_tmx_TmxObjectType = $hxEnums["format.tmx.TmxObjectType"] = { __ename__ : true, __constructs__ : ["OTRectangle","OTTile","OTEllipse","OTPolygon","OTText","OTPolyline"]
+	,OTRectangle: {_hx_index:0,__enum__:"format.tmx.TmxObjectType",toString:$estr}
+	,OTTile: ($_=function(gid) { return {_hx_index:1,gid:gid,__enum__:"format.tmx.TmxObjectType",toString:$estr}; },$_.__params__ = ["gid"],$_)
+	,OTEllipse: {_hx_index:2,__enum__:"format.tmx.TmxObjectType",toString:$estr}
+	,OTPolygon: ($_=function(points) { return {_hx_index:3,points:points,__enum__:"format.tmx.TmxObjectType",toString:$estr}; },$_.__params__ = ["points"],$_)
+	,OTText: ($_=function(text) { return {_hx_index:4,text:text,__enum__:"format.tmx.TmxObjectType",toString:$estr}; },$_.__params__ = ["text"],$_)
+	,OTPolyline: ($_=function(points) { return {_hx_index:5,points:points,__enum__:"format.tmx.TmxObjectType",toString:$estr}; },$_.__params__ = ["points"],$_)
+};
+var format_tmx_TmxObject = function(id,name,type,x,y,width,height,rotation,visible,objectType,properties,flippedHorizontally,flippedVertically,template) {
+	this.id = id;
+	this.name = name;
+	this.type = type;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.rotation = rotation;
+	this.visible = visible;
+	this.objectType = objectType;
+	this.properties = properties;
+	this.flippedHorizontally = flippedHorizontally;
+	this.flippedVertically = flippedVertically;
+	this.template = template;
+};
+$hxClasses["format.tmx.TmxObject"] = format_tmx_TmxObject;
+format_tmx_TmxObject.__name__ = "format.tmx.TmxObject";
+format_tmx_TmxObject.prototype = {
+	id: null
+	,name: null
+	,type: null
+	,x: null
+	,y: null
+	,width: null
+	,height: null
+	,rotation: null
+	,visible: null
+	,objectType: null
+	,properties: null
+	,flippedHorizontally: null
+	,flippedVertically: null
+	,template: null
+	,__class__: format_tmx_TmxObject
+};
+var format_tmx_TmxText = function(fontFamily,pixelSize,wrap,color,bold,italic,underline,strikeout,kerning,halign,valign,text) {
+	this.fontFamily = fontFamily;
+	this.pixelSize = pixelSize;
+	this.wrap = wrap;
+	this.color = color;
+	this.bold = bold;
+	this.italic = italic;
+	this.underline = underline;
+	this.strikeout = strikeout;
+	this.kerning = kerning;
+	this.halign = halign;
+	this.valign = valign;
+	this.text = text;
+};
+$hxClasses["format.tmx.TmxText"] = format_tmx_TmxText;
+format_tmx_TmxText.__name__ = "format.tmx.TmxText";
+format_tmx_TmxText.prototype = {
+	fontFamily: null
+	,pixelSize: null
+	,wrap: null
+	,color: null
+	,bold: null
+	,italic: null
+	,underline: null
+	,strikeout: null
+	,kerning: null
+	,halign: null
+	,valign: null
+	,text: null
+	,__class__: format_tmx_TmxText
+};
+var format_tmx_TmxPropertyType = $hxEnums["format.tmx.TmxPropertyType"] = { __ename__ : true, __constructs__ : ["PTString","PTInt","PTBool","PTFloat","PTFile","PTColor"]
+	,PTString: {_hx_index:0,__enum__:"format.tmx.TmxPropertyType",toString:$estr}
+	,PTInt: {_hx_index:1,__enum__:"format.tmx.TmxPropertyType",toString:$estr}
+	,PTBool: {_hx_index:2,__enum__:"format.tmx.TmxPropertyType",toString:$estr}
+	,PTFloat: {_hx_index:3,__enum__:"format.tmx.TmxPropertyType",toString:$estr}
+	,PTFile: {_hx_index:4,__enum__:"format.tmx.TmxPropertyType",toString:$estr}
+	,PTColor: {_hx_index:5,__enum__:"format.tmx.TmxPropertyType",toString:$estr}
+};
+var format_tmx__$Data_TmxProperties_$Impl_$ = {};
+$hxClasses["format.tmx._Data.TmxProperties_Impl_"] = format_tmx__$Data_TmxProperties_$Impl_$;
+format_tmx__$Data_TmxProperties_$Impl_$.__name__ = "format.tmx._Data.TmxProperties_Impl_";
+format_tmx__$Data_TmxProperties_$Impl_$._new = function() {
+	var this1 = new format_tmx__$Data_ImplTmxProperties();
+	return this1;
+};
+format_tmx__$Data_TmxProperties_$Impl_$._get = function(this1,v) {
+	return this1.getString(v);
+};
+format_tmx__$Data_TmxProperties_$Impl_$._set = function(this1,k,v) {
+	this1.setString(k,v);
+	return v;
+};
+var format_tmx__$Data_ImplTmxProperties = function() {
+	this.names = [];
+	this.types = [];
+	this.strings = [];
+	this.cache = [];
+	this.ints = [];
+	this.floats = [];
+};
+$hxClasses["format.tmx._Data.ImplTmxProperties"] = format_tmx__$Data_ImplTmxProperties;
+format_tmx__$Data_ImplTmxProperties.__name__ = "format.tmx._Data.ImplTmxProperties";
+format_tmx__$Data_ImplTmxProperties.prototype = {
+	names: null
+	,types: null
+	,strings: null
+	,cache: null
+	,ints: null
+	,floats: null
+	,propertyCount: function() {
+		return this.names.length;
+	}
+	,exists: function(name) {
+		return this.names.indexOf(name) != -1;
+	}
+	,existsType: function(name,type) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			return false;
+		}
+		return this.types[idx] == type;
+	}
+	,setRaw: function(name,value,type) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			this.names.push(name);
+			this.strings.push(value);
+			this.types.push(type);
+		} else {
+			this.strings[idx] = value;
+			this.types[idx] = type;
+			this.cache[idx] = null;
+		}
+	}
+	,setString: function(name,value) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			this.names.push(name);
+			this.types.push(format_tmx_TmxPropertyType.PTString);
+			this.strings.push(value);
+		} else {
+			this.types[idx] = format_tmx_TmxPropertyType.PTString;
+			this.cache[idx] = null;
+			this.strings[idx] = value;
+		}
+	}
+	,setFile: function(name,value) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			this.names.push(name);
+			this.types.push(format_tmx_TmxPropertyType.PTFile);
+			this.strings.push(value);
+		} else {
+			this.types[idx] = format_tmx_TmxPropertyType.PTFile;
+			this.strings[idx] = value;
+			this.cache[idx] = null;
+		}
+	}
+	,setInt: function(name,value) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			idx = this.names.push(name) - 1;
+			this.types.push(format_tmx_TmxPropertyType.PTInt);
+			this.strings.push(value == null ? "null" : "" + value);
+			this.cache[idx] = this.ints.push(value) - 1;
+		} else {
+			var oldType = this.types[idx];
+			this.types[idx] = format_tmx_TmxPropertyType.PTInt;
+			this.strings[idx] = value == null ? "null" : "" + value;
+			var cached = this.cache[idx];
+			if((oldType == format_tmx_TmxPropertyType.PTInt || oldType == format_tmx_TmxPropertyType.PTColor) && cached != null) {
+				this.ints[cached] = value;
+			} else {
+				this.cache[idx] = this.ints.push(value) - 1;
+			}
+		}
+	}
+	,setColor: function(name,value) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			idx = this.names.push(name) - 1;
+			this.types.push(format_tmx_TmxPropertyType.PTColor);
+			this.strings.push(value == null ? "null" : "" + value);
+			this.cache[idx] = this.ints.push(value) - 1;
+		} else {
+			var oldType = this.types[idx];
+			this.types[idx] = format_tmx_TmxPropertyType.PTColor;
+			this.strings[idx] = value == null ? "null" : "" + value;
+			var cached = this.cache[idx];
+			if((oldType == format_tmx_TmxPropertyType.PTColor || oldType == format_tmx_TmxPropertyType.PTInt) && cached != null) {
+				this.ints[cached] = value;
+			} else {
+				this.cache[idx] = this.ints.push(value) - 1;
+			}
+		}
+	}
+	,setFloat: function(name,value) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			var idx1 = this.names.push(name) - 1;
+			this.types.push(format_tmx_TmxPropertyType.PTFloat);
+			this.strings.push(value == null ? "null" : "" + value);
+			this.cache[idx1] = this.floats.push(value) - 1;
+		} else {
+			var oldType = this.types[idx];
+			this.types[idx] = format_tmx_TmxPropertyType.PTFloat;
+			this.strings[idx] = value == null ? "null" : "" + value;
+			var cached = this.cache[idx];
+			if(oldType == format_tmx_TmxPropertyType.PTFloat && cached != null) {
+				this.floats[cached] = value;
+			} else {
+				this.cache[idx] = this.floats.push(value) - 1;
+			}
+		}
+	}
+	,setBool: function(name,value) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			this.names.push(name);
+			this.types.push(format_tmx_TmxPropertyType.PTBool);
+			this.strings.push(value ? "true" : "false");
+		} else {
+			this.types[idx] = format_tmx_TmxPropertyType.PTBool;
+			this.strings[idx] = value ? "true" : "false";
+			this.cache[idx] = null;
+		}
+	}
+	,getType: function(name) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			return null;
+		}
+		return this.types[idx];
+	}
+	,get: function(name) {
+		return this.getString(name);
+	}
+	,keys: function() {
+		return HxOverrides.iter(this.names);
+	}
+	,getString: function(name) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			return null;
+		}
+		return this.strings[idx];
+	}
+	,getFile: function(name) {
+		return this.getString(name);
+	}
+	,getInt: function(name) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			return null;
+		}
+		var type = this.types[idx];
+		if(type != format_tmx_TmxPropertyType.PTInt || type != format_tmx_TmxPropertyType.PTColor) {
+			return null;
+		}
+		var cached = this.cache[idx];
+		if(cached == null) {
+			cached = Std.parseInt(this.strings[idx]);
+			this.cache[idx] = this.ints.push(cached) - 1;
+			return cached;
+		}
+		return this.ints[cached];
+	}
+	,getColor: function(name) {
+		return this.getInt(name);
+	}
+	,getFloat: function(name) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			return NaN;
+		}
+		var type = this.types[idx];
+		if(type == format_tmx_TmxPropertyType.PTInt || type == format_tmx_TmxPropertyType.PTColor) {
+			return this.getInt(name);
+		}
+		if(type != format_tmx_TmxPropertyType.PTFloat) {
+			return NaN;
+		}
+		var cached = this.cache[idx];
+		if(cached == null) {
+			var fval = parseFloat(this.strings[idx]);
+			this.cache[idx] = this.floats.push(fval) - 1;
+			return fval;
+		}
+		return this.floats[cached];
+	}
+	,getBool: function(name) {
+		var idx = this.names.indexOf(name);
+		if(idx == -1) {
+			return false;
+		}
+		return this.strings[idx] == "true";
+	}
+	,propagateTo: function(other,_override) {
+		if(_override == null) {
+			_override = false;
+		}
+		var i = 0;
+		while(i < this.names.length) {
+			if(other.names.indexOf(this.names[i]) == -1 || _override) {
+				other.setRaw(this.names[i],this.strings[i],this.types[i]);
+			}
+			++i;
+		}
+	}
+	,__class__: format_tmx__$Data_ImplTmxProperties
+};
+var format_tmx_TmxObjectTemplate = function(tileset,object) {
+	this.tileset = tileset;
+	this.object = object;
+};
+$hxClasses["format.tmx.TmxObjectTemplate"] = format_tmx_TmxObjectTemplate;
+format_tmx_TmxObjectTemplate.__name__ = "format.tmx.TmxObjectTemplate";
+format_tmx_TmxObjectTemplate.prototype = {
+	tileset: null
+	,object: null
+	,__class__: format_tmx_TmxObjectTemplate
+};
+var format_tmx_TmxObjectTypeTemplate = function(name,color,properties) {
+	this.name = name;
+	this.color = color;
+	this.properties = properties;
+};
+$hxClasses["format.tmx.TmxObjectTypeTemplate"] = format_tmx_TmxObjectTypeTemplate;
+format_tmx_TmxObjectTypeTemplate.__name__ = "format.tmx.TmxObjectTypeTemplate";
+format_tmx_TmxObjectTypeTemplate.prototype = {
+	name: null
+	,color: null
+	,properties: null
+	,__class__: format_tmx_TmxObjectTypeTemplate
+};
+var format_tmx_TmxObjectTypeProperty = function(name,type,defaultValue) {
+	this.name = name;
+	this.type = type;
+	this.defaultValue = defaultValue;
+};
+$hxClasses["format.tmx.TmxObjectTypeProperty"] = format_tmx_TmxObjectTypeProperty;
+format_tmx_TmxObjectTypeProperty.__name__ = "format.tmx.TmxObjectTypeProperty";
+format_tmx_TmxObjectTypeProperty.prototype = {
+	name: null
+	,type: null
+	,defaultValue: null
+	,__class__: format_tmx_TmxObjectTypeProperty
+};
+var format_tmx_Reader = function() {
+};
+$hxClasses["format.tmx.Reader"] = format_tmx_Reader;
+format_tmx_Reader.__name__ = "format.tmx.Reader";
+format_tmx_Reader.prototype = {
+	customUncompressors: null
+	,customEncoders: null
+	,width: null
+	,height: null
+	,resolveTSX: null
+	,resolveTemplate: null
+	,resolveTypeTemplate: null
+	,read: function(xml) {
+		if(xml.nodeType != Xml.Document && xml.nodeType != Xml.Element) {
+			throw new js__$Boot_HaxeError("Invalid nodeType " + _$Xml_XmlType_$Impl_$.toString(xml.nodeType));
+		}
+		var this1 = xml;
+		var map = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(this1,"map");
+		var properties = this.resolveProperties(map);
+		var tilesets = [];
+		var layers = [];
+		var element = map.elements();
+		while(element.hasNext()) {
+			var element1 = element.next();
+			var _g;
+			if(element1.nodeType == Xml.Document) {
+				_g = "Document";
+			} else {
+				if(element1.nodeType != Xml.Element) {
+					throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + _$Xml_XmlType_$Impl_$.toString(element1.nodeType));
+				}
+				_g = element1.nodeName;
+			}
+			switch(_g) {
+			case "group":
+				layers.push(format_tmx_TmxLayer.LGroup(this.resolveGroup(element1)));
+				break;
+			case "imagelayer":
+				layers.push(format_tmx_TmxLayer.LImageLayer(this.resolveImageLayer(element1)));
+				break;
+			case "layer":
+				layers.push(format_tmx_TmxLayer.LTileLayer(this.resolveTileLayer(element1)));
+				break;
+			case "objectgroup":
+				layers.push(format_tmx_TmxLayer.LObjectGroup(this.resolveObjectGroup(element1)));
+				break;
+			case "tileset":
+				var root = null;
+				var properties1 = this.resolveProperties(element1);
+				var terrains = [];
+				var hasTerrains = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(element1,"terraintypes");
+				var tiles = [];
+				var hasTiles = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(element1,"tile");
+				var tileOffset = null;
+				var hasTileOffset = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(element1,"tileoffset");
+				var wangSets = [];
+				var hasWangSets = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(element1,"wangsets");
+				var grid = null;
+				var hasGrid = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(element1,"grid");
+				if(hasTileOffset) {
+					var node = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(element1,"tileoffset");
+					tileOffset = new format_tmx_TmxTileOffset(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"x")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"y")));
+				}
+				if(hasTerrains) {
+					var _g1 = 0;
+					var _g11 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(element1,"terraintypes"),"terrain");
+					while(_g1 < _g11.length) {
+						var node1 = _g11[_g1];
+						++_g1;
+						terrains.push(new format_tmx_TmxTerrain(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"name"),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"tile")),this.resolveProperties(node1)));
+					}
+				}
+				if(hasWangSets) {
+					var _g2 = 0;
+					var _g12 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(element1,"wangsets"),"wangset");
+					while(_g2 < _g12.length) {
+						var node2 = _g12[_g2];
+						++_g2;
+						wangSets.push(this.resolveWangSet(node2));
+					}
+				}
+				if(hasGrid) {
+					var gnode = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(element1,"grid");
+					var _g13 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"width"));
+					var _g3 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"height"));
+					var input = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"orientation");
+					var grid1;
+					switch(input) {
+					case "hexagonal":
+						grid1 = format_tmx_TmxOrientation.Hexagonal;
+						break;
+					case "isometric":
+						grid1 = format_tmx_TmxOrientation.Isometric;
+						break;
+					case "orthogonal":
+						grid1 = format_tmx_TmxOrientation.Orthogonal;
+						break;
+					case "staggered":
+						grid1 = format_tmx_TmxOrientation.Staggered;
+						break;
+					default:
+						grid1 = format_tmx_TmxOrientation.Unknown(input);
+					}
+					grid = new format_tmx_TmxTilesetGrid(grid1,_g13,_g3);
+				}
+				if(hasTiles) {
+					var _g4 = 0;
+					var _g14 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(element1,"tile");
+					while(_g4 < _g14.length) {
+						var node3 = _g14[_g4];
+						++_g4;
+						var animation = null;
+						if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"animation")) {
+							animation = [];
+							var _g5 = 0;
+							var _g15 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"animation"),"frame");
+							while(_g5 < _g15.length) {
+								var frameInfo = _g15[_g5];
+								++_g5;
+								animation.push(new format_tmx_TmxTilesetTileFrame(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(frameInfo,"tileid")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(frameInfo,"duration"))));
+							}
+						}
+						var _g6 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"id"));
+						var _g51 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"terrain") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"terrain") : null;
+						var _g41 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"probability") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"probability")) : 0;
+						var _g31 = this.resolveProperties(node3);
+						var _g21 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"image")) : null;
+						var _g16 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"objectgroup") ? this.resolveObjectGroup(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"objectgroup")) : null;
+						tiles.push(new format_tmx_TmxTilesetTile(_g6,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"type") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"type") : null,_g51,_g41,_g31,_g21,_g16,animation));
+					}
+				}
+				var tmp;
+				if(root != null) {
+					root.firstGID = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"firstgid")) : root.firstGID;
+					root.source = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"source") : root.source;
+					root.name = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"name") : root.name;
+					root.tileWidth = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"tilewidth") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"tilewidth")) : root.tileWidth;
+					root.tileHeight = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"tileheight") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"tileheight")) : root.tileHeight;
+					root.spacing = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"spacing") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"spacing")) : root.spacing;
+					root.margin = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"margin") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"margin")) : root.margin;
+					root.properties = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(element1,"properties") ? properties1 : root.properties;
+					root.image = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(element1,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(element1,"image")) : root.image;
+					root.tileCount = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"tilecount") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"tilecount")) : 0;
+					root.columns = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"columns") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"columns")) : 0;
+					if(hasTerrains) {
+						root.terrainTypes = terrains;
+					}
+					if(hasTiles) {
+						root.tiles = tiles;
+					}
+					if(hasTileOffset) {
+						root.tileOffset = tileOffset;
+					}
+					if(hasWangSets) {
+						root.wangSets = wangSets;
+					}
+					if(hasGrid) {
+						root.grid = grid;
+					}
+					tmp = root;
+				} else {
+					var _g9 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"firstgid")) : null;
+					var _g8 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"source") : null;
+					var _g7 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"name") : null;
+					var _g61 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"tilewidth") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"tilewidth")) : 0;
+					var _g52 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"tileheight") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"tileheight")) : 0;
+					var _g42 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"spacing") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"spacing")) : 0;
+					var _g32 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"margin") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"margin")) : 0;
+					var _g17 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(element1,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(element1,"image")) : null;
+					var tset = new format_tmx_TmxTileset(_g9,_g8,_g7,_g61,_g52,_g42,_g32,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"tilecount") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"tilecount")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(element1,"columns") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(element1,"columns")) : 0,tileOffset,properties1,_g17,terrains,tiles,grid,wangSets);
+					if(tset.source != null && this.resolveTSX != null) {
+						var tsx = this.resolveTSX(tset.source);
+						format_tmx_Tools.applyTSX(tsx,tset);
+					}
+					tmp = tset;
+				}
+				tilesets.push(tmp);
+				break;
+			}
+		}
+		this.width = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"width"));
+		this.height = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"height"));
+		var _g141 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"version");
+		var input1 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"orientation");
+		var _g131;
+		switch(input1) {
+		case "hexagonal":
+			_g131 = format_tmx_TmxOrientation.Hexagonal;
+			break;
+		case "isometric":
+			_g131 = format_tmx_TmxOrientation.Isometric;
+			break;
+		case "orthogonal":
+			_g131 = format_tmx_TmxOrientation.Orthogonal;
+			break;
+		case "staggered":
+			_g131 = format_tmx_TmxOrientation.Staggered;
+			break;
+		default:
+			_g131 = format_tmx_TmxOrientation.Unknown(input1);
+		}
+		var _g121 = this.width;
+		var _g111 = this.height;
+		var _g10 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"tilewidth"));
+		var _g91 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"tileheight"));
+		var _g81;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(map,"backgroundcolor")) {
+			var input2 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"backgroundcolor");
+			_g81 = HxOverrides.cca(input2,0) == 35 ? Std.parseInt("0x" + HxOverrides.substr(input2,1,null)) : Std.parseInt("0x" + input2);
+		} else {
+			_g81 = 0;
+		}
+		var _g71;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(map,"renderorder")) {
+			var input3 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"renderorder");
+			switch(input3) {
+			case "left-down":
+				_g71 = format_tmx_TmxRenderOrder.LeftDown;
+				break;
+			case "left-up":
+				_g71 = format_tmx_TmxRenderOrder.LeftUp;
+				break;
+			case "right-down":
+				_g71 = format_tmx_TmxRenderOrder.RightDown;
+				break;
+			case "right-up":
+				_g71 = format_tmx_TmxRenderOrder.RightUp;
+				break;
+			default:
+				_g71 = format_tmx_TmxRenderOrder.Unknown(input3);
+			}
+		} else {
+			_g71 = format_tmx_TmxRenderOrder.RightDown;
+		}
+		var _g62 = properties;
+		var _g53 = tilesets;
+		var _g43 = layers;
+		var _g33;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(map,"staggerindex")) {
+			var input4 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"staggerindex");
+			switch(input4) {
+			case "even":
+				_g33 = format_tmx_TmxStaggerIndex.Even;
+				break;
+			case "odd":
+				_g33 = format_tmx_TmxStaggerIndex.Odd;
+				break;
+			default:
+				_g33 = format_tmx_TmxStaggerIndex.Unknown(input4);
+			}
+		} else {
+			_g33 = null;
+		}
+		var _g22;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(map,"staggeraxis")) {
+			var input5 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"staggeraxis");
+			switch(input5) {
+			case "x":
+				_g22 = format_tmx_TmxStaggerAxis.AxisX;
+				break;
+			case "y":
+				_g22 = format_tmx_TmxStaggerAxis.AxisY;
+				break;
+			default:
+				_g22 = format_tmx_TmxStaggerAxis.Unknown(input5);
+			}
+		} else {
+			_g22 = null;
+		}
+		return new format_tmx_TmxMap(_g141,_g131,_g121,_g111,_g10,_g91,_g81,_g71,_g33,_g22,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(map,"hexsidelength") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"hexsidelength")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(map,"nextobjectid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"nextobjectid")) : 0,_g62,_g53,_g43,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(map,"infinite") && haxe_xml__$Access_AttribAccess_$Impl_$.resolve(map,"infinite") == "1");
+	}
+	,readTSX: function(xml,root) {
+		if(xml.nodeType != Xml.Document && xml.nodeType != Xml.Element) {
+			throw new js__$Boot_HaxeError("Invalid nodeType " + _$Xml_XmlType_$Impl_$.toString(xml.nodeType));
+		}
+		var this1 = xml;
+		var input = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(this1,"tileset");
+		var properties = this.resolveProperties(input);
+		var terrains = [];
+		var hasTerrains = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"terraintypes");
+		var tiles = [];
+		var hasTiles = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"tile");
+		var tileOffset = null;
+		var hasTileOffset = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"tileoffset");
+		var wangSets = [];
+		var hasWangSets = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"wangsets");
+		var grid = null;
+		var hasGrid = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"grid");
+		if(hasTileOffset) {
+			var node = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"tileoffset");
+			tileOffset = new format_tmx_TmxTileOffset(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"x")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"y")));
+		}
+		if(hasTerrains) {
+			var _g = 0;
+			var _g1 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"terraintypes"),"terrain");
+			while(_g < _g1.length) {
+				var node1 = _g1[_g];
+				++_g;
+				terrains.push(new format_tmx_TmxTerrain(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"name"),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"tile")),this.resolveProperties(node1)));
+			}
+		}
+		if(hasWangSets) {
+			var _g2 = 0;
+			var _g11 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"wangsets"),"wangset");
+			while(_g2 < _g11.length) {
+				var node2 = _g11[_g2];
+				++_g2;
+				wangSets.push(this.resolveWangSet(node2));
+			}
+		}
+		if(hasGrid) {
+			var gnode = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"grid");
+			var _g12 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"width"));
+			var _g3 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"height"));
+			var input1 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"orientation");
+			var grid1;
+			switch(input1) {
+			case "hexagonal":
+				grid1 = format_tmx_TmxOrientation.Hexagonal;
+				break;
+			case "isometric":
+				grid1 = format_tmx_TmxOrientation.Isometric;
+				break;
+			case "orthogonal":
+				grid1 = format_tmx_TmxOrientation.Orthogonal;
+				break;
+			case "staggered":
+				grid1 = format_tmx_TmxOrientation.Staggered;
+				break;
+			default:
+				grid1 = format_tmx_TmxOrientation.Unknown(input1);
+			}
+			grid = new format_tmx_TmxTilesetGrid(grid1,_g12,_g3);
+		}
+		if(hasTiles) {
+			var _g4 = 0;
+			var _g13 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"tile");
+			while(_g4 < _g13.length) {
+				var node3 = _g13[_g4];
+				++_g4;
+				var animation = null;
+				if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"animation")) {
+					animation = [];
+					var _g5 = 0;
+					var _g14 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"animation"),"frame");
+					while(_g5 < _g14.length) {
+						var frameInfo = _g14[_g5];
+						++_g5;
+						animation.push(new format_tmx_TmxTilesetTileFrame(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(frameInfo,"tileid")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(frameInfo,"duration"))));
+					}
+				}
+				var _g6 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"id"));
+				var _g51 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"terrain") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"terrain") : null;
+				var _g41 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"probability") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"probability")) : 0;
+				var _g31 = this.resolveProperties(node3);
+				var _g21 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"image")) : null;
+				var _g15 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"objectgroup") ? this.resolveObjectGroup(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"objectgroup")) : null;
+				tiles.push(new format_tmx_TmxTilesetTile(_g6,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"type") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"type") : null,_g51,_g41,_g31,_g21,_g15,animation));
+			}
+		}
+		if(root != null) {
+			root.firstGID = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"firstgid")) : root.firstGID;
+			root.source = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"source") : root.source;
+			root.name = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : root.name;
+			root.tileWidth = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tilewidth") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tilewidth")) : root.tileWidth;
+			root.tileHeight = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tileheight") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tileheight")) : root.tileHeight;
+			root.spacing = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"spacing") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"spacing")) : root.spacing;
+			root.margin = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"margin") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"margin")) : root.margin;
+			root.properties = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"properties") ? properties : root.properties;
+			root.image = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"image")) : root.image;
+			root.tileCount = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tilecount") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tilecount")) : 0;
+			root.columns = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"columns") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"columns")) : 0;
+			if(hasTerrains) {
+				root.terrainTypes = terrains;
+			}
+			if(hasTiles) {
+				root.tiles = tiles;
+			}
+			if(hasTileOffset) {
+				root.tileOffset = tileOffset;
+			}
+			if(hasWangSets) {
+				root.wangSets = wangSets;
+			}
+			if(hasGrid) {
+				root.grid = grid;
+			}
+			return root;
+		} else {
+			var _g9 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"firstgid")) : null;
+			var _g8 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"source") : null;
+			var _g7 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : null;
+			var _g61 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tilewidth") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tilewidth")) : 0;
+			var _g52 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tileheight") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tileheight")) : 0;
+			var _g42 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"spacing") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"spacing")) : 0;
+			var _g32 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"margin") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"margin")) : 0;
+			var _g16 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"image")) : null;
+			var tset = new format_tmx_TmxTileset(_g9,_g8,_g7,_g61,_g52,_g42,_g32,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tilecount") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tilecount")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"columns") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"columns")) : 0,tileOffset,properties,_g16,terrains,tiles,grid,wangSets);
+			if(tset.source != null && this.resolveTSX != null) {
+				var tsx = this.resolveTSX(tset.source);
+				format_tmx_Tools.applyTSX(tsx,tset);
+			}
+			return tset;
+		}
+	}
+	,readObjectTypes: function(xml,root) {
+		var result = new haxe_ds_StringMap();
+		if(xml.nodeType != Xml.Document && xml.nodeType != Xml.Element) {
+			throw new js__$Boot_HaxeError("Invalid nodeType " + _$Xml_XmlType_$Impl_$.toString(xml.nodeType));
+		}
+		var this1 = xml;
+		var f = this1;
+		if(!haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(f,"objecttypes")) {
+			return result;
+		}
+		var _g = 0;
+		var _g1 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(f,"objecttypes"),"objecttype");
+		while(_g < _g1.length) {
+			var type = _g1[_g];
+			++_g;
+			var props = [];
+			var _g2 = 0;
+			var _g11 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(type,"property");
+			while(_g2 < _g11.length) {
+				var prop = _g11[_g2];
+				++_g2;
+				var ptype;
+				if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(prop,"type")) {
+					switch(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"type")) {
+					case "bool":
+						ptype = format_tmx_TmxPropertyType.PTBool;
+						break;
+					case "color":
+						ptype = format_tmx_TmxPropertyType.PTColor;
+						break;
+					case "file":
+						ptype = format_tmx_TmxPropertyType.PTFile;
+						break;
+					case "float":
+						ptype = format_tmx_TmxPropertyType.PTFloat;
+						break;
+					case "int":
+						ptype = format_tmx_TmxPropertyType.PTInt;
+						break;
+					case "string":
+						ptype = format_tmx_TmxPropertyType.PTString;
+						break;
+					default:
+						ptype = format_tmx_TmxPropertyType.PTString;
+					}
+				} else {
+					ptype = format_tmx_TmxPropertyType.PTString;
+				}
+				props.push(new format_tmx_TmxObjectTypeProperty(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"name"),ptype,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(prop,"default") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"default") : null));
+			}
+			var key = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(type,"name");
+			var value = new format_tmx_TmxObjectTypeTemplate(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(type,"name"),Std.parseInt("0x" + HxOverrides.substr(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(type,"color"),1,null)),props);
+			if(__map_reserved[key] != null) {
+				result.setReserved(key,value);
+			} else {
+				result.h[key] = value;
+			}
+		}
+		if(root != null) {
+			format_tmx_Tools.propagateObjectTypes(root,result);
+		}
+		return result;
+	}
+	,readTemplate: function(xml) {
+		if(xml.nodeType != Xml.Document && xml.nodeType != Xml.Element) {
+			throw new js__$Boot_HaxeError("Invalid nodeType " + _$Xml_XmlType_$Impl_$.toString(xml.nodeType));
+		}
+		var this1 = xml;
+		var f = this1;
+		if(!haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(f,"template")) {
+			return null;
+		}
+		var input = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(f,"template");
+		var _g;
+		if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"tileset")) {
+			var input1 = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"tileset");
+			var root = null;
+			var properties = this.resolveProperties(input1);
+			var terrains = [];
+			var hasTerrains = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input1,"terraintypes");
+			var tiles = [];
+			var hasTiles = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input1,"tile");
+			var tileOffset = null;
+			var hasTileOffset = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input1,"tileoffset");
+			var wangSets = [];
+			var hasWangSets = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input1,"wangsets");
+			var grid = null;
+			var hasGrid = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input1,"grid");
+			if(hasTileOffset) {
+				var node = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input1,"tileoffset");
+				tileOffset = new format_tmx_TmxTileOffset(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"x")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"y")));
+			}
+			if(hasTerrains) {
+				var _g1 = 0;
+				var _g11 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input1,"terraintypes"),"terrain");
+				while(_g1 < _g11.length) {
+					var node1 = _g11[_g1];
+					++_g1;
+					terrains.push(new format_tmx_TmxTerrain(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"name"),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"tile")),this.resolveProperties(node1)));
+				}
+			}
+			if(hasWangSets) {
+				var _g2 = 0;
+				var _g12 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input1,"wangsets"),"wangset");
+				while(_g2 < _g12.length) {
+					var node2 = _g12[_g2];
+					++_g2;
+					wangSets.push(this.resolveWangSet(node2));
+				}
+			}
+			if(hasGrid) {
+				var gnode = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input1,"grid");
+				var _g13 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"width"));
+				var _g3 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"height"));
+				var input2 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"orientation");
+				var grid1;
+				switch(input2) {
+				case "hexagonal":
+					grid1 = format_tmx_TmxOrientation.Hexagonal;
+					break;
+				case "isometric":
+					grid1 = format_tmx_TmxOrientation.Isometric;
+					break;
+				case "orthogonal":
+					grid1 = format_tmx_TmxOrientation.Orthogonal;
+					break;
+				case "staggered":
+					grid1 = format_tmx_TmxOrientation.Staggered;
+					break;
+				default:
+					grid1 = format_tmx_TmxOrientation.Unknown(input2);
+				}
+				grid = new format_tmx_TmxTilesetGrid(grid1,_g13,_g3);
+			}
+			if(hasTiles) {
+				var _g4 = 0;
+				var _g14 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input1,"tile");
+				while(_g4 < _g14.length) {
+					var node3 = _g14[_g4];
+					++_g4;
+					var animation = null;
+					if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"animation")) {
+						animation = [];
+						var _g5 = 0;
+						var _g15 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"animation"),"frame");
+						while(_g5 < _g15.length) {
+							var frameInfo = _g15[_g5];
+							++_g5;
+							animation.push(new format_tmx_TmxTilesetTileFrame(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(frameInfo,"tileid")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(frameInfo,"duration"))));
+						}
+					}
+					var _g6 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"id"));
+					var _g51 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"terrain") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"terrain") : null;
+					var _g41 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"probability") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"probability")) : 0;
+					var _g31 = this.resolveProperties(node3);
+					var _g21 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"image")) : null;
+					var _g16 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"objectgroup") ? this.resolveObjectGroup(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"objectgroup")) : null;
+					tiles.push(new format_tmx_TmxTilesetTile(_g6,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"type") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"type") : null,_g51,_g41,_g31,_g21,_g16,animation));
+				}
+			}
+			if(root != null) {
+				root.firstGID = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"firstgid")) : root.firstGID;
+				root.source = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"source") : root.source;
+				root.name = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"name") : root.name;
+				root.tileWidth = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"tilewidth") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"tilewidth")) : root.tileWidth;
+				root.tileHeight = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"tileheight") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"tileheight")) : root.tileHeight;
+				root.spacing = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"spacing") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"spacing")) : root.spacing;
+				root.margin = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"margin") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"margin")) : root.margin;
+				root.properties = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input1,"properties") ? properties : root.properties;
+				root.image = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input1,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input1,"image")) : root.image;
+				root.tileCount = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"tilecount") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"tilecount")) : 0;
+				root.columns = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"columns") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"columns")) : 0;
+				if(hasTerrains) {
+					root.terrainTypes = terrains;
+				}
+				if(hasTiles) {
+					root.tiles = tiles;
+				}
+				if(hasTileOffset) {
+					root.tileOffset = tileOffset;
+				}
+				if(hasWangSets) {
+					root.wangSets = wangSets;
+				}
+				if(hasGrid) {
+					root.grid = grid;
+				}
+				_g = root;
+			} else {
+				var _g9 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"firstgid")) : null;
+				var _g8 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"source") : null;
+				var _g7 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"name") : null;
+				var _g61 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"tilewidth") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"tilewidth")) : 0;
+				var _g52 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"tileheight") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"tileheight")) : 0;
+				var _g42 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"spacing") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"spacing")) : 0;
+				var _g32 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"margin") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"margin")) : 0;
+				var _g17 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input1,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input1,"image")) : null;
+				var tset = new format_tmx_TmxTileset(_g9,_g8,_g7,_g61,_g52,_g42,_g32,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"tilecount") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"tilecount")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input1,"columns") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input1,"columns")) : 0,tileOffset,properties,_g17,terrains,tiles,grid,wangSets);
+				if(tset.source != null && this.resolveTSX != null) {
+					var tsx = this.resolveTSX(tset.source);
+					format_tmx_Tools.applyTSX(tsx,tset);
+				}
+				_g = tset;
+			}
+		} else {
+			_g = null;
+		}
+		return new format_tmx_TmxObjectTemplate(_g,this.resolveObject(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"object")));
+	}
+	,resolveGroup: function(input) {
+		var layers = [];
+		var element = input.elements();
+		while(element.hasNext()) {
+			var element1 = element.next();
+			var _g;
+			if(element1.nodeType == Xml.Document) {
+				_g = "Document";
+			} else {
+				if(element1.nodeType != Xml.Element) {
+					throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + _$Xml_XmlType_$Impl_$.toString(element1.nodeType));
+				}
+				_g = element1.nodeName;
+			}
+			switch(_g) {
+			case "group":
+				layers.push(format_tmx_TmxLayer.LGroup(this.resolveGroup(element1)));
+				break;
+			case "imagelayer":
+				layers.push(format_tmx_TmxLayer.LImageLayer(this.resolveImageLayer(element1)));
+				break;
+			case "layer":
+				layers.push(format_tmx_TmxLayer.LTileLayer(this.resolveTileLayer(element1)));
+				break;
+			case "objectgroup":
+				layers.push(format_tmx_TmxLayer.LObjectGroup(this.resolveObjectGroup(element1)));
+				break;
+			}
+		}
+		return new format_tmx_TmxGroup(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name"),haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"offsetx") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"offsetx")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"offsety") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"offsety")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"opacity") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"opacity")) : 1,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"visible") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"visible") == "1" : true,this.resolveProperties(input),layers);
+	}
+	,resolveStaggerIndex: function(input) {
+		switch(input) {
+		case "even":
+			return format_tmx_TmxStaggerIndex.Even;
+		case "odd":
+			return format_tmx_TmxStaggerIndex.Odd;
+		default:
+			return format_tmx_TmxStaggerIndex.Unknown(input);
+		}
+	}
+	,resolveStaggerAxis: function(input) {
+		switch(input) {
+		case "x":
+			return format_tmx_TmxStaggerAxis.AxisX;
+		case "y":
+			return format_tmx_TmxStaggerAxis.AxisY;
+		default:
+			return format_tmx_TmxStaggerAxis.Unknown(input);
+		}
+	}
+	,resolveOrientation: function(input) {
+		switch(input) {
+		case "hexagonal":
+			return format_tmx_TmxOrientation.Hexagonal;
+		case "isometric":
+			return format_tmx_TmxOrientation.Isometric;
+		case "orthogonal":
+			return format_tmx_TmxOrientation.Orthogonal;
+		case "staggered":
+			return format_tmx_TmxOrientation.Staggered;
+		default:
+			return format_tmx_TmxOrientation.Unknown(input);
+		}
+	}
+	,resolveColor: function(input) {
+		if(HxOverrides.cca(input,0) == 35) {
+			return Std.parseInt("0x" + HxOverrides.substr(input,1,null));
+		} else {
+			return Std.parseInt("0x" + input);
+		}
+	}
+	,resolveRenderOrder: function(input) {
+		switch(input) {
+		case "left-down":
+			return format_tmx_TmxRenderOrder.LeftDown;
+		case "left-up":
+			return format_tmx_TmxRenderOrder.LeftUp;
+		case "right-down":
+			return format_tmx_TmxRenderOrder.RightDown;
+		case "right-up":
+			return format_tmx_TmxRenderOrder.RightUp;
+		default:
+			return format_tmx_TmxRenderOrder.Unknown(input);
+		}
+	}
+	,resolveTileset: function(input,root) {
+		var properties = this.resolveProperties(input);
+		var terrains = [];
+		var hasTerrains = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"terraintypes");
+		var tiles = [];
+		var hasTiles = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"tile");
+		var tileOffset = null;
+		var hasTileOffset = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"tileoffset");
+		var wangSets = [];
+		var hasWangSets = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"wangsets");
+		var grid = null;
+		var hasGrid = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"grid");
+		if(hasTileOffset) {
+			var node = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"tileoffset");
+			tileOffset = new format_tmx_TmxTileOffset(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"x")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"y")));
+		}
+		if(hasTerrains) {
+			var _g = 0;
+			var _g1 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"terraintypes"),"terrain");
+			while(_g < _g1.length) {
+				var node1 = _g1[_g];
+				++_g;
+				terrains.push(new format_tmx_TmxTerrain(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"name"),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"tile")),this.resolveProperties(node1)));
+			}
+		}
+		if(hasWangSets) {
+			var _g2 = 0;
+			var _g11 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"wangsets"),"wangset");
+			while(_g2 < _g11.length) {
+				var node2 = _g11[_g2];
+				++_g2;
+				wangSets.push(this.resolveWangSet(node2));
+			}
+		}
+		if(hasGrid) {
+			var gnode = haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"grid");
+			var _g12 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"width"));
+			var _g3 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"height"));
+			var input1 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(gnode,"orientation");
+			var grid1;
+			switch(input1) {
+			case "hexagonal":
+				grid1 = format_tmx_TmxOrientation.Hexagonal;
+				break;
+			case "isometric":
+				grid1 = format_tmx_TmxOrientation.Isometric;
+				break;
+			case "orthogonal":
+				grid1 = format_tmx_TmxOrientation.Orthogonal;
+				break;
+			case "staggered":
+				grid1 = format_tmx_TmxOrientation.Staggered;
+				break;
+			default:
+				grid1 = format_tmx_TmxOrientation.Unknown(input1);
+			}
+			grid = new format_tmx_TmxTilesetGrid(grid1,_g12,_g3);
+		}
+		if(hasTiles) {
+			var _g4 = 0;
+			var _g13 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"tile");
+			while(_g4 < _g13.length) {
+				var node3 = _g13[_g4];
+				++_g4;
+				var animation = null;
+				if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"animation")) {
+					animation = [];
+					var _g5 = 0;
+					var _g14 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"animation"),"frame");
+					while(_g5 < _g14.length) {
+						var frameInfo = _g14[_g5];
+						++_g5;
+						animation.push(new format_tmx_TmxTilesetTileFrame(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(frameInfo,"tileid")),Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(frameInfo,"duration"))));
+					}
+				}
+				var _g6 = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"id"));
+				var _g51 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"terrain") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"terrain") : null;
+				var _g41 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"probability") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"probability")) : 0;
+				var _g31 = this.resolveProperties(node3);
+				var _g21 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"image")) : null;
+				var _g15 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(node3,"objectgroup") ? this.resolveObjectGroup(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(node3,"objectgroup")) : null;
+				tiles.push(new format_tmx_TmxTilesetTile(_g6,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node3,"type") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node3,"type") : null,_g51,_g41,_g31,_g21,_g15,animation));
+			}
+		}
+		if(root != null) {
+			root.firstGID = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"firstgid")) : root.firstGID;
+			root.source = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"source") : root.source;
+			root.name = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : root.name;
+			root.tileWidth = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tilewidth") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tilewidth")) : root.tileWidth;
+			root.tileHeight = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tileheight") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tileheight")) : root.tileHeight;
+			root.spacing = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"spacing") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"spacing")) : root.spacing;
+			root.margin = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"margin") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"margin")) : root.margin;
+			root.properties = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"properties") ? properties : root.properties;
+			root.image = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"image")) : root.image;
+			root.tileCount = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tilecount") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tilecount")) : 0;
+			root.columns = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"columns") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"columns")) : 0;
+			if(hasTerrains) {
+				root.terrainTypes = terrains;
+			}
+			if(hasTiles) {
+				root.tiles = tiles;
+			}
+			if(hasTileOffset) {
+				root.tileOffset = tileOffset;
+			}
+			if(hasWangSets) {
+				root.wangSets = wangSets;
+			}
+			if(hasGrid) {
+				root.grid = grid;
+			}
+			return root;
+		}
+		var _g9 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"firstgid")) : null;
+		var _g8 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"source") : null;
+		var _g7 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : null;
+		var _g61 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tilewidth") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tilewidth")) : 0;
+		var _g52 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tileheight") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tileheight")) : 0;
+		var _g42 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"spacing") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"spacing")) : 0;
+		var _g32 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"margin") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"margin")) : 0;
+		var _g16 = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"image")) : null;
+		var tset = new format_tmx_TmxTileset(_g9,_g8,_g7,_g61,_g52,_g42,_g32,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tilecount") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tilecount")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"columns") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"columns")) : 0,tileOffset,properties,_g16,terrains,tiles,grid,wangSets);
+		if(tset.source != null && this.resolveTSX != null) {
+			var tsx = this.resolveTSX(tset.source);
+			format_tmx_Tools.applyTSX(tsx,tset);
+		}
+		return tset;
+	}
+	,resolveWangSet: function(input) {
+		var corners = [];
+		var edges = [];
+		var tiles = [];
+		var _g = 0;
+		var _g1 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"wangcornercolor");
+		while(_g < _g1.length) {
+			var node = _g1[_g];
+			++_g;
+			var _g2 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"name") : null;
+			var _g11;
+			if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node,"color")) {
+				var input1 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"color");
+				_g11 = HxOverrides.cca(input1,0) == 35 ? Std.parseInt("0x" + HxOverrides.substr(input1,1,null)) : Std.parseInt("0x" + input1);
+			} else {
+				_g11 = 0;
+			}
+			corners.push(new format_tmx_TmxWangSetColor(_g2,_g11,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node,"tile") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"tile")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node,"probability") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"probability")) : 0));
+		}
+		var _g21 = 0;
+		var _g3 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"wangedgecolor");
+		while(_g21 < _g3.length) {
+			var node1 = _g3[_g21];
+			++_g21;
+			var _g22 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node1,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"name") : null;
+			var _g12;
+			if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node1,"color")) {
+				var input2 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"color");
+				_g12 = HxOverrides.cca(input2,0) == 35 ? Std.parseInt("0x" + HxOverrides.substr(input2,1,null)) : Std.parseInt("0x" + input2);
+			} else {
+				_g12 = 0;
+			}
+			edges.push(new format_tmx_TmxWangSetColor(_g22,_g12,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node1,"tile") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"tile")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node1,"probability") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"probability")) : 0));
+		}
+		var _g4 = 0;
+		var _g5 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"wangtile");
+		while(_g4 < _g5.length) {
+			var node2 = _g5[_g4];
+			++_g4;
+			tiles.push(new format_tmx_TmxWangSetTile(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node2,"tileid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node2,"tileid")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node2,"wangid") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node2,"wangid")) : 0));
+		}
+		return new format_tmx_TmxWangSet(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : null,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tile") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tile")) : 0,corners,edges,tiles);
+	}
+	,resolveWangSetColor: function(input) {
+		var _g2 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : null;
+		var _g1;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"color")) {
+			var input1 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"color");
+			_g1 = HxOverrides.cca(input1,0) == 35 ? Std.parseInt("0x" + HxOverrides.substr(input1,1,null)) : Std.parseInt("0x" + input1);
+		} else {
+			_g1 = 0;
+		}
+		return new format_tmx_TmxWangSetColor(_g2,_g1,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"tile") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"tile")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"probability") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"probability")) : 0);
+	}
+	,resolveImage: function(input) {
+		var _g5 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"format") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"format") : "";
+		var _g4 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"id") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"id") : "";
+		var _g3 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"source") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"source") : "";
+		var _g2;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"transparent")) {
+			var input1 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"transparent");
+			_g2 = HxOverrides.cca(input1,0) == 35 ? Std.parseInt("0x" + HxOverrides.substr(input1,1,null)) : Std.parseInt("0x" + input1);
+		} else {
+			_g2 = null;
+		}
+		return new format_tmx_TmxImage(_g5,_g4,_g3,_g2,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"width") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"width")) : null,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"height") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"height")) : null,haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"data") ? this.resolveData(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"data"),false) : null);
+	}
+	,resolveData: function(input,isTileData) {
+		if(isTileData == null) {
+			isTileData = true;
+		}
+		var encoding = format_tmx_TmxDataEncoding.None;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"encoding")) {
+			switch(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"encoding")) {
+			case "base64":
+				encoding = format_tmx_TmxDataEncoding.Base64;
+				break;
+			case "csv":
+				encoding = format_tmx_TmxDataEncoding.CSV;
+				break;
+			default:
+				throw new js__$Boot_HaxeError("Unknown encoding \"" + haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"encoding") + "\"");
+			}
+		}
+		var compression = format_tmx_TmxDataCompression.None;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"compression")) {
+			switch(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"compression")) {
+			case "gzip":
+				compression = format_tmx_TmxDataCompression.GZip;
+				break;
+			case "zlib":
+				compression = format_tmx_TmxDataCompression.ZLib;
+				break;
+			default:
+				throw new js__$Boot_HaxeError("Unknown compression \"" + haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"compression") + "\"");
+			}
+		}
+		var chunks = null;
+		var tiles = null;
+		var data = null;
+		switch(encoding._hx_index) {
+		case 0:
+			if(isTileData) {
+				if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"chunk")) {
+					chunks = [];
+					var _g = 0;
+					var _g1 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"chunk");
+					while(_g < _g1.length) {
+						var node = _g1[_g];
+						++_g;
+						var chunk = new format_tmx_TmxChunk(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node,"x") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"x")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node,"y") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"y")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node,"width") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"width")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node,"height") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node,"height")) : 0,[]);
+						var chunkTiles = chunk.tiles;
+						var _g2 = 0;
+						var _g11 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(node,"tile");
+						while(_g2 < _g11.length) {
+							var tile = _g11[_g2];
+							++_g2;
+							chunkTiles.push(new format_tmx_TmxTile(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(tile,"gid")),false,false,false));
+						}
+						chunks.push(chunk);
+					}
+				} else {
+					tiles = [];
+					var _g3 = 0;
+					var _g12 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"tile");
+					while(_g3 < _g12.length) {
+						var info = _g12[_g3];
+						++_g3;
+						tiles.push(new format_tmx_TmxTile(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(info,"gid")),false,false,false));
+					}
+				}
+			} else if(compression == format_tmx_TmxDataCompression.None) {
+				data = haxe_io_Bytes.ofString(StringTools.trim(haxe_xml__$Access_Access_$Impl_$.get_innerData(input)));
+			} else {
+				data = this.uncompressData(new haxe_io_StringInput(StringTools.trim(haxe_xml__$Access_Access_$Impl_$.get_innerData(input))),compression);
+			}
+			break;
+		case 1:
+			var tile1;
+			var flipH;
+			if(isTileData && haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"chunk")) {
+				chunks = [];
+				var _g4 = 0;
+				var _g13 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"chunk");
+				while(_g4 < _g13.length) {
+					var node1 = _g13[_g4];
+					++_g4;
+					var chunk1 = new format_tmx_TmxChunk(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node1,"x") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"x")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node1,"y") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"y")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node1,"width") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"width")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node1,"height") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node1,"height")) : 0,[]);
+					var chunkTiles1 = chunk1.tiles;
+					data = haxe_crypto_Base64.decode(StringTools.trim(haxe_xml__$Access_Access_$Impl_$.get_innerData(node1)));
+					if(compression != format_tmx_TmxDataCompression.None) {
+						data = this.uncompressData(new haxe_io_BytesInput(data),compression);
+					}
+					var tilesCount = data.length / 4 | 0;
+					var d = new haxe_io_BytesInput(data);
+					d.set_bigEndian(false);
+					var _g5 = 0;
+					var _g14 = tilesCount;
+					while(_g5 < _g14) {
+						var i = _g5++;
+						tile1 = d.readInt32();
+						flipH = (tile1 & -2147483648) == -2147483648;
+						chunkTiles1.push(new format_tmx_TmxTile(tile1 & 536870911,flipH,(tile1 & 1073741824) == 1073741824,(tile1 & 536870912) == 536870912));
+					}
+					chunks.push(chunk1);
+				}
+				data = null;
+			} else {
+				data = haxe_crypto_Base64.decode(StringTools.trim(haxe_xml__$Access_Access_$Impl_$.get_innerData(input)));
+				if(compression != format_tmx_TmxDataCompression.None) {
+					data = this.uncompressData(new haxe_io_BytesInput(data),compression);
+				}
+				if(isTileData) {
+					tiles = [];
+					var tilesCount1 = data.length / 4 | 0;
+					var offset = 0;
+					var d1 = new haxe_io_BytesInput(data);
+					d1.set_bigEndian(false);
+					var _g6 = 0;
+					var _g15 = tilesCount1;
+					while(_g6 < _g15) {
+						var i1 = _g6++;
+						tile1 = d1.readInt32();
+						flipH = (tile1 & -2147483648) == -2147483648;
+						tiles.push(new format_tmx_TmxTile(tile1 & 536870911,flipH,(tile1 & 1073741824) == 1073741824,(tile1 & 536870912) == 536870912));
+					}
+					data = null;
+				}
+			}
+			break;
+		case 2:
+			if(isTileData) {
+				if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"chunk")) {
+					chunks = [];
+					var _g7 = 0;
+					var _g16 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"chunk");
+					while(_g7 < _g16.length) {
+						var node2 = _g16[_g7];
+						++_g7;
+						var chunk2 = new format_tmx_TmxChunk(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node2,"x") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node2,"x")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node2,"y") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node2,"y")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node2,"width") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node2,"width")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(node2,"height") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(node2,"height")) : 0,[]);
+						var chunkTiles2 = chunk2.tiles;
+						var split = StringTools.trim(haxe_xml__$Access_Access_$Impl_$.get_innerData(node2)).split(",");
+						var _g8 = 0;
+						while(_g8 < split.length) {
+							var str = split[_g8];
+							++_g8;
+							chunkTiles2.push(new format_tmx_TmxTile(Std.parseInt(str),false,false,false));
+						}
+						chunks.push(chunk2);
+					}
+				} else {
+					tiles = [];
+					var split1 = StringTools.trim(haxe_xml__$Access_Access_$Impl_$.get_innerData(input)).split(",");
+					var _g9 = 0;
+					while(_g9 < split1.length) {
+						var str1 = split1[_g9];
+						++_g9;
+						tiles.push(new format_tmx_TmxTile(Std.parseInt(str1),false,false,false));
+					}
+				}
+			} else {
+				throw new js__$Boot_HaxeError("CSV encoding available only for tile data");
+			}
+			break;
+		case 3:
+			var value = encoding.value;
+			throw new js__$Boot_HaxeError("Unknown data encoding: " + value);
+		}
+		return new format_tmx_TmxData(encoding,compression,tiles,chunks,data);
+	}
+	,uncompressData: function(i,compression) {
+		switch(compression._hx_index) {
+		case 0:
+			return i.readAll();
+		case 1:
+			throw new js__$Boot_HaxeError("GZip compression currently not supported.");
+		case 2:
+			return haxe_zip_InflateImpl.run(i);
+		case 3:
+			var value = compression.value;
+			throw new js__$Boot_HaxeError("Unknown compression method: " + value);
+		}
+	}
+	,resolveTileLayer: function(input) {
+		var layer = new format_tmx_TmxTileLayer(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"data") ? this.resolveData(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"data")) : null,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : "",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"x") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"x")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"y") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"y")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"offsetx") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"offsetx")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"offsety") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"offsety")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"width") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"width")) : this.width,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"height") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"height")) : this.height,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"opacity") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"opacity")) : 1,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"visible") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"visible") == "1" : true,this.resolveProperties(input));
+		return layer;
+	}
+	,resolveDraworder: function(input) {
+		switch(input) {
+		case "index":
+			return format_tmx_TmxObjectGroupDrawOrder.Index;
+		case "topdown":
+			return format_tmx_TmxObjectGroupDrawOrder.Topdown;
+		default:
+			return format_tmx_TmxObjectGroupDrawOrder.Unknown(input);
+		}
+	}
+	,resolveObjectGroup: function(input) {
+		var objects = [];
+		var _g = 0;
+		var _g1 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(input,"object");
+		while(_g < _g1.length) {
+			var obj = _g1[_g];
+			++_g;
+			objects.push(this.resolveObject(obj));
+		}
+		var group;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"draworder")) {
+			var input1 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"draworder");
+			switch(input1) {
+			case "index":
+				group = format_tmx_TmxObjectGroupDrawOrder.Index;
+				break;
+			case "topdown":
+				group = format_tmx_TmxObjectGroupDrawOrder.Topdown;
+				break;
+			default:
+				group = format_tmx_TmxObjectGroupDrawOrder.Unknown(input1);
+			}
+		} else {
+			group = format_tmx_TmxObjectGroupDrawOrder.Topdown;
+		}
+		var group1 = new format_tmx_TmxObjectGroup(group,objects,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"color") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"color")) : null,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : "",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"x") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"x")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"y") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"y")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"offsetx") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"offsetx")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"offsety") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"offsety")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"width") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"width")) : this.width,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"height") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"height")) : this.height,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"opacity") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"opacity")) : 1,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"visible") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"visible") == "1" : true,this.resolveProperties(input));
+		return group1;
+	}
+	,resolveObject: function(obj) {
+		var flippedV = false;
+		var flippedH = false;
+		var type;
+		if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(obj,"ellipse")) {
+			type = format_tmx_TmxObjectType.OTEllipse;
+		} else if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"gid")) {
+			var gid = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"gid"));
+			flippedH = (gid & -2147483648) == -2147483648;
+			if(flippedH && gid < 0) {
+				gid = -gid;
+			}
+			flippedV = (gid & 1073741824) == 1073741824;
+			type = format_tmx_TmxObjectType.OTTile(gid & 1073741823);
+		} else {
+			type = haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(obj,"polygon") ? format_tmx_TmxObjectType.OTPolygon(this.readPoints(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(obj,"polygon"))) : haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(obj,"polyline") ? format_tmx_TmxObjectType.OTPolyline(this.readPoints(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(obj,"polyline"))) : haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(obj,"text") ? format_tmx_TmxObjectType.OTText(this.resolveText(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(obj,"text"))) : format_tmx_TmxObjectType.OTRectangle;
+		}
+		var object = new format_tmx_TmxObject(Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"id")),haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"name") : "",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"type") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"type") : "",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"x") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"x")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"y") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"y")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"width") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"width")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"height") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"height")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"rotation") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"rotation")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"visible") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"visible") == "1" : true,type,this.resolveProperties(obj),flippedH,flippedV,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(obj,"template") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(obj,"template") : null);
+		if(object.type != null && object.type != "" && this.resolveTypeTemplate != null) {
+			var template = this.resolveTypeTemplate(object.type);
+			format_tmx_Tools.applyObjectTypeTemplate(object,template);
+		}
+		return object;
+	}
+	,readPoints: function(input) {
+		var arr = [];
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"points")) {
+			var points = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"points").split(" ");
+			var _g = 0;
+			while(_g < points.length) {
+				var point = points[_g];
+				++_g;
+				var idx = point.indexOf(",");
+				arr.push(new format_tmx_TmxPoint(parseFloat(HxOverrides.substr(point,0,idx)),parseFloat(HxOverrides.substr(point,idx + 1,null))));
+			}
+		}
+		return arr;
+	}
+	,resolveText: function(input) {
+		var _g10 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"fontfamily") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"fontfamily") : "sans-serif";
+		var _g9 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"pixelsize") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"pixelsize")) : 16;
+		var _g8 = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"wrap") && haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"wrap") == "1";
+		var _g7;
+		if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"color")) {
+			var input1 = haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"color");
+			_g7 = HxOverrides.cca(input1,0) == 35 ? Std.parseInt("0x" + HxOverrides.substr(input1,1,null)) : Std.parseInt("0x" + input1);
+		} else {
+			_g7 = 0;
+		}
+		return new format_tmx_TmxText(_g10,_g9,_g8,_g7,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"bold") && haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"bold") == "1",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"italic") && haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"italic") == "1",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"underline") && haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"underline") == "1",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"strikeout") && haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"strikeout") == "1",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"kerning") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"kerning") == "1" : true,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"halign") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"halign") : "left",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"valign") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"valign") : "top",haxe_xml__$Access_Access_$Impl_$.get_innerData(input));
+	}
+	,resolveImageLayer: function(input) {
+		var layer = new format_tmx_TmxImageLayer(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"image") ? this.resolveImage(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"image")) : null,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"name") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"name") : "",haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"x") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"x")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"y") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"y")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"offsetx") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"offsetx")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"offsety") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"offsety")) : 0,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"width") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"width")) : this.width,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"height") ? Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"height")) : this.height,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"opacity") ? parseFloat(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"opacity")) : 1,haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(input,"visible") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(input,"visible") == "1" : true,this.resolveProperties(input));
+		return layer;
+	}
+	,resolveProperties: function(input) {
+		var this1 = new format_tmx__$Data_ImplTmxProperties();
+		var props = this1;
+		var value;
+		if(haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve(input,"properties")) {
+			var _g = 0;
+			var _g1 = haxe_xml__$Access_NodeListAccess_$Impl_$.resolve(haxe_xml__$Access_NodeAccess_$Impl_$.resolve(input,"properties"),"property");
+			while(_g < _g1.length) {
+				var prop = _g1[_g];
+				++_g;
+				value = haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(prop,"value") ? haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"value") : haxe_xml__$Access_Access_$Impl_$.get_innerData(prop);
+				if(haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve(prop,"type")) {
+					switch(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"type")) {
+					case "bool":
+						props.setRaw(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"name"),value,format_tmx_TmxPropertyType.PTBool);
+						break;
+					case "color":
+						props.setRaw(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"name"),value,format_tmx_TmxPropertyType.PTColor);
+						break;
+					case "file":
+						props.setRaw(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"name"),value,format_tmx_TmxPropertyType.PTFile);
+						break;
+					case "float":
+						props.setRaw(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"name"),value,format_tmx_TmxPropertyType.PTFloat);
+						break;
+					case "int":
+						props.setRaw(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"name"),value,format_tmx_TmxPropertyType.PTInt);
+						break;
+					default:
+						props.setRaw(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"name"),value,format_tmx_TmxPropertyType.PTString);
+					}
+				} else {
+					props.setRaw(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(prop,"name"),value,format_tmx_TmxPropertyType.PTString);
+				}
+			}
+		}
+		return props;
+	}
+	,__class__: format_tmx_Reader
+};
+var format_tmx_Tools = function() { };
+$hxClasses["format.tmx.Tools"] = format_tmx_Tools;
+format_tmx_Tools.__name__ = "format.tmx.Tools";
+format_tmx_Tools.applyTSX = function(tsx,base) {
+	base.properties = tsx.properties;
+	base.name = tsx.name;
+	base.columns = tsx.columns;
+	base.grid = tsx.grid;
+	base.image = tsx.image;
+	base.margin = tsx.margin;
+	base.spacing = tsx.spacing;
+	base.tileOffset = tsx.tileOffset;
+	base.tileCount = tsx.tileCount;
+	base.tileHeight = tsx.tileHeight;
+	base.tileWidth = tsx.tileWidth;
+	base.terrainTypes = tsx.terrainTypes;
+	base.tiles = tsx.tiles;
+	base.wangSets = tsx.wangSets;
+};
+format_tmx_Tools.applyObjectTypeTemplate = function(obj,ot) {
+	var props = obj.properties;
+	var _g = 0;
+	var _g1 = ot.properties;
+	while(_g < _g1.length) {
+		var prop = _g1[_g];
+		++_g;
+		if(prop.defaultValue != null && !props.exists(prop.name)) {
+			props.setRaw(prop.name,prop.defaultValue,prop.type);
+		}
+	}
+};
+format_tmx_Tools.linearLayers = function(map) {
+	var linear = [];
+	var _g = 0;
+	var _g1 = map.layers;
+	while(_g < _g1.length) {
+		var l = _g1[_g];
+		++_g;
+		if(l._hx_index == 3) {
+			var group = l.group;
+			format_tmx_Tools.linearLayersInternal(group,linear);
+		} else {
+			linear.push(l);
+		}
+	}
+	return linear;
+};
+format_tmx_Tools.linearLayersInternal = function(group,output) {
+	var _g = 0;
+	var _g1 = group.layers;
+	while(_g < _g1.length) {
+		var layer = _g1[_g];
+		++_g;
+		switch(layer._hx_index) {
+		case 0:
+			var l = layer.layer;
+			l.offsetX += group.offsetX;
+			l.offsetY += group.offsetY;
+			l.visible = group.visible;
+			l.opacity *= group.opacity;
+			output.push(layer);
+			break;
+		case 1:
+			var g = layer.group;
+			g.offsetX += group.offsetX;
+			g.offsetY += group.offsetY;
+			g.visible = group.visible;
+			g.opacity *= group.opacity;
+			output.push(layer);
+			break;
+		case 2:
+			var l1 = layer.layer;
+			l1.offsetX += group.offsetX;
+			l1.offsetY += group.offsetY;
+			l1.visible = group.visible;
+			l1.opacity *= group.opacity;
+			output.push(layer);
+			break;
+		case 3:
+			var g1 = layer.group;
+			g1.offsetX += group.offsetX;
+			g1.offsetY += group.offsetY;
+			g1.visible = group.visible;
+			g1.opacity *= group.opacity;
+			format_tmx_Tools.linearLayersInternal(g1,output);
+			break;
+		}
+	}
+};
+format_tmx_Tools.propagateObjectTypeToObject = function(obj,types) {
+	if(obj.type != null) {
+		var key = obj.type;
+		var type = __map_reserved[key] != null ? types.getReserved(key) : types.h[key];
+		if(type != null) {
+			var props = obj.properties;
+			var _g = 0;
+			var _g1 = type.properties;
+			while(_g < _g1.length) {
+				var prop = _g1[_g];
+				++_g;
+				if(!props.exists(prop.name) && prop.defaultValue != null) {
+					props.setRaw(prop.name,prop.defaultValue,prop.type);
+				}
+			}
+		}
+	}
+};
+format_tmx_Tools.propagateTilePropertiesToObject = function(obj,map,gid) {
+	var tset = format_tmx_Tools.getTilesetByGid(map,gid);
+	if(tset != null && tset.tiles != null) {
+		var lid = gid - tset.firstGID;
+		var _g = 0;
+		var _g1 = tset.tiles;
+		while(_g < _g1.length) {
+			var tile = _g1[_g];
+			++_g;
+			if(tile.id == lid) {
+				tile.properties.propagateTo(obj.properties);
+				if(tile.type != null && (obj.type == null || obj.type == "")) {
+					obj.type = tile.type;
+				}
+			}
+		}
+	}
+};
+format_tmx_Tools.propagateTileProperties = function(map) {
+	var _g = 0;
+	var _g1 = map.layers;
+	while(_g < _g1.length) {
+		var layer = _g1[_g];
+		++_g;
+		format_tmx_Tools.propagateTilePropertiesLayer(map,layer);
+	}
+};
+format_tmx_Tools.propagateTilePropertiesLayer = function(map,layer) {
+	var tset;
+	switch(layer._hx_index) {
+	case 1:
+		var group = layer.group;
+		var _g = 0;
+		var _g1 = group.objects;
+		while(_g < _g1.length) {
+			var obj = _g1[_g];
+			++_g;
+			var _g2 = obj.objectType;
+			if(_g2._hx_index == 1) {
+				var gid = _g2.gid;
+				tset = format_tmx_Tools.getTilesetByGid(map,gid);
+				var lid = gid - tset.firstGID;
+				var _g3 = 0;
+				var _g11 = tset.tiles;
+				while(_g3 < _g11.length) {
+					var tile = _g11[_g3];
+					++_g3;
+					if(tile.id == lid) {
+						tile.properties.propagateTo(obj.properties);
+						if(tile.type != null && (obj.type == null || obj.type == "")) {
+							obj.type = tile.type;
+						}
+					}
+				}
+			}
+		}
+		break;
+	case 3:
+		var g = layer.group;
+		var _g4 = 0;
+		var _g12 = g.layers;
+		while(_g4 < _g12.length) {
+			var l = _g12[_g4];
+			++_g4;
+			format_tmx_Tools.propagateTilePropertiesLayer(map,l);
+		}
+		break;
+	default:
+	}
+};
+format_tmx_Tools.propagateObjectTypes = function(map,types,propagateObjectLayers,propagateTileColliders) {
+	if(propagateTileColliders == null) {
+		propagateTileColliders = true;
+	}
+	if(propagateObjectLayers == null) {
+		propagateObjectLayers = true;
+	}
+	var propagateLayer = null;
+	propagateLayer = function(layer) {
+		switch(layer._hx_index) {
+		case 1:
+			var o = layer.group;
+			var _g = 0;
+			var _g1 = o.objects;
+			while(_g < _g1.length) {
+				var obj = _g1[_g];
+				++_g;
+				if(obj.type != null) {
+					var key = obj.type;
+					var type = __map_reserved[key] != null ? types.getReserved(key) : types.h[key];
+					if(type != null) {
+						var _g2 = 0;
+						var _g11 = type.properties;
+						while(_g2 < _g11.length) {
+							var prop = _g11[_g2];
+							++_g2;
+							if(!obj.properties.exists(prop.name) && prop.defaultValue != null) {
+								obj.properties.setRaw(prop.name,prop.defaultValue,prop.type);
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 3:
+			var g = layer.group;
+			var _g3 = 0;
+			var _g12 = g.layers;
+			while(_g3 < _g12.length) {
+				var layer1 = _g12[_g3];
+				++_g3;
+				propagateLayer(layer1);
+			}
+			break;
+		default:
+		}
+	};
+	if(propagateTileColliders) {
+		var _g4 = 0;
+		var _g13 = map.tilesets;
+		while(_g4 < _g13.length) {
+			var tset = _g13[_g4];
+			++_g4;
+			if(tset.tiles != null) {
+				var _g5 = 0;
+				var _g14 = tset.tiles;
+				while(_g5 < _g14.length) {
+					var tile = _g14[_g5];
+					++_g5;
+					if(tile.objectGroup != null) {
+						var _g6 = 0;
+						var _g15 = tile.objectGroup.objects;
+						while(_g6 < _g15.length) {
+							var obj1 = _g15[_g6];
+							++_g6;
+							if(obj1.type != null) {
+								var key1 = obj1.type;
+								var type1 = __map_reserved[key1] != null ? types.getReserved(key1) : types.h[key1];
+								if(type1 != null) {
+									var _g7 = 0;
+									var _g16 = type1.properties;
+									while(_g7 < _g16.length) {
+										var prop1 = _g16[_g7];
+										++_g7;
+										if(!obj1.properties.exists(prop1.name) && prop1.defaultValue != null) {
+											obj1.properties.setRaw(prop1.name,prop1.defaultValue,prop1.type);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(propagateObjectLayers) {
+		var _g8 = 0;
+		var _g17 = map.layers;
+		while(_g8 < _g17.length) {
+			var l = _g17[_g8];
+			++_g8;
+			propagateLayer(l);
+		}
+	}
+};
+format_tmx_Tools.getTileByGid = function(map,gid) {
+	var tset = format_tmx_Tools.getTilesetByGid(map,gid);
+	if(tset != null && tset.tiles != null) {
+		var lid = gid - tset.firstGID;
+		var _g = 0;
+		var _g1 = tset.tiles;
+		while(_g < _g1.length) {
+			var tile = _g1[_g];
+			++_g;
+			if(tile.id == lid) {
+				return tile;
+			}
+		}
+	}
+	return null;
+};
+format_tmx_Tools.getTilesetByGid = function(map,gid) {
+	if(gid <= 0) {
+		return null;
+	}
+	var i = 0;
+	while(i < map.tilesets.length) {
+		if(map.tilesets[i].firstGID > gid) {
+			return map.tilesets[i - 1];
+		}
+		++i;
+	}
+	return map.tilesets[i - 1];
+};
+format_tmx_Tools.getTilesetIndexByGid = function(map,gid) {
+	if(gid <= 0) {
+		return -1;
+	}
+	var i = 0;
+	while(i < map.tilesets.length) {
+		if(map.tilesets[i].firstGID > gid) {
+			return i - 1;
+		}
+		++i;
+	}
+	return i - 1;
+};
+format_tmx_Tools.getTileUVByLidUnsafe = function(tileset,localId,output) {
+	var tilesInLine = format_tmx_Tools.getTilesCountInLineOnTileset(tileset);
+	Reflect.setProperty(output,"x",localId % tilesInLine * (tileset.tileWidth + tileset.spacing) + tileset.margin);
+	Reflect.setProperty(output,"y",Math.floor(localId / tilesInLine) * (tileset.tileHeight + tileset.spacing) + tileset.margin);
+};
+format_tmx_Tools.fixObjectPlacement = function(map) {
+	format_tmx_Tools.topLeftObjectOrigin(map);
+};
+format_tmx_Tools.topLeftObjectOrigin = function(map) {
+	var toRad = Math.PI / 180;
+	var _g = 0;
+	var _g1 = map.layers;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		if(type._hx_index == 1) {
+			var group = type.group;
+			var _g2 = 0;
+			var _g11 = group.objects;
+			while(_g2 < _g11.length) {
+				var obj = _g11[_g2];
+				++_g2;
+				var height = obj.height;
+				if(height == null || height == 0) {
+					var _g3 = obj.objectType;
+					if(_g3._hx_index == 1) {
+						var gid = _g3.gid;
+						var tset = format_tmx_Tools.getTilesetByGid(map,gid);
+						if(tset != null && tset.tileHeight != null) {
+							height = tset.tileHeight;
+						} else {
+							height = map.tileHeight;
+						}
+					} else {
+						height = map.tileHeight;
+					}
+				}
+				var radians = obj.rotation * toRad;
+				obj.x += Math.sin(radians) * height;
+				obj.y -= Math.cos(radians) * height;
+			}
+		}
+	}
+};
+format_tmx_Tools.getTilesCountInLineOnTileset = function(tileset) {
+	return Math.floor((tileset.image.width - tileset.margin * 2 + tileset.spacing) / (tileset.tileWidth + tileset.spacing));
+};
+format_tmx_Tools.getTilesCountInColumnOnTileset = function(tileset) {
+	return Math.floor((tileset.image.height - tileset.margin * 2 + tileset.spacing) / (tileset.tileHeight + tileset.spacing));
+};
+format_tmx_Tools.getTilesCountInTileset = function(tileset) {
+	return Math.floor((tileset.image.width - tileset.margin * 2 + tileset.spacing) / (tileset.tileWidth + tileset.spacing)) * Math.floor((tileset.image.height - tileset.margin * 2 + tileset.spacing) / (tileset.tileHeight + tileset.spacing));
+};
+var gameObjects_GameGlobals = function() { };
+$hxClasses["gameObjects.GameGlobals"] = gameObjects_GameGlobals;
+gameObjects_GameGlobals.__name__ = "gameObjects.GameGlobals";
+var gameObjects_Player = function() {
+	this.maxSpeed = 400;
+	com_framework_utils_Entity.call(this);
+	this.display = new com_gEngine_display_BasicSprite("ivanka");
+	this.display.z = 50;
+	this.display.scaleX = this.display.scaleY = 4;
+	this.display.offsetX = -9;
+	this.display.offsetY = -4;
+	this.collision = new com_collision_platformer_CollisionBox();
+	this.collision.width = 40;
+	this.collision.height = 84;
+	this.collision.x = 100;
+	this.collision.y = 200;
+	this.collision.accelerationY = 1000;
+	this.display.textureFilter = 0;
+	this.collision.dragX = 0.9;
+};
+$hxClasses["gameObjects.Player"] = gameObjects_Player;
+gameObjects_Player.__name__ = "gameObjects.Player";
+gameObjects_Player.__super__ = com_framework_utils_Entity;
+gameObjects_Player.prototype = $extend(com_framework_utils_Entity.prototype,{
+	display: null
+	,collision: null
+	,maxSpeed: null
+	,update: function(dt) {
+		com_framework_utils_Entity.prototype.update.call(this,dt);
+		this.display.x = this.collision.x - this.display.offsetX * 2;
+		this.display.y = this.collision.y - this.display.offsetY * 2;
+		if(com_framework_utils_Input.i.isKeyCodeDown(37)) {
+			this.collision.velocityX = -this.maxSpeed;
+			this.display.scaleX = 4;
+		}
+		if(com_framework_utils_Input.i.isKeyCodeDown(39)) {
+			this.collision.velocityX = this.maxSpeed;
+			this.display.scaleX = -4;
+		}
+		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
+			this.collision.velocityY = -500;
+		}
+		this.collision.update(dt);
+	}
+	,__class__: gameObjects_Player
+});
 var haxe_IMap = function() { };
 $hxClasses["haxe.IMap"] = haxe_IMap;
 haxe_IMap.__name__ = "haxe.IMap";
@@ -8793,6 +11915,48 @@ haxe_Unserializer.prototype = {
 	}
 	,__class__: haxe_Unserializer
 };
+var haxe_crypto_Adler32 = function() {
+	this.a1 = 1;
+	this.a2 = 0;
+};
+$hxClasses["haxe.crypto.Adler32"] = haxe_crypto_Adler32;
+haxe_crypto_Adler32.__name__ = "haxe.crypto.Adler32";
+haxe_crypto_Adler32.read = function(i) {
+	var a = new haxe_crypto_Adler32();
+	var a2a = i.readByte();
+	var a2b = i.readByte();
+	var a1a = i.readByte();
+	var a1b = i.readByte();
+	a.a1 = a1a << 8 | a1b;
+	a.a2 = a2a << 8 | a2b;
+	return a;
+};
+haxe_crypto_Adler32.prototype = {
+	a1: null
+	,a2: null
+	,update: function(b,pos,len) {
+		var a1 = this.a1;
+		var a2 = this.a2;
+		var _g = pos;
+		var _g1 = pos + len;
+		while(_g < _g1) {
+			var p = _g++;
+			var c = b.b[p];
+			a1 = (a1 + c) % 65521;
+			a2 = (a2 + a1) % 65521;
+		}
+		this.a1 = a1;
+		this.a2 = a2;
+	}
+	,equals: function(a) {
+		if(a.a1 == this.a1) {
+			return a.a2 == this.a2;
+		} else {
+			return false;
+		}
+	}
+	,__class__: haxe_crypto_Adler32
+};
 var haxe_io_Bytes = function(data) {
 	this.length = data.byteLength;
 	this.b = new Uint8Array(data);
@@ -8984,6 +12148,15 @@ haxe_crypto_Base64.encode = function(bytes,complement) {
 	}
 	return str;
 };
+haxe_crypto_Base64.decode = function(str,complement) {
+	if(complement == null) {
+		complement = true;
+	}
+	if(complement) {
+		while(HxOverrides.cca(str,str.length - 1) == 61) str = HxOverrides.substr(str,0,-1);
+	}
+	return new haxe_crypto_BaseCode(haxe_crypto_Base64.BYTES).decodeBytes(haxe_io_Bytes.ofString(str));
+};
 var haxe_crypto_BaseCode = function(base) {
 	var len = base.length;
 	var nbits = 1;
@@ -8999,6 +12172,7 @@ haxe_crypto_BaseCode.__name__ = "haxe.crypto.BaseCode";
 haxe_crypto_BaseCode.prototype = {
 	base: null
 	,nbits: null
+	,tbl: null
 	,encodeBytes: function(b) {
 		var nbits = this.nbits;
 		var base = this.base;
@@ -9020,6 +12194,49 @@ haxe_crypto_BaseCode.prototype = {
 		}
 		if(curbits > 0) {
 			out.b[pout++] = base.b[buf << nbits - curbits & mask];
+		}
+		return out;
+	}
+	,initTable: function() {
+		var tbl = [];
+		var _g = 0;
+		while(_g < 256) {
+			var i = _g++;
+			tbl[i] = -1;
+		}
+		var _g1 = 0;
+		var _g2 = this.base.length;
+		while(_g1 < _g2) {
+			var i1 = _g1++;
+			tbl[this.base.b[i1]] = i1;
+		}
+		this.tbl = tbl;
+	}
+	,decodeBytes: function(b) {
+		var nbits = this.nbits;
+		var base = this.base;
+		if(this.tbl == null) {
+			this.initTable();
+		}
+		var tbl = this.tbl;
+		var size = b.length * nbits >> 3;
+		var out = new haxe_io_Bytes(new ArrayBuffer(size));
+		var buf = 0;
+		var curbits = 0;
+		var pin = 0;
+		var pout = 0;
+		while(pout < size) {
+			while(curbits < 8) {
+				curbits += nbits;
+				buf <<= nbits;
+				var i = tbl[b.b[pin++]];
+				if(i == -1) {
+					throw new js__$Boot_HaxeError("BaseCode : invalid encoded char");
+				}
+				buf |= i;
+			}
+			curbits -= 8;
+			out.b[pout++] = buf >> curbits & 255;
 		}
 		return out;
 	}
@@ -9232,6 +12449,34 @@ haxe_io_Input.prototype = {
 	}
 	,close: function() {
 	}
+	,set_bigEndian: function(b) {
+		this.bigEndian = b;
+		return b;
+	}
+	,readAll: function(bufsize) {
+		if(bufsize == null) {
+			bufsize = 16384;
+		}
+		var buf = new haxe_io_Bytes(new ArrayBuffer(bufsize));
+		var total = new haxe_io_BytesBuffer();
+		try {
+			while(true) {
+				var len = this.readBytes(buf,0,bufsize);
+				if(len == 0) {
+					throw new js__$Boot_HaxeError(haxe_io_Error.Blocked);
+				}
+				total.addBytes(buf,0,len);
+			}
+		} catch( e ) {
+			var e1 = ((e) instanceof js__$Boot_HaxeError) ? e.val : e;
+			if(((e1) instanceof haxe_io_Eof)) {
+				var e2 = e1;
+			} else {
+				throw e;
+			}
+		}
+		return total.getBytes();
+	}
 	,readFullBytes: function(s,pos,len) {
 		while(len > 0) {
 			var k = this.readBytes(s,pos,len);
@@ -9284,6 +12529,15 @@ haxe_io_Input.prototype = {
 		}
 		return s;
 	}
+	,readUInt16: function() {
+		var ch1 = this.readByte();
+		var ch2 = this.readByte();
+		if(this.bigEndian) {
+			return ch2 | ch1 << 8;
+		} else {
+			return ch1 | ch2 << 8;
+		}
+	}
 	,readInt32: function() {
 		var ch1 = this.readByte();
 		var ch2 = this.readByte();
@@ -9301,6 +12555,7 @@ haxe_io_Input.prototype = {
 		return b.getString(0,len,encoding);
 	}
 	,__class__: haxe_io_Input
+	,__properties__: {set_bigEndian:"set_bigEndian"}
 };
 var haxe_io_BytesInput = function(b,pos,len) {
 	if(pos == null) {
@@ -9364,6 +12619,7 @@ haxe_io_BytesInput.prototype = $extend(haxe_io_Input.prototype,{
 		return len;
 	}
 	,__class__: haxe_io_BytesInput
+	,__properties__: $extend(haxe_io_Input.prototype.__properties__,{set_position:"set_position"})
 });
 var haxe_io_Output = function() { };
 $hxClasses["haxe.io.Output"] = haxe_io_Output;
@@ -9480,6 +12736,29 @@ haxe_io__$UInt8Array_UInt8Array_$Impl_$.fromBytes = function(bytes,bytePos,lengt
 	}
 	return new Uint8Array(bytes.b.bufferValue,bytePos,length);
 };
+var haxe_xml__$Access_NodeAccess_$Impl_$ = {};
+$hxClasses["haxe.xml._Access.NodeAccess_Impl_"] = haxe_xml__$Access_NodeAccess_$Impl_$;
+haxe_xml__$Access_NodeAccess_$Impl_$.__name__ = "haxe.xml._Access.NodeAccess_Impl_";
+haxe_xml__$Access_NodeAccess_$Impl_$.resolve = function(this1,name) {
+	var x = this1.elementsNamed(name).next();
+	if(x == null) {
+		var xname;
+		if(this1.nodeType == Xml.Document) {
+			xname = "Document";
+		} else {
+			if(this1.nodeType != Xml.Element) {
+				throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + _$Xml_XmlType_$Impl_$.toString(this1.nodeType));
+			}
+			xname = this1.nodeName;
+		}
+		throw new js__$Boot_HaxeError(xname + " is missing element " + name);
+	}
+	if(x.nodeType != Xml.Document && x.nodeType != Xml.Element) {
+		throw new js__$Boot_HaxeError("Invalid nodeType " + _$Xml_XmlType_$Impl_$.toString(x.nodeType));
+	}
+	var this2 = x;
+	return this2;
+};
 var haxe_xml__$Access_AttribAccess_$Impl_$ = {};
 $hxClasses["haxe.xml._Access.AttribAccess_Impl_"] = haxe_xml__$Access_AttribAccess_$Impl_$;
 haxe_xml__$Access_AttribAccess_$Impl_$.__name__ = "haxe.xml._Access.AttribAccess_Impl_";
@@ -9505,6 +12784,12 @@ haxe_xml__$Access_HasAttribAccess_$Impl_$.resolve = function(this1,name) {
 	}
 	return this1.exists(name);
 };
+var haxe_xml__$Access_HasNodeAccess_$Impl_$ = {};
+$hxClasses["haxe.xml._Access.HasNodeAccess_Impl_"] = haxe_xml__$Access_HasNodeAccess_$Impl_$;
+haxe_xml__$Access_HasNodeAccess_$Impl_$.__name__ = "haxe.xml._Access.HasNodeAccess_Impl_";
+haxe_xml__$Access_HasNodeAccess_$Impl_$.resolve = function(this1,name) {
+	return this1.elementsNamed(name).hasNext();
+};
 var haxe_xml__$Access_NodeListAccess_$Impl_$ = {};
 $hxClasses["haxe.xml._Access.NodeListAccess_Impl_"] = haxe_xml__$Access_NodeListAccess_$Impl_$;
 haxe_xml__$Access_NodeListAccess_$Impl_$.__name__ = "haxe.xml._Access.NodeListAccess_Impl_";
@@ -9520,6 +12805,91 @@ haxe_xml__$Access_NodeListAccess_$Impl_$.resolve = function(this1,name) {
 		l.push(this2);
 	}
 	return l;
+};
+var haxe_xml__$Access_Access_$Impl_$ = {};
+$hxClasses["haxe.xml._Access.Access_Impl_"] = haxe_xml__$Access_Access_$Impl_$;
+haxe_xml__$Access_Access_$Impl_$.__name__ = "haxe.xml._Access.Access_Impl_";
+haxe_xml__$Access_Access_$Impl_$.__properties__ = {get_innerData:"get_innerData"};
+haxe_xml__$Access_Access_$Impl_$.get_innerData = function(this1) {
+	if(this1.nodeType != Xml.Document && this1.nodeType != Xml.Element) {
+		throw new js__$Boot_HaxeError("Bad node type, expected Element or Document but found " + _$Xml_XmlType_$Impl_$.toString(this1.nodeType));
+	}
+	var it = HxOverrides.iter(this1.children);
+	if(!it.hasNext()) {
+		var tmp;
+		if(this1.nodeType == Xml.Document) {
+			tmp = "Document";
+		} else {
+			if(this1.nodeType != Xml.Element) {
+				throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + _$Xml_XmlType_$Impl_$.toString(this1.nodeType));
+			}
+			tmp = this1.nodeName;
+		}
+		throw new js__$Boot_HaxeError(tmp + " does not have data");
+	}
+	var v = it.next();
+	if(it.hasNext()) {
+		var n = it.next();
+		var tmp1;
+		if(v.nodeType == Xml.PCData && n.nodeType == Xml.CData) {
+			if(v.nodeType == Xml.Document || v.nodeType == Xml.Element) {
+				throw new js__$Boot_HaxeError("Bad node type, unexpected " + _$Xml_XmlType_$Impl_$.toString(v.nodeType));
+			}
+			tmp1 = StringTools.trim(v.nodeValue) == "";
+		} else {
+			tmp1 = false;
+		}
+		if(tmp1) {
+			if(!it.hasNext()) {
+				if(n.nodeType == Xml.Document || n.nodeType == Xml.Element) {
+					throw new js__$Boot_HaxeError("Bad node type, unexpected " + _$Xml_XmlType_$Impl_$.toString(n.nodeType));
+				}
+				return n.nodeValue;
+			}
+			var n2 = it.next();
+			var tmp2;
+			if(n2.nodeType == Xml.PCData) {
+				if(n2.nodeType == Xml.Document || n2.nodeType == Xml.Element) {
+					throw new js__$Boot_HaxeError("Bad node type, unexpected " + _$Xml_XmlType_$Impl_$.toString(n2.nodeType));
+				}
+				tmp2 = StringTools.trim(n2.nodeValue) == "";
+			} else {
+				tmp2 = false;
+			}
+			if(tmp2 && !it.hasNext()) {
+				if(n.nodeType == Xml.Document || n.nodeType == Xml.Element) {
+					throw new js__$Boot_HaxeError("Bad node type, unexpected " + _$Xml_XmlType_$Impl_$.toString(n.nodeType));
+				}
+				return n.nodeValue;
+			}
+		}
+		var tmp3;
+		if(this1.nodeType == Xml.Document) {
+			tmp3 = "Document";
+		} else {
+			if(this1.nodeType != Xml.Element) {
+				throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + _$Xml_XmlType_$Impl_$.toString(this1.nodeType));
+			}
+			tmp3 = this1.nodeName;
+		}
+		throw new js__$Boot_HaxeError(tmp3 + " does not only have data");
+	}
+	if(v.nodeType != Xml.PCData && v.nodeType != Xml.CData) {
+		var tmp4;
+		if(this1.nodeType == Xml.Document) {
+			tmp4 = "Document";
+		} else {
+			if(this1.nodeType != Xml.Element) {
+				throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + _$Xml_XmlType_$Impl_$.toString(this1.nodeType));
+			}
+			tmp4 = this1.nodeName;
+		}
+		throw new js__$Boot_HaxeError(tmp4 + " does not have data");
+	}
+	if(v.nodeType == Xml.Document || v.nodeType == Xml.Element) {
+		throw new js__$Boot_HaxeError("Bad node type, unexpected " + _$Xml_XmlType_$Impl_$.toString(v.nodeType));
+	}
+	return v.nodeValue;
 };
 var haxe_xml_XmlParserException = function(message,xml,position) {
 	this.xml = xml;
@@ -10062,6 +13432,544 @@ haxe_xml_Printer.prototype = {
 	}
 	,__class__: haxe_xml_Printer
 };
+var haxe_zip_Huffman = $hxEnums["haxe.zip.Huffman"] = { __ename__ : true, __constructs__ : ["Found","NeedBit","NeedBits"]
+	,Found: ($_=function(i) { return {_hx_index:0,i:i,__enum__:"haxe.zip.Huffman",toString:$estr}; },$_.__params__ = ["i"],$_)
+	,NeedBit: ($_=function(left,right) { return {_hx_index:1,left:left,right:right,__enum__:"haxe.zip.Huffman",toString:$estr}; },$_.__params__ = ["left","right"],$_)
+	,NeedBits: ($_=function(n,table) { return {_hx_index:2,n:n,table:table,__enum__:"haxe.zip.Huffman",toString:$estr}; },$_.__params__ = ["n","table"],$_)
+};
+var haxe_zip_HuffTools = function() {
+};
+$hxClasses["haxe.zip.HuffTools"] = haxe_zip_HuffTools;
+haxe_zip_HuffTools.__name__ = "haxe.zip.HuffTools";
+haxe_zip_HuffTools.prototype = {
+	treeDepth: function(t) {
+		switch(t._hx_index) {
+		case 0:
+			var _g = t.i;
+			return 0;
+		case 1:
+			var b = t.right;
+			var a = t.left;
+			var da = this.treeDepth(a);
+			var db = this.treeDepth(b);
+			return 1 + (da < db ? da : db);
+		case 2:
+			var _g2 = t.table;
+			var _g1 = t.n;
+			throw new js__$Boot_HaxeError("assert");
+		}
+	}
+	,treeCompress: function(t) {
+		var d = this.treeDepth(t);
+		if(d == 0) {
+			return t;
+		}
+		if(d == 1) {
+			if(t._hx_index == 1) {
+				var b = t.right;
+				var a = t.left;
+				return haxe_zip_Huffman.NeedBit(this.treeCompress(a),this.treeCompress(b));
+			} else {
+				throw new js__$Boot_HaxeError("assert");
+			}
+		}
+		var size = 1 << d;
+		var table = [];
+		var _g = 0;
+		var _g1 = size;
+		while(_g < _g1) {
+			var i = _g++;
+			table.push(haxe_zip_Huffman.Found(-1));
+		}
+		this.treeWalk(table,0,0,d,t);
+		return haxe_zip_Huffman.NeedBits(d,table);
+	}
+	,treeWalk: function(table,p,cd,d,t) {
+		if(t._hx_index == 1) {
+			var b = t.right;
+			var a = t.left;
+			if(d > 0) {
+				this.treeWalk(table,p,cd + 1,d - 1,a);
+				this.treeWalk(table,p | 1 << cd,cd + 1,d - 1,b);
+			} else {
+				table[p] = this.treeCompress(t);
+			}
+		} else {
+			table[p] = this.treeCompress(t);
+		}
+	}
+	,treeMake: function(bits,maxbits,v,len) {
+		if(len > maxbits) {
+			throw new js__$Boot_HaxeError("Invalid huffman");
+		}
+		var idx = v << 5 | len;
+		if(bits.h.hasOwnProperty(idx)) {
+			return haxe_zip_Huffman.Found(bits.h[idx]);
+		}
+		v <<= 1;
+		++len;
+		return haxe_zip_Huffman.NeedBit(this.treeMake(bits,maxbits,v,len),this.treeMake(bits,maxbits,v | 1,len));
+	}
+	,make: function(lengths,pos,nlengths,maxbits) {
+		var counts = [];
+		var tmp = [];
+		if(maxbits > 32) {
+			throw new js__$Boot_HaxeError("Invalid huffman");
+		}
+		var _g = 0;
+		var _g1 = maxbits;
+		while(_g < _g1) {
+			var i = _g++;
+			counts.push(0);
+			tmp.push(0);
+		}
+		var _g2 = 0;
+		var _g3 = nlengths;
+		while(_g2 < _g3) {
+			var i1 = _g2++;
+			var p = lengths[i1 + pos];
+			if(p >= maxbits) {
+				throw new js__$Boot_HaxeError("Invalid huffman");
+			}
+			counts[p]++;
+		}
+		var code = 0;
+		var _g4 = 1;
+		var _g5 = maxbits - 1;
+		while(_g4 < _g5) {
+			var i2 = _g4++;
+			code = code + counts[i2] << 1;
+			tmp[i2] = code;
+		}
+		var bits = new haxe_ds_IntMap();
+		var _g6 = 0;
+		var _g7 = nlengths;
+		while(_g6 < _g7) {
+			var i3 = _g6++;
+			var l = lengths[i3 + pos];
+			if(l != 0) {
+				var n = tmp[l - 1];
+				tmp[l - 1] = n + 1;
+				bits.h[n << 5 | l] = i3;
+			}
+		}
+		return this.treeCompress(haxe_zip_Huffman.NeedBit(this.treeMake(bits,maxbits,0,1),this.treeMake(bits,maxbits,1,1)));
+	}
+	,__class__: haxe_zip_HuffTools
+};
+var haxe_zip__$InflateImpl_Window = function(hasCrc) {
+	this.buffer = new haxe_io_Bytes(new ArrayBuffer(65536));
+	this.pos = 0;
+	if(hasCrc) {
+		this.crc = new haxe_crypto_Adler32();
+	}
+};
+$hxClasses["haxe.zip._InflateImpl.Window"] = haxe_zip__$InflateImpl_Window;
+haxe_zip__$InflateImpl_Window.__name__ = "haxe.zip._InflateImpl.Window";
+haxe_zip__$InflateImpl_Window.prototype = {
+	buffer: null
+	,pos: null
+	,crc: null
+	,slide: function() {
+		if(this.crc != null) {
+			this.crc.update(this.buffer,0,32768);
+		}
+		var b = new haxe_io_Bytes(new ArrayBuffer(65536));
+		this.pos -= 32768;
+		b.blit(0,this.buffer,32768,this.pos);
+		this.buffer = b;
+	}
+	,addBytes: function(b,p,len) {
+		if(this.pos + len > 65536) {
+			this.slide();
+		}
+		this.buffer.blit(this.pos,b,p,len);
+		this.pos += len;
+	}
+	,addByte: function(c) {
+		if(this.pos == 65536) {
+			this.slide();
+		}
+		this.buffer.b[this.pos] = c;
+		this.pos++;
+	}
+	,getLastChar: function() {
+		return this.buffer.b[this.pos - 1];
+	}
+	,available: function() {
+		return this.pos;
+	}
+	,checksum: function() {
+		if(this.crc != null) {
+			this.crc.update(this.buffer,0,this.pos);
+		}
+		return this.crc;
+	}
+	,__class__: haxe_zip__$InflateImpl_Window
+};
+var haxe_zip__$InflateImpl_State = $hxEnums["haxe.zip._InflateImpl.State"] = { __ename__ : true, __constructs__ : ["Head","Block","CData","Flat","Crc","Dist","DistOne","Done"]
+	,Head: {_hx_index:0,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
+	,Block: {_hx_index:1,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
+	,CData: {_hx_index:2,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
+	,Flat: {_hx_index:3,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
+	,Crc: {_hx_index:4,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
+	,Dist: {_hx_index:5,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
+	,DistOne: {_hx_index:6,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
+	,Done: {_hx_index:7,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
+};
+var haxe_zip_InflateImpl = function(i,header,crc) {
+	if(crc == null) {
+		crc = true;
+	}
+	if(header == null) {
+		header = true;
+	}
+	this.isFinal = false;
+	this.htools = new haxe_zip_HuffTools();
+	this.huffman = this.buildFixedHuffman();
+	this.huffdist = null;
+	this.len = 0;
+	this.dist = 0;
+	this.state = header ? haxe_zip__$InflateImpl_State.Head : haxe_zip__$InflateImpl_State.Block;
+	this.input = i;
+	this.bits = 0;
+	this.nbits = 0;
+	this.needed = 0;
+	this.output = null;
+	this.outpos = 0;
+	this.lengths = [];
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.lengths.push(-1);
+	this.window = new haxe_zip__$InflateImpl_Window(crc);
+};
+$hxClasses["haxe.zip.InflateImpl"] = haxe_zip_InflateImpl;
+haxe_zip_InflateImpl.__name__ = "haxe.zip.InflateImpl";
+haxe_zip_InflateImpl.run = function(i,bufsize) {
+	if(bufsize == null) {
+		bufsize = 65536;
+	}
+	var buf = new haxe_io_Bytes(new ArrayBuffer(bufsize));
+	var output = new haxe_io_BytesBuffer();
+	var inflate = new haxe_zip_InflateImpl(i);
+	while(true) {
+		var len = inflate.readBytes(buf,0,bufsize);
+		output.addBytes(buf,0,len);
+		if(len < bufsize) {
+			break;
+		}
+	}
+	return output.getBytes();
+};
+haxe_zip_InflateImpl.prototype = {
+	nbits: null
+	,bits: null
+	,state: null
+	,isFinal: null
+	,huffman: null
+	,huffdist: null
+	,htools: null
+	,len: null
+	,dist: null
+	,needed: null
+	,output: null
+	,outpos: null
+	,input: null
+	,lengths: null
+	,window: null
+	,buildFixedHuffman: function() {
+		if(haxe_zip_InflateImpl.FIXED_HUFFMAN != null) {
+			return haxe_zip_InflateImpl.FIXED_HUFFMAN;
+		}
+		var a = [];
+		var _g = 0;
+		while(_g < 288) {
+			var n = _g++;
+			a.push(n <= 143 ? 8 : n <= 255 ? 9 : n <= 279 ? 7 : 8);
+		}
+		haxe_zip_InflateImpl.FIXED_HUFFMAN = this.htools.make(a,0,288,10);
+		return haxe_zip_InflateImpl.FIXED_HUFFMAN;
+	}
+	,readBytes: function(b,pos,len) {
+		this.needed = len;
+		this.outpos = pos;
+		this.output = b;
+		if(len > 0) {
+			while(this.inflateLoop()) {
+			}
+		}
+		return len - this.needed;
+	}
+	,getBits: function(n) {
+		while(this.nbits < n) {
+			this.bits |= this.input.readByte() << this.nbits;
+			this.nbits += 8;
+		}
+		var b = this.bits & (1 << n) - 1;
+		this.nbits -= n;
+		this.bits >>= n;
+		return b;
+	}
+	,getBit: function() {
+		if(this.nbits == 0) {
+			this.nbits = 8;
+			this.bits = this.input.readByte();
+		}
+		var b = (this.bits & 1) == 1;
+		this.nbits--;
+		this.bits >>= 1;
+		return b;
+	}
+	,getRevBits: function(n) {
+		if(n == 0) {
+			return 0;
+		} else if(this.getBit()) {
+			return 1 << n - 1 | this.getRevBits(n - 1);
+		} else {
+			return this.getRevBits(n - 1);
+		}
+	}
+	,resetBits: function() {
+		this.bits = 0;
+		this.nbits = 0;
+	}
+	,addBytes: function(b,p,len) {
+		this.window.addBytes(b,p,len);
+		this.output.blit(this.outpos,b,p,len);
+		this.needed -= len;
+		this.outpos += len;
+	}
+	,addByte: function(b) {
+		this.window.addByte(b);
+		this.output.b[this.outpos] = b;
+		this.needed--;
+		this.outpos++;
+	}
+	,addDistOne: function(n) {
+		var c = this.window.getLastChar();
+		var _g = 0;
+		var _g1 = n;
+		while(_g < _g1) {
+			var i = _g++;
+			this.addByte(c);
+		}
+	}
+	,addDist: function(d,len) {
+		this.addBytes(this.window.buffer,this.window.pos - d,len);
+	}
+	,applyHuffman: function(h) {
+		switch(h._hx_index) {
+		case 0:
+			var n = h.i;
+			return n;
+		case 1:
+			var b = h.right;
+			var a = h.left;
+			return this.applyHuffman(this.getBit() ? b : a);
+		case 2:
+			var tbl = h.table;
+			var n1 = h.n;
+			return this.applyHuffman(tbl[this.getBits(n1)]);
+		}
+	}
+	,inflateLengths: function(a,max) {
+		var i = 0;
+		var prev = 0;
+		while(i < max) {
+			var n = this.applyHuffman(this.huffman);
+			switch(n) {
+			case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:case 8:case 9:case 10:case 11:case 12:case 13:case 14:case 15:
+				prev = n;
+				a[i] = n;
+				++i;
+				break;
+			case 16:
+				var end = i + 3 + this.getBits(2);
+				if(end > max) {
+					throw new js__$Boot_HaxeError("Invalid data");
+				}
+				while(i < end) {
+					a[i] = prev;
+					++i;
+				}
+				break;
+			case 17:
+				i += 3 + this.getBits(3);
+				if(i > max) {
+					throw new js__$Boot_HaxeError("Invalid data");
+				}
+				break;
+			case 18:
+				i += 11 + this.getBits(7);
+				if(i > max) {
+					throw new js__$Boot_HaxeError("Invalid data");
+				}
+				break;
+			default:
+				throw new js__$Boot_HaxeError("Invalid data");
+			}
+		}
+	}
+	,inflateLoop: function() {
+		switch(this.state._hx_index) {
+		case 0:
+			var cmf = this.input.readByte();
+			var cm = cmf & 15;
+			var cinfo = cmf >> 4;
+			if(cm != 8) {
+				throw new js__$Boot_HaxeError("Invalid data");
+			}
+			var flg = this.input.readByte();
+			var fdict = (flg & 32) != 0;
+			if(((cmf << 8) + flg) % 31 != 0) {
+				throw new js__$Boot_HaxeError("Invalid data");
+			}
+			if(fdict) {
+				throw new js__$Boot_HaxeError("Unsupported dictionary");
+			}
+			this.state = haxe_zip__$InflateImpl_State.Block;
+			return true;
+		case 1:
+			this.isFinal = this.getBit();
+			switch(this.getBits(2)) {
+			case 0:
+				this.len = this.input.readUInt16();
+				var nlen = this.input.readUInt16();
+				if(nlen != 65535 - this.len) {
+					throw new js__$Boot_HaxeError("Invalid data");
+				}
+				this.state = haxe_zip__$InflateImpl_State.Flat;
+				var r = this.inflateLoop();
+				this.resetBits();
+				return r;
+			case 1:
+				this.huffman = this.buildFixedHuffman();
+				this.huffdist = null;
+				this.state = haxe_zip__$InflateImpl_State.CData;
+				return true;
+			case 2:
+				var hlit = this.getBits(5) + 257;
+				var hdist = this.getBits(5) + 1;
+				var hclen = this.getBits(4) + 4;
+				var _g = 0;
+				var _g1 = hclen;
+				while(_g < _g1) {
+					var i = _g++;
+					this.lengths[haxe_zip_InflateImpl.CODE_LENGTHS_POS[i]] = this.getBits(3);
+				}
+				var _g2 = hclen;
+				var _g3 = 19;
+				while(_g2 < _g3) {
+					var i1 = _g2++;
+					this.lengths[haxe_zip_InflateImpl.CODE_LENGTHS_POS[i1]] = 0;
+				}
+				this.huffman = this.htools.make(this.lengths,0,19,8);
+				var lengths = [];
+				var _g4 = 0;
+				var _g5 = hlit + hdist;
+				while(_g4 < _g5) {
+					var i2 = _g4++;
+					lengths.push(0);
+				}
+				this.inflateLengths(lengths,hlit + hdist);
+				this.huffdist = this.htools.make(lengths,hlit,hdist,16);
+				this.huffman = this.htools.make(lengths,0,hlit,16);
+				this.state = haxe_zip__$InflateImpl_State.CData;
+				return true;
+			default:
+				throw new js__$Boot_HaxeError("Invalid data");
+			}
+			break;
+		case 2:
+			var n = this.applyHuffman(this.huffman);
+			if(n < 256) {
+				this.addByte(n);
+				return this.needed > 0;
+			} else if(n == 256) {
+				this.state = this.isFinal ? haxe_zip__$InflateImpl_State.Crc : haxe_zip__$InflateImpl_State.Block;
+				return true;
+			} else {
+				n -= 257;
+				var extra_bits = haxe_zip_InflateImpl.LEN_EXTRA_BITS_TBL[n];
+				if(extra_bits == -1) {
+					throw new js__$Boot_HaxeError("Invalid data");
+				}
+				this.len = haxe_zip_InflateImpl.LEN_BASE_VAL_TBL[n] + this.getBits(extra_bits);
+				var dist_code = this.huffdist == null ? this.getRevBits(5) : this.applyHuffman(this.huffdist);
+				extra_bits = haxe_zip_InflateImpl.DIST_EXTRA_BITS_TBL[dist_code];
+				if(extra_bits == -1) {
+					throw new js__$Boot_HaxeError("Invalid data");
+				}
+				this.dist = haxe_zip_InflateImpl.DIST_BASE_VAL_TBL[dist_code] + this.getBits(extra_bits);
+				if(this.dist > this.window.available()) {
+					throw new js__$Boot_HaxeError("Invalid data");
+				}
+				this.state = this.dist == 1 ? haxe_zip__$InflateImpl_State.DistOne : haxe_zip__$InflateImpl_State.Dist;
+				return true;
+			}
+			break;
+		case 3:
+			var rlen = this.len < this.needed ? this.len : this.needed;
+			var bytes = this.input.read(rlen);
+			this.len -= rlen;
+			this.addBytes(bytes,0,rlen);
+			if(this.len == 0) {
+				this.state = this.isFinal ? haxe_zip__$InflateImpl_State.Crc : haxe_zip__$InflateImpl_State.Block;
+			}
+			return this.needed > 0;
+		case 4:
+			var calc = this.window.checksum();
+			if(calc == null) {
+				this.state = haxe_zip__$InflateImpl_State.Done;
+				return true;
+			}
+			var crc = haxe_crypto_Adler32.read(this.input);
+			if(!calc.equals(crc)) {
+				throw new js__$Boot_HaxeError("Invalid CRC");
+			}
+			this.state = haxe_zip__$InflateImpl_State.Done;
+			return true;
+		case 5:
+			while(this.len > 0 && this.needed > 0) {
+				var rdist = this.len < this.dist ? this.len : this.dist;
+				var rlen1 = this.needed < rdist ? this.needed : rdist;
+				this.addDist(this.dist,rlen1);
+				this.len -= rlen1;
+			}
+			if(this.len == 0) {
+				this.state = haxe_zip__$InflateImpl_State.CData;
+			}
+			return this.needed > 0;
+		case 6:
+			var rlen2 = this.len < this.needed ? this.len : this.needed;
+			this.addDistOne(rlen2);
+			this.len -= rlen2;
+			if(this.len == 0) {
+				this.state = haxe_zip__$InflateImpl_State.CData;
+			}
+			return this.needed > 0;
+		case 7:
+			return false;
+		}
+	}
+	,__class__: haxe_zip_InflateImpl
+};
 var hxGeomAlgo_Debug = function() { };
 $hxClasses["hxGeomAlgo.Debug"] = hxGeomAlgo_Debug;
 hxGeomAlgo_Debug.__name__ = "hxGeomAlgo.Debug";
@@ -10309,16 +14217,67 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["pig"];
+	this.names = ["Untitled_1","ivanka","neutron","pig","proton","tiles"];
+	this.tilesDescription = { name : "tiles", original_height : 100, original_width : 100, files : ["tiles.png"], type : "image"};
+	this.tilesName = "tiles";
+	this.tiles = null;
+	this.protonDescription = { name : "proton", original_height : 100, original_width : 100, files : ["proton.png"], type : "image"};
+	this.protonName = "proton";
+	this.proton = null;
 	this.pigDescription = { name : "pig", original_height : 148, original_width : 54, files : ["pig.png"], type : "image"};
 	this.pigName = "pig";
 	this.pig = null;
+	this.neutronDescription = { name : "neutron", original_height : 13, original_width : 14, files : ["neutron.png"], type : "image"};
+	this.neutronName = "neutron";
+	this.neutron = null;
+	this.ivankaDescription = { name : "ivanka", original_height : 23, original_width : 16, files : ["ivanka.png"], type : "image"};
+	this.ivankaName = "ivanka";
+	this.ivanka = null;
+	this.Untitled_1Description = { name : "Untitled_1", original_height : 512, original_width : 512, files : ["Untitled-1.png"], type : "image"};
+	this.Untitled_1Name = "Untitled_1";
+	this.Untitled_1 = null;
 };
 $hxClasses["kha._Assets.ImageList"] = kha__$Assets_ImageList;
 kha__$Assets_ImageList.__name__ = "kha._Assets.ImageList";
 kha__$Assets_ImageList.prototype = {
 	get: function(name) {
 		return Reflect.field(this,name);
+	}
+	,Untitled_1: null
+	,Untitled_1Name: null
+	,Untitled_1Description: null
+	,Untitled_1Load: function(done,failure) {
+		kha_Assets.loadImage("Untitled_1",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "Untitled_1Load"});
+	}
+	,Untitled_1Unload: function() {
+		this.Untitled_1.unload();
+		this.Untitled_1 = null;
+	}
+	,ivanka: null
+	,ivankaName: null
+	,ivankaDescription: null
+	,ivankaLoad: function(done,failure) {
+		kha_Assets.loadImage("ivanka",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "ivankaLoad"});
+	}
+	,ivankaUnload: function() {
+		this.ivanka.unload();
+		this.ivanka = null;
+	}
+	,neutron: null
+	,neutronName: null
+	,neutronDescription: null
+	,neutronLoad: function(done,failure) {
+		kha_Assets.loadImage("neutron",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "neutronLoad"});
+	}
+	,neutronUnload: function() {
+		this.neutron.unload();
+		this.neutron = null;
 	}
 	,pig: null
 	,pigName: null
@@ -10331,6 +14290,30 @@ kha__$Assets_ImageList.prototype = {
 	,pigUnload: function() {
 		this.pig.unload();
 		this.pig = null;
+	}
+	,proton: null
+	,protonName: null
+	,protonDescription: null
+	,protonLoad: function(done,failure) {
+		kha_Assets.loadImage("proton",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "protonLoad"});
+	}
+	,protonUnload: function() {
+		this.proton.unload();
+		this.proton = null;
+	}
+	,tiles: null
+	,tilesName: null
+	,tilesDescription: null
+	,tilesLoad: function(done,failure) {
+		kha_Assets.loadImage("tiles",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "tilesLoad"});
+	}
+	,tilesUnload: function() {
+		this.tiles.unload();
+		this.tiles = null;
 	}
 	,names: null
 	,__class__: kha__$Assets_ImageList
@@ -10348,16 +14331,64 @@ kha__$Assets_SoundList.prototype = {
 	,__class__: kha__$Assets_SoundList
 };
 var kha__$Assets_BlobList = function() {
-	this.names = ["pig_xml"];
+	this.names = ["Untitled_1_xml","ivanka_xml","level_tmx","pig_xml","tiles_xml"];
+	this.tiles_xmlDescription = { name : "tiles_xml", files : ["tiles.xml"], type : "blob"};
+	this.tiles_xmlName = "tiles_xml";
+	this.tiles_xml = null;
 	this.pig_xmlDescription = { name : "pig_xml", files : ["pig.xml"], type : "blob"};
 	this.pig_xmlName = "pig_xml";
 	this.pig_xml = null;
+	this.level_tmxDescription = { name : "level_tmx", files : ["level.tmx"], type : "blob"};
+	this.level_tmxName = "level_tmx";
+	this.level_tmx = null;
+	this.ivanka_xmlDescription = { name : "ivanka_xml", files : ["ivanka.xml"], type : "blob"};
+	this.ivanka_xmlName = "ivanka_xml";
+	this.ivanka_xml = null;
+	this.Untitled_1_xmlDescription = { name : "Untitled_1_xml", files : ["Untitled-1.xml"], type : "blob"};
+	this.Untitled_1_xmlName = "Untitled_1_xml";
+	this.Untitled_1_xml = null;
 };
 $hxClasses["kha._Assets.BlobList"] = kha__$Assets_BlobList;
 kha__$Assets_BlobList.__name__ = "kha._Assets.BlobList";
 kha__$Assets_BlobList.prototype = {
 	get: function(name) {
 		return Reflect.field(this,name);
+	}
+	,Untitled_1_xml: null
+	,Untitled_1_xmlName: null
+	,Untitled_1_xmlDescription: null
+	,Untitled_1_xmlLoad: function(done,failure) {
+		kha_Assets.loadBlob("Untitled_1_xml",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "Untitled_1_xmlLoad"});
+	}
+	,Untitled_1_xmlUnload: function() {
+		this.Untitled_1_xml.unload();
+		this.Untitled_1_xml = null;
+	}
+	,ivanka_xml: null
+	,ivanka_xmlName: null
+	,ivanka_xmlDescription: null
+	,ivanka_xmlLoad: function(done,failure) {
+		kha_Assets.loadBlob("ivanka_xml",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "ivanka_xmlLoad"});
+	}
+	,ivanka_xmlUnload: function() {
+		this.ivanka_xml.unload();
+		this.ivanka_xml = null;
+	}
+	,level_tmx: null
+	,level_tmxName: null
+	,level_tmxDescription: null
+	,level_tmxLoad: function(done,failure) {
+		kha_Assets.loadBlob("level_tmx",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "level_tmxLoad"});
+	}
+	,level_tmxUnload: function() {
+		this.level_tmx.unload();
+		this.level_tmx = null;
 	}
 	,pig_xml: null
 	,pig_xmlName: null
@@ -10370,6 +14401,18 @@ kha__$Assets_BlobList.prototype = {
 	,pig_xmlUnload: function() {
 		this.pig_xml.unload();
 		this.pig_xml = null;
+	}
+	,tiles_xml: null
+	,tiles_xmlName: null
+	,tiles_xmlDescription: null
+	,tiles_xmlLoad: function(done,failure) {
+		kha_Assets.loadBlob("tiles_xml",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "tiles_xmlLoad"});
+	}
+	,tiles_xmlUnload: function() {
+		this.tiles_xml.unload();
+		this.tiles_xml = null;
 	}
 	,names: null
 	,__class__: kha__$Assets_BlobList
@@ -10416,6 +14459,7 @@ kha__$Assets_VideoList.prototype = {
 var kha_Assets = function() { };
 $hxClasses["kha.Assets"] = kha_Assets;
 kha_Assets.__name__ = "kha.Assets";
+kha_Assets.__properties__ = {get_videoFormats:"get_videoFormats",get_fontFormats:"get_fontFormats",get_soundFormats:"get_soundFormats",get_imageFormats:"get_imageFormats"};
 kha_Assets.loadEverything = function(callback,filter,uncompressSoundsFilter,failed) {
 	var fileCount = 0;
 	var _g = 0;
@@ -10677,6 +14721,7 @@ kha_Canvas.prototype = {
 	,g2: null
 	,g4: null
 	,__class__: kha_Canvas
+	,__properties__: {get_g4:"get_g4",get_g2:"get_g2",get_g1:"get_g1",get_height:"get_height",get_width:"get_width"}
 };
 var kha_Resource = function() { };
 $hxClasses["kha.Resource"] = kha_Resource;
@@ -10690,6 +14735,7 @@ var kha_Image = function() { };
 $hxClasses["kha.Image"] = kha_Image;
 kha_Image.__name__ = "kha.Image";
 kha_Image.__interfaces__ = [kha_Resource,kha_Canvas];
+kha_Image.__properties__ = {get_nonPow2Supported:"get_nonPow2Supported",get_maxSize:"get_maxSize"};
 kha_Image.create = function(width,height,format,usage) {
 	if(format == null) {
 		format = 0;
@@ -10863,6 +14909,7 @@ kha_Image.prototype = {
 		return null;
 	}
 	,__class__: kha_Image
+	,__properties__: {get_g4:"get_g4",get_g2:"get_g2",get_g1:"get_g1",get_realHeight:"get_realHeight",get_realWidth:"get_realWidth",get_depth:"get_depth",get_height:"get_height",get_width:"get_width"}
 };
 var kha_CanvasImage = function(width,height,format,renderTarget) {
 	this.g2canvas = null;
@@ -11070,6 +15117,7 @@ kha_CanvasImage.prototype = $extend(kha_Image.prototype,{
 var kha__$Color_Color_$Impl_$ = $hx_exports["kha"]["_Color"]["Color_Impl_"] = {};
 $hxClasses["kha._Color.Color_Impl_"] = kha__$Color_Color_$Impl_$;
 kha__$Color_Color_$Impl_$.__name__ = "kha._Color.Color_Impl_";
+kha__$Color_Color_$Impl_$.__properties__ = {set_value:"set_value",get_value:"get_value",set_A:"set_A",get_A:"get_A",set_B:"set_B",get_B:"get_B",set_G:"set_G",get_G:"get_G",set_R:"set_R",get_R:"get_R",set_Ab:"set_Ab",get_Ab:"get_Ab",set_Bb:"set_Bb",get_Bb:"get_Bb",set_Gb:"set_Gb",get_Gb:"get_Gb",set_Rb:"set_Rb",get_Rb:"get_Rb"};
 kha__$Color_Color_$Impl_$.fromValue = function(value) {
 	return kha__$Color_Color_$Impl_$._new(value);
 };
@@ -11167,6 +15215,7 @@ var kha_Display = function() {
 };
 $hxClasses["kha.Display"] = kha_Display;
 kha_Display.__name__ = "kha.Display";
+kha_Display.__properties__ = {get_all:"get_all",get_primary:"get_primary"};
 kha_Display.get_primary = function() {
 	return kha_Display.instance;
 };
@@ -11211,6 +15260,7 @@ kha_Display.prototype = {
 		return [];
 	}
 	,__class__: kha_Display
+	,__properties__: {get_modes:"get_modes",get_pixelsPerInch:"get_pixelsPerInch",get_frequency:"get_frequency",get_height:"get_height",get_width:"get_width",get_y:"get_y",get_x:"get_x",get_name:"get_name",get_available:"get_available"}
 };
 var kha_DisplayMode = function(width,height,frequency,bitsPerPixel) {
 	this.width = width;
@@ -11264,6 +15314,7 @@ kha_Framebuffer.prototype = {
 		return kha_System.windowHeight(this.window);
 	}
 	,__class__: kha_Framebuffer
+	,__properties__: {get_height:"get_height",get_width:"get_width",get_g4:"get_g4",get_g2:"get_g2",get_g1:"get_g1"}
 };
 var kha_FramebufferOptions = function(frequency,verticalSync,colorBufferBits,depthBufferBits,stencilBufferBits,samplesPerPixel) {
 	if(samplesPerPixel == null) {
@@ -12792,6 +16843,7 @@ kha_SystemOptions.prototype = {
 var kha_System = function() { };
 $hxClasses["kha.System"] = kha_System;
 kha_System.__name__ = "kha.System";
+kha_System.__properties__ = {get_refreshRate:"get_refreshRate",get_vsync:"get_vsync",get_language:"get_language",get_systemId:"get_systemId",get_screenRotation:"get_screenRotation",get_time:"get_time",get_title:"get_title"};
 kha_System.init = function(options,callback) {
 	var features = 0;
 	if(options.resizable) {
@@ -14048,6 +18100,7 @@ kha_Video.prototype = {
 	,unload: function() {
 	}
 	,__class__: kha_Video
+	,__properties__: {set_position:"set_position",get_position:"get_position"}
 };
 var kha_WebGLImage = function(width,height,format,renderTarget,depthStencilFormat,samples) {
 	this.pixels = null;
@@ -14592,6 +18645,7 @@ var kha_Window = function(defaultWidth,defaultHeight,canvas) {
 };
 $hxClasses["kha.Window"] = kha_Window;
 kha_Window.__name__ = "kha.Window";
+kha_Window.__properties__ = {get_all:"get_all"};
 kha_Window.create = function(win,frame) {
 	return null;
 };
@@ -14707,6 +18761,7 @@ kha_Window.prototype = {
 		return true;
 	}
 	,__class__: kha_Window
+	,__properties__: {get_vSynced:"get_vSynced",set_title:"set_title",get_title:"get_title",set_visible:"set_visible",get_visible:"get_visible",set_mode:"set_mode",get_mode:"get_mode",set_height:"set_height",get_height:"get_height",set_width:"set_width",get_width:"get_width",set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x"}
 };
 var kha__$WindowOptions_WindowFeatures_$Impl_$ = {};
 $hxClasses["kha._WindowOptions.WindowFeatures_Impl_"] = kha__$WindowOptions_WindowFeatures_$Impl_$;
@@ -14773,6 +18828,7 @@ kha_WindowOptions.prototype = {
 var kha_arrays__$Float32Array_Float32Array_$Impl_$ = {};
 $hxClasses["kha.arrays._Float32Array.Float32Array_Impl_"] = kha_arrays__$Float32Array_Float32Array_$Impl_$;
 kha_arrays__$Float32Array_Float32Array_$Impl_$.__name__ = "kha.arrays._Float32Array.Float32Array_Impl_";
+kha_arrays__$Float32Array_Float32Array_$Impl_$.__properties__ = {get_length:"get_length"};
 kha_arrays__$Float32Array_Float32Array_$Impl_$._new = function(elements) {
 	var this1 = new Float32Array(elements);
 	return this1;
@@ -14795,6 +18851,7 @@ kha_arrays__$Float32Array_Float32Array_$Impl_$.subarray = function(this1,start,e
 var kha_arrays__$Int16Array_Int16Array_$Impl_$ = {};
 $hxClasses["kha.arrays._Int16Array.Int16Array_Impl_"] = kha_arrays__$Int16Array_Int16Array_$Impl_$;
 kha_arrays__$Int16Array_Int16Array_$Impl_$.__name__ = "kha.arrays._Int16Array.Int16Array_Impl_";
+kha_arrays__$Int16Array_Int16Array_$Impl_$.__properties__ = {get_length:"get_length"};
 kha_arrays__$Int16Array_Int16Array_$Impl_$._new = function(elements) {
 	var this1 = new Int16Array(elements);
 	return this1;
@@ -14823,6 +18880,7 @@ kha_arrays__$Int16Array_Int16Array_$Impl_$.subarray = function(this1,start,end) 
 var kha_arrays__$Uint32Array_Uint32Array_$Impl_$ = {};
 $hxClasses["kha.arrays._Uint32Array.Uint32Array_Impl_"] = kha_arrays__$Uint32Array_Uint32Array_$Impl_$;
 kha_arrays__$Uint32Array_Uint32Array_$Impl_$.__name__ = "kha.arrays._Uint32Array.Uint32Array_Impl_";
+kha_arrays__$Uint32Array_Uint32Array_$Impl_$.__properties__ = {get_length:"get_length"};
 kha_arrays__$Uint32Array_Uint32Array_$Impl_$._new = function(elements) {
 	var this1 = new Uint32Array(elements);
 	return this1;
@@ -14865,6 +18923,7 @@ kha_audio1_AudioChannel.prototype = {
 	,finished: null
 	,get_finished: null
 	,__class__: kha_audio1_AudioChannel
+	,__properties__: {get_finished:"get_finished",set_volume:"set_volume",get_volume:"get_volume",set_position:"set_position",get_position:"get_position",get_length:"get_length"}
 };
 var kha_internal_IntBox = function(value) {
 	this.value = value;
@@ -15253,6 +19312,7 @@ kha_audio2_AudioChannel.prototype = {
 		return this.stopped;
 	}
 	,__class__: kha_audio2_AudioChannel
+	,__properties__: {get_finished:"get_finished",set_volume:"set_volume",get_volume:"get_volume",set_position:"set_position",get_position:"get_position",get_length:"get_length"}
 };
 var kha_audio2_Buffer = function(size,channels,samplesPerSecond) {
 	this.size = size;
@@ -15532,6 +19592,7 @@ kha_audio2_StreamChannel.prototype = {
 		return this.atend;
 	}
 	,__class__: kha_audio2_StreamChannel
+	,__properties__: {get_finished:"get_finished",set_volume:"set_volume",get_volume:"get_volume",set_position:"set_position",get_position:"get_position",get_length:"get_length"}
 };
 var kha_audio2_PlayMode = $hxEnums["kha.audio2.PlayMode"] = { __ename__ : true, __constructs__ : ["Stopped","Paused","Playing"]
 	,Stopped: {_hx_index:0,__enum__:"kha.audio2.PlayMode",toString:$estr}
@@ -15639,6 +19700,7 @@ kha_audio2_VirtualStreamChannel.prototype = {
 		}
 	}
 	,__class__: kha_audio2_VirtualStreamChannel
+	,__properties__: {get_finished:"get_finished",set_volume:"set_volume",get_volume:"get_volume",set_position:"set_position",get_position:"get_position",get_length:"get_length"}
 };
 var kha_audio2_ogg_tools_Crc32 = function() { };
 $hxClasses["kha.audio2.ogg.tools.Crc32"] = kha_audio2_ogg_tools_Crc32;
@@ -16746,6 +20808,7 @@ kha_audio2_ogg_vorbis_Reader.prototype = {
 		return Math.floor(_$UInt_UInt_$Impl_$.toFloat(this.get_header().sampleRate) * (millseconds / 1000));
 	}
 	,__class__: kha_audio2_ogg_vorbis_Reader
+	,__properties__: {set_currentMillisecond:"set_currentMillisecond",get_currentMillisecond:"get_currentMillisecond",set_currentSample:"set_currentSample",get_currentSample:"get_currentSample",get_totalMillisecond:"get_totalMillisecond",get_totalSample:"get_totalSample",get_header:"get_header"}
 };
 var kha_audio2_ogg_vorbis_VorbisDecodeState = function(input) {
 	this.nextSeg = 0;
@@ -20059,6 +24122,7 @@ kha_audio2_ogg_vorbis_data_Comment.prototype = {
 		}
 	}
 	,__class__: kha_audio2_ogg_vorbis_data_Comment
+	,__properties__: {get_artists:"get_artists",get_isrc:"get_isrc",get_contact:"get_contact",get_location:"get_location",get_date:"get_date",get_genre:"get_genre",get_description:"get_description",get_artist:"get_artist",get_license:"get_license",get_copyright:"get_copyright",get_performer:"get_performer",get_tracknumber:"get_tracknumber",get_organization:"get_organization",get_album:"get_album",get_version:"get_version",get_loopLength:"get_loopLength",get_loopStart:"get_loopStart",get_title:"get_title"}
 };
 var kha_audio2_ogg_vorbis_data_Floor = function() {
 };
@@ -22151,6 +26215,7 @@ kha_graphics2_Graphics.prototype = {
 	,setPipeline: function(pipeline) {
 	}
 	,__class__: kha_graphics2_Graphics
+	,__properties__: {set_pipeline:"set_pipeline",get_pipeline:"get_pipeline",set_opacity:"set_opacity",get_opacity:"get_opacity",set_transformation:"set_transformation",get_transformation:"get_transformation",set_fontSize:"set_fontSize",get_fontSize:"get_fontSize",set_font:"set_font",get_font:"get_font",set_color:"set_color",get_color:"get_color",set_mipmapScaleQuality:"set_mipmapScaleQuality",get_mipmapScaleQuality:"get_mipmapScaleQuality",set_imageScaleQuality:"set_imageScaleQuality",get_imageScaleQuality:"get_imageScaleQuality"}
 };
 var kha_graphics2_Graphics1 = function(canvas) {
 	this.canvas = canvas;
@@ -24663,6 +28728,7 @@ kha_graphics4_CubeMap.prototype = {
 		return this.graphics4;
 	}
 	,__class__: kha_graphics4_CubeMap
+	,__properties__: {get_g4:"get_g4",get_g2:"get_g2",get_g1:"get_g1",get_height:"get_height",get_width:"get_width"}
 };
 var kha_graphics4_FragmentShader = function(sources,files) {
 	this.sources = [];
@@ -25009,6 +29075,7 @@ kha_graphics4_ImageShaderPainter.prototype = {
 		kha_graphics4_ImageShaderPainter.lastTexture = null;
 	}
 	,__class__: kha_graphics4_ImageShaderPainter
+	,__properties__: {set_pipeline:"set_pipeline",get_pipeline:"get_pipeline"}
 };
 var kha_graphics4_ColoredShaderPainter = function(g4) {
 	this.myPipeline = null;
@@ -25216,6 +29283,7 @@ kha_graphics4_ColoredShaderPainter.prototype = {
 		}
 	}
 	,__class__: kha_graphics4_ColoredShaderPainter
+	,__properties__: {set_pipeline:"set_pipeline",get_pipeline:"get_pipeline"}
 };
 var kha_graphics4_TextShaderPainter = function(g4) {
 	this.bakedQuadCache = new kha_AlignedQuad();
@@ -25603,6 +29671,7 @@ kha_graphics4_TextShaderPainter.prototype = {
 		kha_graphics4_TextShaderPainter.lastTexture = null;
 	}
 	,__class__: kha_graphics4_TextShaderPainter
+	,__properties__: {set_pipeline:"set_pipeline",get_pipeline:"get_pipeline"}
 };
 var kha_graphics4_Graphics2 = function(canvas) {
 	this.scissorH = -1;
@@ -27216,6 +31285,7 @@ kha_graphics4_PipelineStateBase.prototype = {
 	}
 	,conservativeRasterization: null
 	,__class__: kha_graphics4_PipelineStateBase
+	,__properties__: {set_colorWriteMaskAlpha:"set_colorWriteMaskAlpha",get_colorWriteMaskAlpha:"get_colorWriteMaskAlpha",set_colorWriteMaskBlue:"set_colorWriteMaskBlue",get_colorWriteMaskBlue:"get_colorWriteMaskBlue",set_colorWriteMaskGreen:"set_colorWriteMaskGreen",get_colorWriteMaskGreen:"get_colorWriteMaskGreen",set_colorWriteMaskRed:"set_colorWriteMaskRed",get_colorWriteMaskRed:"get_colorWriteMaskRed",set_colorWriteMask:"set_colorWriteMask"}
 };
 var kha_graphics4_PipelineState = function() {
 	this.program = null;
@@ -27778,6 +31848,7 @@ kha_input_Gamepad.prototype = {
 		}
 	}
 	,__class__: kha_input_Gamepad
+	,__properties__: {get_id:"get_id"}
 };
 var kha_input_BlockInterventions = $hxEnums["kha.input.BlockInterventions"] = { __ename__ : true, __constructs__ : ["Default","Full","None","Custom"]
 	,Default: {_hx_index:0,__enum__:"kha.input.BlockInterventions",toString:$estr}
@@ -28609,6 +32680,7 @@ kha_internal_BytesBlob.prototype = {
 		this.bytes = null;
 	}
 	,__class__: kha_internal_BytesBlob
+	,__properties__: {get_length:"get_length"}
 };
 var kha_internal_HdrFormat = function() {
 };
@@ -28855,6 +32927,7 @@ kha_js_AEAudioChannel.prototype = {
 		}
 	}
 	,__class__: kha_js_AEAudioChannel
+	,__properties__: {get_finished:"get_finished",set_volume:"set_volume",get_volume:"get_volume",set_position:"set_position",get_position:"get_position",get_length:"get_length"}
 };
 var kha_js_AudioElementAudio = function() { };
 $hxClasses["kha.js.AudioElementAudio"] = kha_js_AudioElementAudio;
@@ -29313,6 +33386,7 @@ kha_js_MobileWebAudioChannel.prototype = {
 		return this.stopped;
 	}
 	,__class__: kha_js_MobileWebAudioChannel
+	,__properties__: {get_finished:"get_finished",set_volume:"set_volume",get_volume:"get_volume",set_position:"set_position",get_position:"get_position",get_length:"get_length"}
 };
 var kha_js_MobileWebAudioSound = function(filename,done,failed) {
 	var _gthis = this;
@@ -30741,6 +34815,7 @@ kha_math_FastVector2.prototype = {
 		return "FastVector2(" + this.x + ", " + this.y + ")";
 	}
 	,__class__: kha_math_FastVector2
+	,__properties__: {set_length:"set_length",get_length:"get_length"}
 };
 var kha_math_FastVector3 = function(x,y,z) {
 	if(z == null) {
@@ -30783,6 +34858,7 @@ kha_math_FastVector3.prototype = {
 		return "FastVector3(" + this.x + ", " + this.y + ", " + this.z + ")";
 	}
 	,__class__: kha_math_FastVector3
+	,__properties__: {set_length:"set_length",get_length:"get_length"}
 };
 var kha_math_FastVector4 = function(x,y,z,w) {
 	if(w == null) {
@@ -30831,6 +34907,7 @@ kha_math_FastVector4.prototype = {
 		return "FastVector4(" + this.x + ", " + this.y + ", " + this.z + ", " + this.w + ")";
 	}
 	,__class__: kha_math_FastVector4
+	,__properties__: {set_length:"set_length",get_length:"get_length"}
 };
 var kha_math_Matrix3 = function(_00,_10,_20,_01,_11,_21,_02,_12,_22) {
 	this._00 = _00;
@@ -31253,6 +35330,7 @@ kha_math_Quaternion.prototype = {
 		return result;
 	}
 	,__class__: kha_math_Quaternion
+	,__properties__: {set_length:"set_length",get_length:"get_length",set_w:"set_w",get_w:"get_w",set_z:"set_z",get_z:"get_z",set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x"}
 };
 var kha_math_Vector2 = function(x,y) {
 	if(y == null) {
@@ -31283,6 +35361,7 @@ kha_math_Vector2.prototype = {
 		return length;
 	}
 	,__class__: kha_math_Vector2
+	,__properties__: {set_length:"set_length",get_length:"get_length"}
 };
 var kha_math_Vector3 = function(x,y,z) {
 	if(z == null) {
@@ -31319,6 +35398,7 @@ kha_math_Vector3.prototype = {
 		return length;
 	}
 	,__class__: kha_math_Vector3
+	,__properties__: {set_length:"set_length",get_length:"get_length"}
 };
 var kha_math_Vector4 = function(x,y,z,w) {
 	if(w == null) {
@@ -31361,6 +35441,7 @@ kha_math_Vector4.prototype = {
 		return length;
 	}
 	,__class__: kha_math_Vector4
+	,__properties__: {set_length:"set_length",get_length:"get_length"}
 };
 var kha_netsync_Client = function() { };
 $hxClasses["kha.netsync.Client"] = kha_netsync_Client;
@@ -31373,6 +35454,7 @@ kha_netsync_Client.prototype = {
 	,receive: null
 	,onClose: null
 	,__class__: kha_netsync_Client
+	,__properties__: {get_id:"get_id"}
 };
 var kha_netsync_ControllerBuilder = function() { };
 $hxClasses["kha.netsync.ControllerBuilder"] = kha_netsync_ControllerBuilder;
@@ -31411,6 +35493,7 @@ kha_netsync_LocalClient.prototype = {
 		return this.myId;
 	}
 	,__class__: kha_netsync_LocalClient
+	,__properties__: {get_id:"get_id",get_controllers:"get_controllers"}
 };
 var kha_netsync_Network = function(url,port,errorCallback,closeCallback) {
 	this.open = false;
@@ -31714,6 +35797,7 @@ kha_netsync_Session.prototype = {
 		this.network.send(bytes,false);
 	}
 	,__class__: kha_netsync_Session
+	,__properties__: {get_me:"get_me"}
 };
 var kha_netsync_SyncBuilder = function() { };
 $hxClasses["kha.netsync.SyncBuilder"] = kha_netsync_SyncBuilder;
@@ -31866,19 +35950,29 @@ $hxClasses["states.Test"] = states_Test;
 states_Test.__name__ = "states.Test";
 states_Test.__super__ = com_framework_utils_State;
 states_Test.prototype = $extend(com_framework_utils_State.prototype,{
-	load: function(resources) {
+	tilemapCollision: null
+	,ivanka: null
+	,load: function(resources) {
+		resources.add(new com_loading_basicResources_DataLoader("level_tmx"));
 		var atlas = new com_loading_basicResources_JoinAtlas(2048,2048);
-		atlas.add(new com_loading_basicResources_SparrowLoader("pig","pig_xml"));
+		atlas.add(new com_loading_basicResources_SparrowLoader("Untitled_1","Untitled_1_xml"));
+		atlas.add(new com_loading_basicResources_TilesheetLoader("tiles",10,10,0));
+		atlas.add(new com_loading_basicResources_SparrowLoader("ivanka","ivanka_xml"));
 		resources.add(atlas);
 	}
 	,init: function() {
-		var display = new com_gEngine_display_BasicSprite("pig");
-		display.timeline.frameRate = 0.14285714285714285;
-		display.scaleX = 2;
-		display.scaleY = 2;
-		display.textureFilter = 0;
-		display.timeline.playAnimation("walk.png");
-		this.stage.addChild(display);
+		this.stageColor(1,0.5,0.5);
+		var simulationLayer = new com_gEngine_display_Layer();
+		this.ivanka = new gameObjects_Player();
+		simulationLayer.addChild(this.ivanka.display);
+		this.addChild(this.ivanka);
+		this.stage.addChild(simulationLayer);
+		var tilemap = new com_collision_platformer_Tilemap();
+		this.tilemapCollision = tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
+	}
+	,update: function(dt) {
+		com_framework_utils_State.prototype.update.call(this,dt);
+		com_collision_platformer_CollisionEngine.collide(this.tilemapCollision,this.ivanka.collision);
 	}
 	,__class__: states_Test
 });
@@ -31917,6 +36011,12 @@ Xml.ProcessingInstruction = 5;
 Xml.Document = 6;
 com_TimeManager.time = 0;
 com_TimeManager.multiplier = 1;
+com_collision_platformer_Sides.ALL = com_collision_platformer_Sides.LEFT | com_collision_platformer_Sides.RIGHT | com_collision_platformer_Sides.TOP | com_collision_platformer_Sides.BOTTOM;
+com_collision_platformer_Sides.NONE = 0;
+com_collision_platformer_Sides.LEFT = 1;
+com_collision_platformer_Sides.RIGHT = 2;
+com_collision_platformer_Sides.TOP = 4;
+com_collision_platformer_Sides.BOTTOM = 8;
 com_framework_utils_Input.TOUCH_MAX = 6;
 com_gEngine_GEngine.initialIndex = 2;
 com_gEngine_GEngine.drawCount = 0;
@@ -31928,6 +36028,11 @@ com_helpers_MinMax.weak = new com_helpers_MinMax();
 com_soundLib_SoundManager.musicPosition = 0;
 com_soundLib_SoundManager.soundMuted = false;
 com_soundLib_SoundManager.musicMuted = false;
+format_tmx_Reader.FLIPPED_HORIZONTALLY_FLAG = -2147483648;
+format_tmx_Reader.FLIPPED_VERTICALLY_FLAG = 1073741824;
+format_tmx_Reader.FLIPPED_DIAGONALLY_FLAG = 536870912;
+format_tmx_Reader.FLAGS_MASK = 536870911;
+gameObjects_GameGlobals.Gravity = 1000;
 haxe_Unserializer.DEFAULT_RESOLVER = new haxe__$Unserializer_DefaultResolver();
 haxe_Unserializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
 haxe_crypto_Base64.CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -31964,6 +36069,11 @@ haxe_xml_Parser.escapes = (function($this) {
 	$r = h;
 	return $r;
 }(this));
+haxe_zip_InflateImpl.LEN_EXTRA_BITS_TBL = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0,-1,-1];
+haxe_zip_InflateImpl.LEN_BASE_VAL_TBL = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
+haxe_zip_InflateImpl.DIST_EXTRA_BITS_TBL = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,-1,-1];
+haxe_zip_InflateImpl.DIST_BASE_VAL_TBL = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
+haxe_zip_InflateImpl.CODE_LENGTHS_POS = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
 kha_Assets.images = new kha__$Assets_ImageList();
 kha_Assets.sounds = new kha__$Assets_SoundList();
 kha_Assets.blobs = new kha__$Assets_BlobList();
