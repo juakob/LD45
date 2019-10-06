@@ -25,12 +25,13 @@ class Enemy extends Body {
             display.scaleX=Math.abs(display.scaleX);
         }
         if(Math.random()<0.02&&collision.isTouching(Sides.BOTTOM)){
-            collision.velocityY=-500-Math.random()*200;
+            collision.velocityY=-700-Math.random()*300;
         }
         super.update(dt);
     }
     public function damage() {
         die();
+        GameGlobals.blood.addBlood(collision.x,collision.y);
     }
     
 }

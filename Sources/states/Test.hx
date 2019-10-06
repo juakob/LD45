@@ -1,5 +1,6 @@
 package states;
 
+import fx.Blood;
 import com.collision.platformer.ICollider;
 import gameObjects.GameGlobals;
 import com.framework.Simulation;
@@ -38,6 +39,7 @@ class Test extends State {
         atlas.add(new SparrowLoader("skins", "skins_xml"));
         atlas.add(new SparrowLoader("weapons", "weapons_xml"));
         atlas.add(new SparrowLoader("bullets", "bullets_xml"));
+        atlas.add(new SparrowLoader("pumpkinBlood", "pumpkinBlood_xml"));
         atlas.add(new ImageLoader("ivankaArm"));
         resources.add(atlas);
         
@@ -69,11 +71,14 @@ class Test extends State {
        // stage.defaultCamera().offsetX=-1280/2;
        // stage.defaultCamera().offsetX=-720/2;
        // stage.defaultCamera().rotation=Math.PI/4;
+
         
         stage.addChild(simulationLayer);
         var tilemap:Tilemap=new Tilemap();
         tilemapCollision=tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
         stage.defaultCamera().limits(0,0,tilemapCollision.widthIntTiles*40,tilemapCollision.heightInTiles*40);
+
+        GameGlobals.blood=new Blood(this,simulationLayer);
     }
     override function update(dt:Float) {
         super.update(dt);
@@ -84,7 +89,7 @@ class Test extends State {
         stage.defaultCamera().setTarget(ivanka.display.x,ivanka.display.y);
     }
     function enemyVsBullet(a:ICollider,b:ICollider) {
-        (cast a.userData).die();
+        (cast a.userData).damage();
         (cast b.userData).die();
     }
     function bulletsVsMap(a:ICollider,b:ICollider) {

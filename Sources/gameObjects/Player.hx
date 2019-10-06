@@ -41,13 +41,13 @@ class Player extends Body {
             collision.accelerationX=0;
         }
         if(Input.i.isKeyCodePressed(KeyCode.Space)){
-            collision.velocityY=-500;
+            collision.velocityY=-1000;
         }
          if(Input.i.isKeyCodePressed(KeyCode.X)){
              if(display.scaleX>0){
-                  weapon.shoot(collision.x,collision.y+10,Sides.LEFT);
+                  weapon.shoot(collision.x-50,collision.y+37,Sides.LEFT);
              }else{
-                  weapon.shoot(collision.x,collision.y+10,Sides.RIGHT);
+                  weapon.shoot(collision.x+70,collision.y+37,Sides.RIGHT);
              }
            
         }

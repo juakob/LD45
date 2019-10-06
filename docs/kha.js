@@ -1530,7 +1530,7 @@ com_framework_utils_Entity.prototype = {
 			child.limbo = true;
 			child.dead = true;
 		}
-		this.childrenInLimbo = this.children.length;
+		this.childrenInLimbo = this.currentCapacity();
 	}
 	,__class__: com_framework_utils_Entity
 };
@@ -1900,6 +1900,173 @@ com_framework_utils_State.prototype = $extend(com_framework_utils_Entity.prototy
 		}
 	}
 	,__class__: com_framework_utils_State
+});
+var com_fx_Emitter = function() {
+	this.accelerationX = 0;
+	this.gravity = 0;
+	this.angularVelocityMin = 0;
+	this.angularVelocityMax = 0;
+	this.yRandom = 0;
+	this.xRandom = 0;
+	this.time = 0;
+	this.minLife = 0;
+	this.maxLife = 0;
+	this.maxScale = 1;
+	this.minScale = 1;
+	this.maxVelocityY = 0;
+	this.minVelocityY = 0;
+	this.maxVelocityX = 0;
+	this.minVelocityX = 0;
+	com_framework_utils_Entity.call(this);
+	this.pool = true;
+	this.container = new com_gEngine_display_Layer();
+};
+$hxClasses["com.fx.Emitter"] = com_fx_Emitter;
+com_fx_Emitter.__name__ = "com.fx.Emitter";
+com_fx_Emitter.__super__ = com_framework_utils_Entity;
+com_fx_Emitter.prototype = $extend(com_framework_utils_Entity.prototype,{
+	minVelocityX: null
+	,maxVelocityX: null
+	,minVelocityY: null
+	,maxVelocityY: null
+	,minScale: null
+	,maxScale: null
+	,maxLife: null
+	,minLife: null
+	,container: null
+	,playing: null
+	,timePlaying: null
+	,time: null
+	,x: null
+	,y: null
+	,xRandom: null
+	,yRandom: null
+	,angularVelocityMax: null
+	,angularVelocityMin: null
+	,gravity: null
+	,accelerationX: null
+	,reset: function(layer) {
+		layer.addChild(this.container);
+	}
+	,limboStart: function() {
+		this.container.removeFromParent();
+	}
+	,start: function(emittTime) {
+		if(emittTime == null) {
+			emittTime = 0;
+		}
+		this.playing = true;
+		if(emittTime > 0) {
+			this.timePlaying = true;
+			this.time = emittTime;
+		}
+	}
+	,stop: function() {
+		this.playing = false;
+		this.timePlaying = false;
+	}
+	,onUpdate: function(dt) {
+		if(this.timePlaying) {
+			this.time -= dt;
+			if(this.time < 0) {
+				this.stop();
+			}
+		}
+		if(!this.playing) {
+			if(this.numAliveChildren() == 0) {
+				this.die();
+			}
+			return;
+		}
+		while(this.numAliveChildren() != this.currentCapacity()) {
+			var particle = this.recycle(com_fx_Particle);
+			particle.reset(this.x + this.xRandom - this.xRandom * 2 * Math.random(),this.y + this.yRandom - this.yRandom * 2 * Math.random(),this.minLife + (this.maxLife - this.minLife) * Math.random(),this.minVelocityX + (this.maxVelocityX - this.minVelocityX) * Math.random(),this.minVelocityY + (this.maxVelocityY - this.minVelocityY) * Math.random(),this.container,this.angularVelocityMin + (this.angularVelocityMax - this.angularVelocityMin) * Math.random(),this.minScale + (this.maxScale - this.minScale) * Math.random());
+			particle.gravity = this.gravity;
+			particle.accelerationX = this.accelerationX;
+		}
+	}
+	,get_allX: function() {
+		return this.container.x;
+	}
+	,set_allX: function(value) {
+		return this.container.x = value;
+	}
+	,get_allY: function() {
+		return this.container.y;
+	}
+	,set_allY: function(value) {
+		return this.container.y = value;
+	}
+	,__class__: com_fx_Emitter
+	,__properties__: {set_allY:"set_allY",get_allY:"get_allY",set_allX:"set_allX",get_allX:"get_allX"}
+});
+var com_fx_Particle = function(display) {
+	this.mAngularVelocity = 0;
+	this.accelerationX = 0;
+	this.gravity = 100;
+	this.mVelocity = new com_helpers_FastPoint();
+	this.mLife = 0;
+	this.mY = 0;
+	this.mX = 0;
+	com_framework_utils_Entity.call(this);
+	this.die();
+	this.setAnimation(display);
+};
+$hxClasses["com.fx.Particle"] = com_fx_Particle;
+com_fx_Particle.__name__ = "com.fx.Particle";
+com_fx_Particle.__super__ = com_framework_utils_Entity;
+com_fx_Particle.prototype = $extend(com_framework_utils_Entity.prototype,{
+	animation: null
+	,mX: null
+	,mY: null
+	,mLife: null
+	,mTotalLife: null
+	,mVelocity: null
+	,gravity: null
+	,accelerationX: null
+	,mAngularVelocity: null
+	,setAnimation: function(display) {
+		this.animation = display;
+	}
+	,reset: function(x,y,life,speedX,speedY,layer,angularVelocity,scale) {
+		if(scale == null) {
+			scale = 1;
+		}
+		this.mX = x;
+		this.mY = y;
+		this.mLife = this.mTotalLife = life;
+		this.mVelocity.x = speedX;
+		this.mVelocity.y = speedY;
+		layer.addChild(this.animation);
+		this.animation.x = x;
+		this.animation.y = y;
+		this.mAngularVelocity = angularVelocity;
+		this.animation.scaleX = this.animation.scaleY = this.mInitialScale = scale;
+	}
+	,limboStart: function() {
+		this.animation.removeFromParent();
+	}
+	,scaleAtDeath: null
+	,mInitialScale: null
+	,update: function(aDt) {
+		this.mLife -= aDt;
+		if(this.mLife < 0) {
+			this.die();
+			return;
+		}
+		if(this.scaleAtDeath) {
+			this.animation.scaleX = this.animation.scaleY = this.mInitialScale * this.mLife / this.mTotalLife;
+		}
+		this.mVelocity.y += this.gravity * aDt;
+		this.mVelocity.x += this.accelerationX * aDt;
+		this.mX += this.mVelocity.x * aDt;
+		this.mY += this.mVelocity.y * aDt;
+		this.animation.x = this.mX;
+		this.animation.y = this.mY;
+		var _g = this.animation;
+		_g.set_rotation(_g.rotation + this.mAngularVelocity * aDt);
+	}
+	,__class__: com_fx_Particle
 });
 var com_g3d_Container = function() {
 	this.children = [];
@@ -4222,6 +4389,17 @@ com_gEngine_display_IDraw.prototype = {
 	,getFinalTransformation: null
 	,__class__: com_gEngine_display_IDraw
 };
+var com_gEngine_display_IRotation = function() { };
+$hxClasses["com.gEngine.display.IRotation"] = com_gEngine_display_IRotation;
+com_gEngine_display_IRotation.__name__ = "com.gEngine.display.IRotation";
+com_gEngine_display_IRotation.__isInterface__ = true;
+com_gEngine_display_IRotation.__interfaces__ = [com_gEngine_display_IDraw];
+com_gEngine_display_IRotation.prototype = {
+	set_rotation: null
+	,rotation: null
+	,__class__: com_gEngine_display_IRotation
+	,__properties__: {set_rotation:"set_rotation"}
+};
 var com_gEngine_display_IAnimation = function() { };
 $hxClasses["com.gEngine.display.IAnimation"] = com_gEngine_display_IAnimation;
 com_gEngine_display_IAnimation.__name__ = "com.gEngine.display.IAnimation";
@@ -4285,7 +4463,7 @@ var com_gEngine_display_BasicSprite = function(name) {
 };
 $hxClasses["com.gEngine.display.BasicSprite"] = com_gEngine_display_BasicSprite;
 com_gEngine_display_BasicSprite.__name__ = "com.gEngine.display.BasicSprite";
-com_gEngine_display_BasicSprite.__interfaces__ = [com_gEngine_display_IAnimation];
+com_gEngine_display_BasicSprite.__interfaces__ = [com_gEngine_display_IRotation,com_gEngine_display_IAnimation];
 com_gEngine_display_BasicSprite.checkBatch = function(paintMode,paintInfo,count,painter) {
 	if(!paintMode.canBatch(paintInfo,count,painter)) {
 		paintMode.render();
@@ -11261,6 +11439,52 @@ format_tmx_Tools.getTilesCountInColumnOnTileset = function(tileset) {
 format_tmx_Tools.getTilesCountInTileset = function(tileset) {
 	return Math.floor((tileset.image.width - tileset.margin * 2 + tileset.spacing) / (tileset.tileWidth + tileset.spacing)) * Math.floor((tileset.image.height - tileset.margin * 2 + tileset.spacing) / (tileset.tileHeight + tileset.spacing));
 };
+var fx_Blood = function(state,layer) {
+	this.bloodPool = new com_framework_utils_Entity();
+	this.bloodPool.pool = true;
+	state.addChild(this.bloodPool);
+	this.layer = layer;
+};
+$hxClasses["fx.Blood"] = fx_Blood;
+fx_Blood.__name__ = "fx.Blood";
+fx_Blood.prototype = {
+	bloodPool: null
+	,layer: null
+	,initBloodPool: function(emitter) {
+		emitter.gravity = 2000;
+		emitter.minVelocityX = -400;
+		emitter.maxVelocityX = 400;
+		emitter.minVelocityY = -450;
+		emitter.maxVelocityY = -1000;
+		emitter.minScale = 2;
+		emitter.maxScale = 8;
+		emitter.minLife = 1;
+		emitter.maxLife = 2;
+		emitter.angularVelocityMin = -3;
+		emitter.angularVelocityMax = 3;
+		var _g = 0;
+		while(_g < 20) {
+			var i = _g++;
+			var display = new com_gEngine_display_BasicSprite("pumpkinBlood");
+			display.set_smooth(false);
+			display.timeline.gotoAndStop(i % display.timeline.totalFrames);
+			var particle = new com_fx_Particle(display);
+			emitter.addChild(particle);
+		}
+		this.bloodPool.addChild(emitter);
+	}
+	,addBlood: function(x,y) {
+		var emitter = this.bloodPool.recycle(com_fx_Emitter);
+		if(emitter.currentCapacity() == 0) {
+			this.initBloodPool(emitter);
+		}
+		emitter.reset(this.layer);
+		emitter.set_allX(x);
+		emitter.set_allY(y);
+		emitter.start(0.1);
+	}
+	,__class__: fx_Blood
+};
 var gameObjects_Body = function() {
 	this.maxSpeed = 400;
 	com_framework_utils_Entity.call(this);
@@ -11295,7 +11519,7 @@ var gameObjects_Body = function() {
 	this.display.x = this.collision.x = 500;
 	this.display.y = this.collision.y = 200;
 	this.collision.userData = this;
-	this.collision.accelerationY = 1000;
+	this.collision.accelerationY = 2000;
 	this.collision.dragX = 0.9;
 };
 $hxClasses["gameObjects.Body"] = gameObjects_Body;
@@ -11393,13 +11617,14 @@ gameObjects_Enemy.prototype = $extend(gameObjects_Body.prototype,{
 			this.display.scaleX = Math.abs(this.display.scaleX);
 		}
 		if(Math.random() < 0.02 && this.collision.isTouching(com_collision_platformer_Sides.BOTTOM)) {
-			var tmp = Math.random() * 200;
-			this.collision.velocityY = -500 - tmp;
+			var tmp = Math.random() * 300;
+			this.collision.velocityY = -700 - tmp;
 		}
 		gameObjects_Body.prototype.update.call(this,dt);
 	}
 	,damage: function() {
 		this.die();
+		gameObjects_GameGlobals.blood.addBlood(this.collision.x,this.collision.y);
 	}
 	,__class__: gameObjects_Enemy
 });
@@ -11409,6 +11634,7 @@ gameObjects_GameGlobals.__name__ = "gameObjects.GameGlobals";
 gameObjects_GameGlobals.clear = function() {
 	gameObjects_GameGlobals.simulationLayer = null;
 	gameObjects_GameGlobals.bulletCollisions = null;
+	gameObjects_GameGlobals.blood = null;
 };
 var gameObjects_Gun = function() {
 	com_framework_utils_Entity.call(this);
@@ -11459,13 +11685,13 @@ gameObjects_Player.prototype = $extend(gameObjects_Body.prototype,{
 			this.collision.accelerationX = 0;
 		}
 		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
-			this.collision.velocityY = -500;
+			this.collision.velocityY = -1000;
 		}
 		if(com_framework_utils_Input.i.isKeyCodePressed(88)) {
 			if(this.display.scaleX > 0) {
-				this.weapon.shoot(this.collision.x,this.collision.y + 10,com_collision_platformer_Sides.LEFT);
+				this.weapon.shoot(this.collision.x - 50,this.collision.y + 37,com_collision_platformer_Sides.LEFT);
 			} else {
-				this.weapon.shoot(this.collision.x,this.collision.y + 10,com_collision_platformer_Sides.RIGHT);
+				this.weapon.shoot(this.collision.x + 70,this.collision.y + 37,com_collision_platformer_Sides.RIGHT);
 			}
 		}
 		if(this.collision.velocityX != 0 && this.collision.isTouching(com_collision_platformer_Sides.BOTTOM)) {
@@ -14162,7 +14388,7 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Untitled_1","bullets","ivanka","ivankaArm","neutron","pig","proton","skins","tiles","weapons"];
+	this.names = ["Untitled_1","bullets","ivanka","ivankaArm","neutron","pig","proton","pumpkinBlood","skins","tiles","weapons"];
 	this.weaponsDescription = { name : "weapons", original_height : 6, original_width : 30, files : ["weapons.png"], type : "image"};
 	this.weaponsName = "weapons";
 	this.weapons = null;
@@ -14172,6 +14398,9 @@ var kha__$Assets_ImageList = function() {
 	this.skinsDescription = { name : "skins", original_height : 47, original_width : 16, files : ["skins.png"], type : "image"};
 	this.skinsName = "skins";
 	this.skins = null;
+	this.pumpkinBloodDescription = { name : "pumpkinBlood", original_height : 11, original_width : 39, files : ["pumpkinBlood.png"], type : "image"};
+	this.pumpkinBloodName = "pumpkinBlood";
+	this.pumpkinBlood = null;
 	this.protonDescription = { name : "proton", original_height : 100, original_width : 100, files : ["proton.png"], type : "image"};
 	this.protonName = "proton";
 	this.proton = null;
@@ -14284,6 +14513,18 @@ kha__$Assets_ImageList.prototype = {
 		this.proton.unload();
 		this.proton = null;
 	}
+	,pumpkinBlood: null
+	,pumpkinBloodName: null
+	,pumpkinBloodDescription: null
+	,pumpkinBloodLoad: function(done,failure) {
+		kha_Assets.loadImage("pumpkinBlood",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "pumpkinBloodLoad"});
+	}
+	,pumpkinBloodUnload: function() {
+		this.pumpkinBlood.unload();
+		this.pumpkinBlood = null;
+	}
 	,skins: null
 	,skinsName: null
 	,skinsDescription: null
@@ -14336,7 +14577,7 @@ kha__$Assets_SoundList.prototype = {
 	,__class__: kha__$Assets_SoundList
 };
 var kha__$Assets_BlobList = function() {
-	this.names = ["Untitled_1_xml","bullets_xml","ivanka_xml","level_tmx","pig_xml","skins_xml","tiles_xml","weapons_xml"];
+	this.names = ["Untitled_1_xml","bullets_xml","ivanka_xml","level_tmx","pig_xml","pumpkinBlood_xml","skins_xml","tiles_xml","weapons_xml"];
 	this.weapons_xmlDescription = { name : "weapons_xml", files : ["weapons.xml"], type : "blob"};
 	this.weapons_xmlName = "weapons_xml";
 	this.weapons_xml = null;
@@ -14346,6 +14587,9 @@ var kha__$Assets_BlobList = function() {
 	this.skins_xmlDescription = { name : "skins_xml", files : ["skins.xml"], type : "blob"};
 	this.skins_xmlName = "skins_xml";
 	this.skins_xml = null;
+	this.pumpkinBlood_xmlDescription = { name : "pumpkinBlood_xml", files : ["pumpkinBlood.xml"], type : "blob"};
+	this.pumpkinBlood_xmlName = "pumpkinBlood_xml";
+	this.pumpkinBlood_xml = null;
 	this.pig_xmlDescription = { name : "pig_xml", files : ["pig.xml"], type : "blob"};
 	this.pig_xmlName = "pig_xml";
 	this.pig_xml = null;
@@ -14427,6 +14671,18 @@ kha__$Assets_BlobList.prototype = {
 	,pig_xmlUnload: function() {
 		this.pig_xml.unload();
 		this.pig_xml = null;
+	}
+	,pumpkinBlood_xml: null
+	,pumpkinBlood_xmlName: null
+	,pumpkinBlood_xmlDescription: null
+	,pumpkinBlood_xmlLoad: function(done,failure) {
+		kha_Assets.loadBlob("pumpkinBlood_xml",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "pumpkinBlood_xmlLoad"});
+	}
+	,pumpkinBlood_xmlUnload: function() {
+		this.pumpkinBlood_xml.unload();
+		this.pumpkinBlood_xml = null;
 	}
 	,skins_xml: null
 	,skins_xmlName: null
@@ -36012,6 +36268,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		atlas.add(new com_loading_basicResources_SparrowLoader("skins","skins_xml"));
 		atlas.add(new com_loading_basicResources_SparrowLoader("weapons","weapons_xml"));
 		atlas.add(new com_loading_basicResources_SparrowLoader("bullets","bullets_xml"));
+		atlas.add(new com_loading_basicResources_SparrowLoader("pumpkinBlood","pumpkinBlood_xml"));
 		atlas.add(new com_loading_basicResources_ImageLoader("ivankaArm"));
 		resources.add(atlas);
 	}
@@ -36036,6 +36293,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		var tilemap = new com_collision_platformer_Tilemap();
 		this.tilemapCollision = tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
 		this.stage.cameras[0].limits(0,0,this.tilemapCollision.widthIntTiles * 40,this.tilemapCollision.heightInTiles * 40);
+		gameObjects_GameGlobals.blood = new fx_Blood(this,simulationLayer);
 	}
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
@@ -36046,7 +36304,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		this.stage.cameras[0].setTarget(this.ivanka.display.x,this.ivanka.display.y);
 	}
 	,enemyVsBullet: function(a,b) {
-		a.userData.die();
+		a.userData.damage();
 		b.userData.die();
 	}
 	,bulletsVsMap: function(a,b) {
@@ -36114,7 +36372,7 @@ format_tmx_Reader.FLIPPED_HORIZONTALLY_FLAG = -2147483648;
 format_tmx_Reader.FLIPPED_VERTICALLY_FLAG = 1073741824;
 format_tmx_Reader.FLIPPED_DIAGONALLY_FLAG = 536870912;
 format_tmx_Reader.FLAGS_MASK = 536870911;
-gameObjects_GameGlobals.Gravity = 1000;
+gameObjects_GameGlobals.Gravity = 2000;
 haxe_Unserializer.DEFAULT_RESOLVER = new haxe__$Unserializer_DefaultResolver();
 haxe_Unserializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
 haxe_crypto_Base64.CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
