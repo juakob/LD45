@@ -12,59 +12,22 @@ import com.gEngine.display.Layer;
 import com.gEngine.display.BasicSprite;
 import com.framework.utils.Entity;
 
-class Player extends Entity {
-    public var display:Layer;
-    public var collision:CollisionBox;
-    var maxSpeed:Float=400;
-    var armL:BasicSprite;
-    var armR:BasicSprite;
-    var body:BasicSprite;
+class Player extends Body {
+    var weapon:Gun;
     public function new() {
         super();
-        display=new Layer();
-         armR=new BasicSprite("ivankaArm");
-        display.addChild(armR);
-        armR.smooth=false;
-        body=new BasicSprite("ivanka");
-        display.addChild(body);
-        body.smooth=false;
-        armL=new BasicSprite("ivankaArm");
-        display.addChild(armL);
-        armL.smooth=false;
+        weapon=new Gun();
+        layerArmR.addChild(weapon.display);
+        addChild(weapon);
 
-       display.scaleX=display.scaleY=4;
-       body.x=-9;
-       body.y=-23;
+       weapon.display.rotation=-Math.PI/2;
+       weapon.display.x=-4;
+       weapon.display.y=5+9;
 
-       armL.x=-(9-11);
-       armL.y=-(23-14);
-       armL.pivotX=2;
-       armL.pivotY=2;
-
-       armR.x=-(9-3);
-       armR.y=-(23-14);
-       armR.pivotX=2;
-       armR.pivotY=2;
-
-       // display.offsetX=-display.width()*0.5;
-       // display.offsetY=-display.width()*0.5;
-        collision=new CollisionBox();
-        collision.width=10*4;
-        collision.height=21*4;
-        collision.maxVelocityX=maxSpeed;
-        display.x=collision.x=500;
-        display.y=collision.y=200;
-
-        collision.accelerationY=GameGlobals.Gravity;
-        
-        collision.dragX=0.9;
     }
  
-  
     override function update(dt:Float) {
-        super.update(dt);
-        display.x=collision.x+10*2;
-        display.y=collision.y+21*4;
+        
 
         if(Input.i.isKeyCodeDown(KeyCode.Left)){
             collision.accelerationX=-maxSpeed*4;
@@ -80,17 +43,23 @@ class Player extends Entity {
         if(Input.i.isKeyCodePressed(KeyCode.Space)){
             collision.velocityY=-500;
         }
+         if(Input.i.isKeyCodePressed(KeyCode.X)){
+             if(display.scaleX>0){
+                  weapon.shoot(collision.x,collision.y+10,Sides.LEFT);
+             }else{
+                  weapon.shoot(collision.x,collision.y+10,Sides.RIGHT);
+             }
+           
+        }
         if(collision.velocityX!=0 && collision.isTouching(Sides.BOTTOM)){
-            display.rotation=Math.PI/20*Math.sin(TimeManager.time*10);
-            armL.rotation= display.rotation*2;
-            armR.rotation=-armL.rotation;
+            display.rotation=Math.PI/40*Math.sin(TimeManager.time*10);
+            armL.rotation= display.rotation*4;
+            layerArmR.rotation=-display.rotation+Math.PI/2;
         }
         else{
-             armR.rotation=armL.rotation=display.rotation=0;
+             armL.rotation=display.rotation=0;
         }
-
-        collision.update(dt); 
-        
+        super.update(dt);
         
     }
 }

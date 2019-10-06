@@ -1,0 +1,8 @@
+<!--
+Created with Free texture packer v0.4.7 http://free-tex-packer.com
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="bullets.png" width="5" height="10">
+  <SubTexture name="lazer" x="1" y="1"  width="3" height="3" frameX="-1" frameY="-1" frameWidth="5" frameHeight="5"/>
+  <SubTexture name="bullet" x="1" y="6" width="1" height="3" rotated="true"  frameX="-1" frameY="-2" frameWidth="5" frameHeight="5"/>
+</TextureAtlas>

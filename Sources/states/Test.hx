@@ -1,5 +1,11 @@
 package states;
 
+import com.collision.platformer.ICollider;
+import gameObjects.GameGlobals;
+import com.framework.Simulation;
+import com.gEngine.shaders.ShRetro;
+import com.collision.platformer.CollisionGroup;
+import com.gEngine.shaders.ShFilmGrain;
 import com.collision.platformer.CollisionEngine;
 import gameObjects.Player;
 import com.collision.platformer.CollisionTileMap;
@@ -19,6 +25,8 @@ import com.framework.utils.State;
 class Test extends State {
     var tilemapCollision:CollisionTileMap;
     var ivanka:Player;
+    var enemiesCollisions:CollisionGroup;
+    var bullets:CollisionGroup;
     public function new() {
         super();
     }
@@ -27,24 +35,37 @@ class Test extends State {
         var atlas=new JoinAtlas(2048,2048);
         atlas.add(new SparrowLoader("Untitled_1","Untitled_1_xml"));
         atlas.add(new TilesheetLoader("tiles", 10,10,1));
-        atlas.add(new SparrowLoader("ivanka", "ivanka_xml"));
+        atlas.add(new SparrowLoader("skins", "skins_xml"));
+        atlas.add(new SparrowLoader("weapons", "weapons_xml"));
+        atlas.add(new SparrowLoader("bullets", "bullets_xml"));
         atlas.add(new ImageLoader("ivankaArm"));
         resources.add(atlas);
+        
     }
 
     override function init() {
 
-        stageColor(1,0.5,0.5);
+        stageColor(0.5,.5,0.5);
        
         var simulationLayer=new Layer();
+        GameGlobals.simulationLayer = simulationLayer;
 
-      // simulationLayer.filter=new Filter([new ShRgbSplit(Blend.blendMultipass())],0.5,0.5,0.5,0,false);
+      // simulationLayer.filter=new Filter([new ShRetro(Blend.blendMultipass()),new ShRgbSplit(Blend.blendDefault())],0.5,.5,0.5,1,false);
         
         
         ivanka=new Player();
         simulationLayer.addChild(ivanka.display);
         addChild(ivanka);
         
+        enemiesCollisions=new CollisionGroup();
+        for(i in 0...400){
+            var enemy=new gameObjects.Enemy(100+Math.random()*1900,100);
+            addChild(enemy);
+            simulationLayer.addChild(enemy.display);
+            enemiesCollisions.add(enemy.collision);
+        }
+
+        GameGlobals.bulletCollisions=bullets=new CollisionGroup();
        // stage.defaultCamera().offsetX=-1280/2;
        // stage.defaultCamera().offsetX=-720/2;
        // stage.defaultCamera().rotation=Math.PI/4;
@@ -57,6 +78,20 @@ class Test extends State {
     override function update(dt:Float) {
         super.update(dt);
         CollisionEngine.collide(tilemapCollision,ivanka.collision);
+        CollisionEngine.collide(tilemapCollision,enemiesCollisions);
+        enemiesCollisions.overlap(bullets,enemyVsBullet);
+         bullets.collide(tilemapCollision,bulletsVsMap);
         stage.defaultCamera().setTarget(ivanka.display.x,ivanka.display.y);
+    }
+    function enemyVsBullet(a:ICollider,b:ICollider) {
+        (cast a.userData).die();
+        (cast b.userData).die();
+    }
+    function bulletsVsMap(a:ICollider,b:ICollider) {
+        (cast b.userData).die();
+    }
+    override function destroy() {
+        super.destroy();
+        GameGlobals.clear();
     }
 }
