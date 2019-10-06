@@ -847,9 +847,9 @@ com_collision_platformer_CollisionBox.prototype = {
 			}
 			return false;
 		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.TileMap) {
-			return aCollider.collide(this);
+			return aCollider.collide(this,NotifyCallback);
 		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
-			return aCollider.collide(this);
+			return aCollider.collide(this,NotifyCallback);
 		}
 		return false;
 	}
@@ -1080,6 +1080,9 @@ com_collision_platformer_CollisionTileMap.prototype = {
 					}
 				}
 			}
+			return toReturn;
+		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
+			return aCollider.collide(this,NotifyCallback);
 		}
 		return false;
 	}
@@ -6669,6 +6672,32 @@ com_gEngine_shaders_ShDontRender.__super__ = com_gEngine_painters_Painter;
 com_gEngine_shaders_ShDontRender.prototype = $extend(com_gEngine_painters_Painter.prototype,{
 	__class__: com_gEngine_shaders_ShDontRender
 });
+var com_gEngine_shaders_ShFilmGrain = function(blend) {
+	com_gEngine_painters_Painter.call(this,true,blend);
+	this.resX = 2 / com_gEngine_GEngine.get_i().realWidth;
+	this.resY = 2 / com_gEngine_GEngine.get_i().realHeight;
+};
+$hxClasses["com.gEngine.shaders.ShFilmGrain"] = com_gEngine_shaders_ShFilmGrain;
+com_gEngine_shaders_ShFilmGrain.__name__ = "com.gEngine.shaders.ShFilmGrain";
+com_gEngine_shaders_ShFilmGrain.__super__ = com_gEngine_painters_Painter;
+com_gEngine_shaders_ShFilmGrain.prototype = $extend(com_gEngine_painters_Painter.prototype,{
+	resolutionID: null
+	,resX: null
+	,resY: null
+	,setShaders: function(pipeline) {
+		pipeline.vertexShader = kha_Shaders.simple_vert;
+		pipeline.fragmentShader = kha_Shaders.filmGrain_frag;
+	}
+	,getConstantLocations: function(pipeline) {
+		com_gEngine_painters_Painter.prototype.getConstantLocations.call(this,pipeline);
+		this.resolutionID = pipeline.getConstantLocation("resolution");
+	}
+	,setParameter: function(g) {
+		com_gEngine_painters_Painter.prototype.setParameter.call(this,g);
+		g.setFloat2(this.resolutionID,this.resX,this.resY);
+	}
+	,__class__: com_gEngine_shaders_ShFilmGrain
+});
 var com_gEngine_shaders_ShRender = function(directDraw) {
 	if(directDraw == null) {
 		directDraw = true;
@@ -6683,6 +6712,31 @@ com_gEngine_shaders_ShRender.__super__ = com_gEngine_painters_Painter;
 com_gEngine_shaders_ShRender.prototype = $extend(com_gEngine_painters_Painter.prototype,{
 	directDraw: null
 	,__class__: com_gEngine_shaders_ShRender
+});
+var com_gEngine_shaders_ShRetro = function(blend) {
+	this.time = 0;
+	com_gEngine_painters_Painter.call(this,true,blend);
+};
+$hxClasses["com.gEngine.shaders.ShRetro"] = com_gEngine_shaders_ShRetro;
+com_gEngine_shaders_ShRetro.__name__ = "com.gEngine.shaders.ShRetro";
+com_gEngine_shaders_ShRetro.__super__ = com_gEngine_painters_Painter;
+com_gEngine_shaders_ShRetro.prototype = $extend(com_gEngine_painters_Painter.prototype,{
+	mTimer: null
+	,getConstantLocations: function(pipeline) {
+		com_gEngine_painters_Painter.prototype.getConstantLocations.call(this,pipeline);
+		this.mTimer = pipeline.getConstantLocation("time");
+	}
+	,setShaders: function(pipeline) {
+		pipeline.vertexShader = kha_Shaders.simpleTime_vert;
+		pipeline.fragmentShader = kha_Shaders.rgbSplit_frag;
+	}
+	,time: null
+	,setParameter: function(g) {
+		this.time += com_TimeManager.delta * 5;
+		com_gEngine_painters_Painter.prototype.setParameter.call(this,g);
+		g.setFloat(this.mTimer,this.time);
+	}
+	,__class__: com_gEngine_shaders_ShRetro
 });
 var com_gEngine_shaders_ShRgbSplit = function(blend) {
 	com_gEngine_painters_Painter.call(this,true,blend);
@@ -11207,17 +11261,17 @@ format_tmx_Tools.getTilesCountInColumnOnTileset = function(tileset) {
 format_tmx_Tools.getTilesCountInTileset = function(tileset) {
 	return Math.floor((tileset.image.width - tileset.margin * 2 + tileset.spacing) / (tileset.tileWidth + tileset.spacing)) * Math.floor((tileset.image.height - tileset.margin * 2 + tileset.spacing) / (tileset.tileHeight + tileset.spacing));
 };
-var gameObjects_GameGlobals = function() { };
-$hxClasses["gameObjects.GameGlobals"] = gameObjects_GameGlobals;
-gameObjects_GameGlobals.__name__ = "gameObjects.GameGlobals";
-var gameObjects_Player = function() {
+var gameObjects_Body = function() {
 	this.maxSpeed = 400;
 	com_framework_utils_Entity.call(this);
 	this.display = new com_gEngine_display_Layer();
+	this.layerArmR = new com_gEngine_display_Layer();
+	this.display.addChild(this.layerArmR);
 	this.armR = new com_gEngine_display_BasicSprite("ivankaArm");
-	this.display.addChild(this.armR);
+	this.layerArmR.addChild(this.armR);
 	this.armR.set_smooth(false);
-	this.body = new com_gEngine_display_BasicSprite("ivanka");
+	this.body = new com_gEngine_display_BasicSprite("skins");
+	this.body.timeline.playAnimation("ivanka");
 	this.display.addChild(this.body);
 	this.body.set_smooth(false);
 	this.armL = new com_gEngine_display_BasicSprite("ivankaArm");
@@ -11230,26 +11284,28 @@ var gameObjects_Player = function() {
 	this.armL.y = -9;
 	this.armL.pivotX = 2;
 	this.armL.pivotY = 2;
-	this.armR.x = -6;
-	this.armR.y = -9;
-	this.armR.pivotX = 2;
-	this.armR.pivotY = 2;
+	this.armR.x = -2;
+	this.armR.y = -1;
+	this.layerArmR.x = -(6 + this.armR.x);
+	this.layerArmR.y = -(9 + this.armR.y);
 	this.collision = new com_collision_platformer_CollisionBox();
 	this.collision.width = 40;
 	this.collision.height = 84;
 	this.collision.maxVelocityX = this.maxSpeed;
 	this.display.x = this.collision.x = 500;
 	this.display.y = this.collision.y = 200;
+	this.collision.userData = this;
 	this.collision.accelerationY = 1000;
 	this.collision.dragX = 0.9;
 };
-$hxClasses["gameObjects.Player"] = gameObjects_Player;
-gameObjects_Player.__name__ = "gameObjects.Player";
-gameObjects_Player.__super__ = com_framework_utils_Entity;
-gameObjects_Player.prototype = $extend(com_framework_utils_Entity.prototype,{
+$hxClasses["gameObjects.Body"] = gameObjects_Body;
+gameObjects_Body.__name__ = "gameObjects.Body";
+gameObjects_Body.__super__ = com_framework_utils_Entity;
+gameObjects_Body.prototype = $extend(com_framework_utils_Entity.prototype,{
 	display: null
 	,collision: null
 	,maxSpeed: null
+	,layerArmR: null
 	,armL: null
 	,armR: null
 	,body: null
@@ -11257,6 +11313,142 @@ gameObjects_Player.prototype = $extend(com_framework_utils_Entity.prototype,{
 		com_framework_utils_Entity.prototype.update.call(this,dt);
 		this.display.x = this.collision.x + 20;
 		this.display.y = this.collision.y + 84;
+		this.collision.update(dt);
+	}
+	,destroy: function() {
+		com_framework_utils_Entity.prototype.destroy.call(this);
+		this.collision.removeFromParent();
+		this.display.removeFromParent();
+	}
+	,__class__: gameObjects_Body
+});
+var gameObjects_Bullet = function() {
+	this.timer = 0;
+	com_framework_utils_Entity.call(this);
+	this.display = new com_gEngine_display_BasicSprite("bullets");
+	this.display.scaleX = this.display.scaleY = 4;
+	this.display.set_smooth(false);
+	this.collision = new com_collision_platformer_CollisionBox();
+	this.collision.width = 8;
+	this.collision.height = 4;
+	this.collision.userData = this;
+};
+$hxClasses["gameObjects.Bullet"] = gameObjects_Bullet;
+gameObjects_Bullet.__name__ = "gameObjects.Bullet";
+gameObjects_Bullet.__super__ = com_framework_utils_Entity;
+gameObjects_Bullet.prototype = $extend(com_framework_utils_Entity.prototype,{
+	display: null
+	,collision: null
+	,reset: function(x,y,side,type) {
+		this.display.timeline.playAnimation(type);
+		this.collision.x = x;
+		this.collision.y = y;
+		gameObjects_GameGlobals.simulationLayer.addChild(this.display);
+		gameObjects_GameGlobals.bulletCollisions.add(this.collision);
+		if(side == com_collision_platformer_Sides.RIGHT) {
+			this.collision.velocityX = 2000;
+		} else {
+			this.collision.velocityX = -2000;
+		}
+	}
+	,limboStart: function() {
+		this.display.removeFromParent();
+		this.collision.removeFromParent();
+	}
+	,timer: null
+	,update: function(dt) {
+		com_framework_utils_Entity.prototype.update.call(this,dt);
+		this.timer += dt;
+		if(this.timer > 2) {
+			this.timer = 0;
+			this.die();
+		}
+		this.display.x = this.collision.x;
+		this.display.y = this.collision.y;
+		this.collision.update(dt);
+	}
+	,__class__: gameObjects_Bullet
+});
+var gameObjects_Enemy = function(x,y) {
+	gameObjects_Body.call(this);
+	this.body.timeline.playAnimation("pumpkin");
+	this.collision.x = x;
+	this.collision.y = y;
+	var tmp = Math.random() < 0.5 ? this.collision.maxVelocityX : -this.collision.maxVelocityX;
+	this.collision.accelerationX = tmp;
+};
+$hxClasses["gameObjects.Enemy"] = gameObjects_Enemy;
+gameObjects_Enemy.__name__ = "gameObjects.Enemy";
+gameObjects_Enemy.__super__ = gameObjects_Body;
+gameObjects_Enemy.prototype = $extend(gameObjects_Body.prototype,{
+	update: function(dt) {
+		this.display.set_rotation(Math.PI / 40 * Math.sin(com_TimeManager.time * 10));
+		this.armL.set_rotation(this.display.rotation + Math.PI / 2);
+		this.layerArmR.set_rotation(-this.display.rotation + Math.PI / 2);
+		if(this.collision.isTouching(com_collision_platformer_Sides.LEFT)) {
+			this.collision.accelerationX = this.collision.maxVelocityX;
+			this.display.scaleX = -Math.abs(this.display.scaleX);
+		} else if(this.collision.isTouching(com_collision_platformer_Sides.RIGHT)) {
+			this.collision.accelerationX = -this.collision.maxVelocityX;
+			this.display.scaleX = Math.abs(this.display.scaleX);
+		}
+		if(Math.random() < 0.02 && this.collision.isTouching(com_collision_platformer_Sides.BOTTOM)) {
+			var tmp = Math.random() * 200;
+			this.collision.velocityY = -500 - tmp;
+		}
+		gameObjects_Body.prototype.update.call(this,dt);
+	}
+	,damage: function() {
+		this.die();
+	}
+	,__class__: gameObjects_Enemy
+});
+var gameObjects_GameGlobals = function() { };
+$hxClasses["gameObjects.GameGlobals"] = gameObjects_GameGlobals;
+gameObjects_GameGlobals.__name__ = "gameObjects.GameGlobals";
+gameObjects_GameGlobals.clear = function() {
+	gameObjects_GameGlobals.simulationLayer = null;
+	gameObjects_GameGlobals.bulletCollisions = null;
+};
+var gameObjects_Gun = function() {
+	com_framework_utils_Entity.call(this);
+	this.display = new com_gEngine_display_BasicSprite("weapons");
+	this.display.set_smooth(false);
+	this.display.timeline.playAnimation("pistol");
+	this.bullets = new com_framework_utils_Entity();
+	this.bullets.pool = true;
+	this.addChild(this.bullets);
+};
+$hxClasses["gameObjects.Gun"] = gameObjects_Gun;
+gameObjects_Gun.__name__ = "gameObjects.Gun";
+gameObjects_Gun.__super__ = com_framework_utils_Entity;
+gameObjects_Gun.prototype = $extend(com_framework_utils_Entity.prototype,{
+	display: null
+	,bullets: null
+	,changeType: function(type) {
+		this.display.timeline.playAnimation(type);
+	}
+	,shoot: function(x,y,side) {
+		var bullet = this.bullets.recycle(gameObjects_Bullet);
+		bullet.reset(x,y,side,"bullet");
+	}
+	,__class__: gameObjects_Gun
+});
+var gameObjects_Player = function() {
+	gameObjects_Body.call(this);
+	this.weapon = new gameObjects_Gun();
+	this.layerArmR.addChild(this.weapon.display);
+	this.addChild(this.weapon);
+	this.weapon.display.set_rotation(-Math.PI / 2);
+	this.weapon.display.x = -4;
+	this.weapon.display.y = 14;
+};
+$hxClasses["gameObjects.Player"] = gameObjects_Player;
+gameObjects_Player.__name__ = "gameObjects.Player";
+gameObjects_Player.__super__ = gameObjects_Body;
+gameObjects_Player.prototype = $extend(gameObjects_Body.prototype,{
+	weapon: null
+	,update: function(dt) {
 		if(com_framework_utils_Input.i.isKeyCodeDown(37)) {
 			this.collision.accelerationX = -this.maxSpeed * 4;
 			this.display.scaleX = Math.abs(this.display.scaleX);
@@ -11269,14 +11461,21 @@ gameObjects_Player.prototype = $extend(com_framework_utils_Entity.prototype,{
 		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
 			this.collision.velocityY = -500;
 		}
-		if(this.collision.velocityX != 0 && this.collision.isTouching(com_collision_platformer_Sides.BOTTOM)) {
-			this.display.set_rotation(Math.PI / 20 * Math.sin(com_TimeManager.time * 10));
-			this.armL.set_rotation(this.display.rotation * 2);
-			this.armR.set_rotation(-this.armL.rotation);
-		} else {
-			this.armR.set_rotation(this.armL.set_rotation(this.display.set_rotation(0)));
+		if(com_framework_utils_Input.i.isKeyCodePressed(88)) {
+			if(this.display.scaleX > 0) {
+				this.weapon.shoot(this.collision.x,this.collision.y + 10,com_collision_platformer_Sides.LEFT);
+			} else {
+				this.weapon.shoot(this.collision.x,this.collision.y + 10,com_collision_platformer_Sides.RIGHT);
+			}
 		}
-		this.collision.update(dt);
+		if(this.collision.velocityX != 0 && this.collision.isTouching(com_collision_platformer_Sides.BOTTOM)) {
+			this.display.set_rotation(Math.PI / 40 * Math.sin(com_TimeManager.time * 10));
+			this.armL.set_rotation(this.display.rotation * 4);
+			this.layerArmR.set_rotation(-this.display.rotation + Math.PI / 2);
+		} else {
+			this.armL.set_rotation(this.display.set_rotation(0));
+		}
+		gameObjects_Body.prototype.update.call(this,dt);
 	}
 	,__class__: gameObjects_Player
 });
@@ -13963,10 +14162,16 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Untitled_1","ivanka","ivankaArm","neutron","pig","proton","tiles"];
+	this.names = ["Untitled_1","bullets","ivanka","ivankaArm","neutron","pig","proton","skins","tiles","weapons"];
+	this.weaponsDescription = { name : "weapons", original_height : 6, original_width : 30, files : ["weapons.png"], type : "image"};
+	this.weaponsName = "weapons";
+	this.weapons = null;
 	this.tilesDescription = { name : "tiles", original_height : 100, original_width : 100, files : ["tiles.png"], type : "image"};
 	this.tilesName = "tiles";
 	this.tiles = null;
+	this.skinsDescription = { name : "skins", original_height : 47, original_width : 16, files : ["skins.png"], type : "image"};
+	this.skinsName = "skins";
+	this.skins = null;
 	this.protonDescription = { name : "proton", original_height : 100, original_width : 100, files : ["proton.png"], type : "image"};
 	this.protonName = "proton";
 	this.proton = null;
@@ -13982,6 +14187,9 @@ var kha__$Assets_ImageList = function() {
 	this.ivankaDescription = { name : "ivanka", original_height : 23, original_width : 16, files : ["ivanka.png"], type : "image"};
 	this.ivankaName = "ivanka";
 	this.ivanka = null;
+	this.bulletsDescription = { name : "bullets", original_height : 10, original_width : 5, files : ["bullets.png"], type : "image"};
+	this.bulletsName = "bullets";
+	this.bullets = null;
 	this.Untitled_1Description = { name : "Untitled_1", original_height : 512, original_width : 512, files : ["Untitled-1.png"], type : "image"};
 	this.Untitled_1Name = "Untitled_1";
 	this.Untitled_1 = null;
@@ -14003,6 +14211,18 @@ kha__$Assets_ImageList.prototype = {
 	,Untitled_1Unload: function() {
 		this.Untitled_1.unload();
 		this.Untitled_1 = null;
+	}
+	,bullets: null
+	,bulletsName: null
+	,bulletsDescription: null
+	,bulletsLoad: function(done,failure) {
+		kha_Assets.loadImage("bullets",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "bulletsLoad"});
+	}
+	,bulletsUnload: function() {
+		this.bullets.unload();
+		this.bullets = null;
 	}
 	,ivanka: null
 	,ivankaName: null
@@ -14064,6 +14284,18 @@ kha__$Assets_ImageList.prototype = {
 		this.proton.unload();
 		this.proton = null;
 	}
+	,skins: null
+	,skinsName: null
+	,skinsDescription: null
+	,skinsLoad: function(done,failure) {
+		kha_Assets.loadImage("skins",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "skinsLoad"});
+	}
+	,skinsUnload: function() {
+		this.skins.unload();
+		this.skins = null;
+	}
 	,tiles: null
 	,tilesName: null
 	,tilesDescription: null
@@ -14075,6 +14307,18 @@ kha__$Assets_ImageList.prototype = {
 	,tilesUnload: function() {
 		this.tiles.unload();
 		this.tiles = null;
+	}
+	,weapons: null
+	,weaponsName: null
+	,weaponsDescription: null
+	,weaponsLoad: function(done,failure) {
+		kha_Assets.loadImage("weapons",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "weaponsLoad"});
+	}
+	,weaponsUnload: function() {
+		this.weapons.unload();
+		this.weapons = null;
 	}
 	,names: null
 	,__class__: kha__$Assets_ImageList
@@ -14092,10 +14336,16 @@ kha__$Assets_SoundList.prototype = {
 	,__class__: kha__$Assets_SoundList
 };
 var kha__$Assets_BlobList = function() {
-	this.names = ["Untitled_1_xml","ivanka_xml","level_tmx","pig_xml","tiles_xml"];
+	this.names = ["Untitled_1_xml","bullets_xml","ivanka_xml","level_tmx","pig_xml","skins_xml","tiles_xml","weapons_xml"];
+	this.weapons_xmlDescription = { name : "weapons_xml", files : ["weapons.xml"], type : "blob"};
+	this.weapons_xmlName = "weapons_xml";
+	this.weapons_xml = null;
 	this.tiles_xmlDescription = { name : "tiles_xml", files : ["tiles.xml"], type : "blob"};
 	this.tiles_xmlName = "tiles_xml";
 	this.tiles_xml = null;
+	this.skins_xmlDescription = { name : "skins_xml", files : ["skins.xml"], type : "blob"};
+	this.skins_xmlName = "skins_xml";
+	this.skins_xml = null;
 	this.pig_xmlDescription = { name : "pig_xml", files : ["pig.xml"], type : "blob"};
 	this.pig_xmlName = "pig_xml";
 	this.pig_xml = null;
@@ -14105,6 +14355,9 @@ var kha__$Assets_BlobList = function() {
 	this.ivanka_xmlDescription = { name : "ivanka_xml", files : ["ivanka.xml"], type : "blob"};
 	this.ivanka_xmlName = "ivanka_xml";
 	this.ivanka_xml = null;
+	this.bullets_xmlDescription = { name : "bullets_xml", files : ["bullets.xml"], type : "blob"};
+	this.bullets_xmlName = "bullets_xml";
+	this.bullets_xml = null;
 	this.Untitled_1_xmlDescription = { name : "Untitled_1_xml", files : ["Untitled-1.xml"], type : "blob"};
 	this.Untitled_1_xmlName = "Untitled_1_xml";
 	this.Untitled_1_xml = null;
@@ -14126,6 +14379,18 @@ kha__$Assets_BlobList.prototype = {
 	,Untitled_1_xmlUnload: function() {
 		this.Untitled_1_xml.unload();
 		this.Untitled_1_xml = null;
+	}
+	,bullets_xml: null
+	,bullets_xmlName: null
+	,bullets_xmlDescription: null
+	,bullets_xmlLoad: function(done,failure) {
+		kha_Assets.loadBlob("bullets_xml",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "bullets_xmlLoad"});
+	}
+	,bullets_xmlUnload: function() {
+		this.bullets_xml.unload();
+		this.bullets_xml = null;
 	}
 	,ivanka_xml: null
 	,ivanka_xmlName: null
@@ -14163,6 +14428,18 @@ kha__$Assets_BlobList.prototype = {
 		this.pig_xml.unload();
 		this.pig_xml = null;
 	}
+	,skins_xml: null
+	,skins_xmlName: null
+	,skins_xmlDescription: null
+	,skins_xmlLoad: function(done,failure) {
+		kha_Assets.loadBlob("skins_xml",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "skins_xmlLoad"});
+	}
+	,skins_xmlUnload: function() {
+		this.skins_xml.unload();
+		this.skins_xml = null;
+	}
 	,tiles_xml: null
 	,tiles_xmlName: null
 	,tiles_xmlDescription: null
@@ -14174,6 +14451,18 @@ kha__$Assets_BlobList.prototype = {
 	,tiles_xmlUnload: function() {
 		this.tiles_xml.unload();
 		this.tiles_xml = null;
+	}
+	,weapons_xml: null
+	,weapons_xmlName: null
+	,weapons_xmlDescription: null
+	,weapons_xmlLoad: function(done,failure) {
+		kha_Assets.loadBlob("weapons_xml",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "weapons_xmlLoad"});
+	}
+	,weapons_xmlUnload: function() {
+		this.weapons_xml.unload();
+		this.weapons_xml = null;
 	}
 	,names: null
 	,__class__: kha__$Assets_BlobList
@@ -35713,21 +36002,36 @@ states_Test.__super__ = com_framework_utils_State;
 states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	tilemapCollision: null
 	,ivanka: null
+	,enemiesCollisions: null
+	,bullets: null
 	,load: function(resources) {
 		resources.add(new com_loading_basicResources_DataLoader("level_tmx"));
 		var atlas = new com_loading_basicResources_JoinAtlas(2048,2048);
 		atlas.add(new com_loading_basicResources_SparrowLoader("Untitled_1","Untitled_1_xml"));
 		atlas.add(new com_loading_basicResources_TilesheetLoader("tiles",10,10,1));
-		atlas.add(new com_loading_basicResources_SparrowLoader("ivanka","ivanka_xml"));
+		atlas.add(new com_loading_basicResources_SparrowLoader("skins","skins_xml"));
+		atlas.add(new com_loading_basicResources_SparrowLoader("weapons","weapons_xml"));
+		atlas.add(new com_loading_basicResources_SparrowLoader("bullets","bullets_xml"));
 		atlas.add(new com_loading_basicResources_ImageLoader("ivankaArm"));
 		resources.add(atlas);
 	}
 	,init: function() {
-		this.stageColor(1,0.5,0.5);
+		this.stageColor(0.5,.5,0.5);
 		var simulationLayer = new com_gEngine_display_Layer();
+		gameObjects_GameGlobals.simulationLayer = simulationLayer;
 		this.ivanka = new gameObjects_Player();
 		simulationLayer.addChild(this.ivanka.display);
 		this.addChild(this.ivanka);
+		this.enemiesCollisions = new com_collision_platformer_CollisionGroup();
+		var _g = 0;
+		while(_g < 400) {
+			var i = _g++;
+			var enemy = new gameObjects_Enemy(100 + Math.random() * 1900,100);
+			this.addChild(enemy);
+			simulationLayer.addChild(enemy.display);
+			this.enemiesCollisions.add(enemy.collision);
+		}
+		gameObjects_GameGlobals.bulletCollisions = this.bullets = new com_collision_platformer_CollisionGroup();
 		this.stage.addChild(simulationLayer);
 		var tilemap = new com_collision_platformer_Tilemap();
 		this.tilemapCollision = tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
@@ -35736,7 +36040,21 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
 		com_collision_platformer_CollisionEngine.collide(this.tilemapCollision,this.ivanka.collision);
+		com_collision_platformer_CollisionEngine.collide(this.tilemapCollision,this.enemiesCollisions);
+		this.enemiesCollisions.overlap(this.bullets,$bind(this,this.enemyVsBullet));
+		this.bullets.collide(this.tilemapCollision,$bind(this,this.bulletsVsMap));
 		this.stage.cameras[0].setTarget(this.ivanka.display.x,this.ivanka.display.y);
+	}
+	,enemyVsBullet: function(a,b) {
+		a.userData.die();
+		b.userData.die();
+	}
+	,bulletsVsMap: function(a,b) {
+		b.userData.die();
+	}
+	,destroy: function() {
+		com_framework_utils_State.prototype.destroy.call(this);
+		gameObjects_GameGlobals.clear();
 	}
 	,__class__: states_Test
 });

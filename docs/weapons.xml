@@ -1,0 +1,9 @@
+<!--
+Created with Free texture packer v0.4.7 http://free-tex-packer.com
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="texture.png" width="30" height="6">
+  <SubTexture name="alien" x="1" y="1"  width="10" height="4" frameX="-0" frameY="-1" frameWidth="11" frameHeight="6"/>
+  <SubTexture name="shotgun" x="13" y="1"  width="10" height="4" frameX="-1" frameY="-1" frameWidth="11" frameHeight="6"/>
+  <SubTexture name="pistol" x="25" y="1"  width="4" height="3" frameX="-6" frameY="-2" frameWidth="11" frameHeight="6"/>
+</TextureAtlas>
