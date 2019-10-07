@@ -111,6 +111,7 @@ Main.main = function() {
 	var windowsOptions = new kha_WindowOptions("MECHANGREJO",0,0,1280,720,null,true,1,0);
 	var frameBufferOptions = new kha_FramebufferOptions(60,true,32,16,8,0);
 	kha_System.start(new kha_SystemOptions("coalTest",1280,720,windowsOptions,frameBufferOptions),function(w) {
+		kha_math_Random.init(0);
 		new com_framework_Simulation(states_BasicLoader,1280,720,1,0);
 	});
 };
@@ -13156,18 +13157,56 @@ gameObjects_Bullet.prototype = $extend(com_framework_utils_Entity.prototype,{
 	,__class__: gameObjects_Bullet
 });
 var gameObjects_Enemy = function(x,y) {
+	this.diePosY = 0;
+	this.diePosX = 0;
+	this.totalDieTime = 0.2;
+	this.dieTime = 0;
+	this.dying = false;
 	gameObjects_Body.call(this);
 	this.body.timeline.playAnimation("pumpkin");
 	this.collision.x = x;
 	this.collision.y = y;
 	var tmp = Math.random() < 0.5 ? this.collision.maxVelocityX : -this.collision.maxVelocityX;
 	this.collision.accelerationX = tmp;
+	var tmp1 = Math.random() * 0.2;
+	this.display.scaleX = this.display.scaleY = 3.9 + tmp1;
+	var r = 0.8 + Math.random() * 0.3;
+	var g = 0.8 + Math.random() * 0.3;
+	var b = 0.8 + Math.random() * 0.3;
+	this.body.colorMultiplication(r,g,b);
+	this.armL.colorMultiplication(r,g,b);
+	this.armR.colorMultiplication(r,g,b);
 };
 $hxClasses["gameObjects.Enemy"] = gameObjects_Enemy;
 gameObjects_Enemy.__name__ = "gameObjects.Enemy";
 gameObjects_Enemy.__super__ = gameObjects_Body;
 gameObjects_Enemy.prototype = $extend(gameObjects_Body.prototype,{
-	update: function(dt) {
+	dying: null
+	,dieTime: null
+	,totalDieTime: null
+	,diePosX: null
+	,diePosY: null
+	,update: function(dt) {
+		if(this.dying) {
+			if(this.dieTime > 0) {
+				var spread = 1 - this.dieTime / this.totalDieTime;
+				this.body.colorAdd(spread,spread,spread);
+				this.armL.colorAdd(spread,spread,spread);
+				this.armR.colorAdd(spread,spread,spread);
+				this.dieTime -= dt;
+				var tmp = this.diePosX;
+				var tmp1 = kha_math_Random.getFloatIn(-10 * spread,10 * spread);
+				this.collision.x = tmp + tmp1;
+				var tmp2 = this.diePosY;
+				var tmp3 = kha_math_Random.getFloatIn(-10 * spread,10 * spread);
+				this.collision.y = tmp2 + tmp3;
+				gameObjects_Body.prototype.update.call(this,dt);
+			} else {
+				gameObjects_GameGlobals.blood.addBlood(this.collision.x,this.collision.y);
+				this.die();
+			}
+			return;
+		}
 		this.display.set_rotation(Math.PI / 40 * Math.sin(com_TimeManager.time * 10));
 		this.armL.set_rotation(this.display.rotation + Math.PI / 2);
 		this.layerArmR.set_rotation(-this.display.rotation + Math.PI / 2);
@@ -13179,14 +13218,21 @@ gameObjects_Enemy.prototype = $extend(gameObjects_Body.prototype,{
 			this.display.scaleX = Math.abs(this.display.scaleX);
 		}
 		if(Math.random() < 0.02 && this.collision.isTouching(8)) {
-			var tmp = Math.random() * 300;
-			this.collision.velocityY = -700 - tmp;
+			var tmp4 = Math.random() * 300;
+			this.collision.velocityY = -700 - tmp4;
 		}
 		gameObjects_Body.prototype.update.call(this,dt);
 	}
 	,damage: function() {
-		this.die();
-		gameObjects_GameGlobals.blood.addBlood(this.collision.x,this.collision.y);
+		this.collision.removeFromParent();
+		this.collision.accelerationX = 0;
+		this.collision.accelerationY = 0;
+		this.collision.velocityX = 0;
+		this.collision.velocityY = 0;
+		this.diePosX = this.collision.x;
+		this.diePosY = this.collision.y;
+		this.dieTime = this.totalDieTime;
+		this.dying = true;
 	}
 	,__class__: gameObjects_Enemy
 });
@@ -37272,6 +37318,77 @@ kha_math_Quaternion.prototype = {
 	}
 	,__class__: kha_math_Quaternion
 	,__properties__: {set_length:"set_length",get_length:"get_length",set_w:"set_w",get_w:"get_w",set_z:"set_z",get_z:"get_z",set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x"}
+};
+var kha_math_Random = function(seed) {
+	this.index = 0;
+	this.MT = [];
+	this.MT[623] = 0;
+	this.MT[0] = seed;
+	var _g = 1;
+	while(_g < 624) {
+		var i = _g++;
+		this.MT[i] = 1812433253 * (this.MT[i - 1] ^ this.MT[i - 1] >> 30) + i;
+	}
+};
+$hxClasses["kha.math.Random"] = kha_math_Random;
+kha_math_Random.__name__ = "kha.math.Random";
+kha_math_Random.init = function(seed) {
+	kha_math_Random.Default = new kha_math_Random(seed);
+};
+kha_math_Random.get = function() {
+	return kha_math_Random.Default.Get();
+};
+kha_math_Random.getFloat = function() {
+	return kha_math_Random.Default.GetFloat();
+};
+kha_math_Random.getUpTo = function(max) {
+	return kha_math_Random.Default.GetUpTo(max);
+};
+kha_math_Random.getIn = function(min,max) {
+	return kha_math_Random.Default.GetIn(min,max);
+};
+kha_math_Random.getFloatIn = function(min,max) {
+	return min + kha_math_Random.Default.GetFloat() * (max - min);
+};
+kha_math_Random.prototype = {
+	Get: function() {
+		if(this.index == 0) {
+			this.GenerateNumbers();
+		}
+		var y = this.MT[this.index];
+		y ^= y >> 11;
+		y ^= y << 7 & -1658038656;
+		y ^= y << 15 & -272236544;
+		y ^= y >> 18;
+		this.index = (this.index + 1) % 624;
+		return y;
+	}
+	,GetFloat: function() {
+		return this.Get() / 2147483646;
+	}
+	,GetUpTo: function(max) {
+		return this.Get() % (max + 1);
+	}
+	,GetIn: function(min,max) {
+		return this.Get() % (max + 1 - min) + min;
+	}
+	,GetFloatIn: function(min,max) {
+		return min + this.GetFloat() * (max - min);
+	}
+	,MT: null
+	,index: null
+	,GenerateNumbers: function() {
+		var _g = 0;
+		while(_g < 624) {
+			var i = _g++;
+			var y = (this.MT[i] & 1) + this.MT[(i + 1) % 624] & 2147483647;
+			this.MT[i] = this.MT[(i + 397) % 624] ^ y >> 1;
+			if(y % 2 != 0) {
+				this.MT[i] ^= -1727483681;
+			}
+		}
+	}
+	,__class__: kha_math_Random
 };
 var kha_math_Vector2 = function(x,y) {
 	if(y == null) {
