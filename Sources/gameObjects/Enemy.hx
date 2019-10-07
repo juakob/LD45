@@ -10,6 +10,14 @@ class Enemy extends Body {
         collision.x=x;
         collision.y=y;
         collision.accelerationX=Math.random()<0.5?collision.maxVelocityX:-collision.maxVelocityX;
+        //add some small variations
+        display.scaleX=display.scaleY = 3.9+Math.random()*0.2;
+        var r=0.8+Math.random()*0.3;
+        var g=0.8+Math.random()*0.3;
+        var b=0.8+Math.random()*0.3;
+        body.colorMultiplication(r,g,b);
+        armL.colorMultiplication(r,g,b);
+        armR.colorMultiplication(r,g,b);
     }
     override function update(dt:Float) {
         
