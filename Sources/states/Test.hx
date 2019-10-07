@@ -1,5 +1,12 @@
 package states;
 
+import kha.Color;
+import kha.Assets;
+import com.gEngine.display.TextDisplay;
+import com.loading.basicResources.FontLoader;
+import com.TimeManager;
+import com.g3d.Object3d;
+import com.g3d.Object3dLoader;
 import kha.input.KeyCode;
 import com.framework.utils.Input;
 import com.gEngine.display.BasicSprite;
@@ -33,6 +40,10 @@ class Test extends State {
     var enemiesCollisions:CollisionGroup;
     var bullets:CollisionGroup;
     var hudLayer:StaticLayer;
+    var pumpkinIcon:Object3d;
+    var pumpkinKillText:TextDisplay;
+    var pumpkinKill:Int=0;
+
     public function new() {
         super();
     }
@@ -47,6 +58,8 @@ class Test extends State {
         atlas.add(new ImageLoader("ivankaArm"));
         atlas.add(new ImageLoader("ivankaFace"));
         resources.add(atlas);
+        resources.add(new FontLoader("fofbb_reg_ttf"));
+        resources.add(new Object3dLoader("pumpkin_ogex"));
         
     }
 
@@ -56,6 +69,14 @@ class Test extends State {
        
         var simulationLayer=new Layer();
         GameGlobals.simulationLayer = simulationLayer;
+       stage.addChild(simulationLayer);
+
+        hudLayer=new StaticLayer();
+        stage.addChild(hudLayer);
+
+        
+       
+       
 
       // simulationLayer.filter=new Filter([new ShRetro(Blend.blendMultipass()),new ShRgbSplit(Blend.blendDefault())],0.5,.5,0.5,1,false);
         
@@ -63,6 +84,7 @@ class Test extends State {
         ivanka=new Player();
         simulationLayer.addChild(ivanka.display);
         addChild(ivanka);
+        
         
         enemiesCollisions=new CollisionGroup();
         for(i in 0...400){
@@ -77,21 +99,39 @@ class Test extends State {
        // stage.defaultCamera().offsetX=-720/2;
        // stage.defaultCamera().rotation=Math.PI/4;
 
-        
-        stage.addChild(simulationLayer);
+         
+       
         var tilemap:Tilemap=new Tilemap();
         tilemapCollision=tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
         stage.defaultCamera().limits(0,0,tilemapCollision.widthIntTiles*40,tilemapCollision.heightInTiles*40);
 
         GameGlobals.blood=new Blood(this,simulationLayer);
         
-        hudLayer=new StaticLayer();
-        stage.addChild(hudLayer);
+        
         var ivankaFace:BasicSprite=new BasicSprite("ivankaFace");
         ivankaFace.x=ivankaFace.y=20;
         ivankaFace.scaleX=ivankaFace.scaleY=4;
         ivankaFace.smooth=false;
         hudLayer.addChild(ivankaFace);
+
+        pumpkinIcon=new Object3d("pumpkin_ogex");
+        pumpkinIcon.x=1280-100;
+        pumpkinIcon.y=100;
+        pumpkinIcon.scaleX=4;
+        pumpkinIcon.scaleY=4;
+        pumpkinIcon.scaleZ=4;
+        pumpkinIcon.z=-40;
+        pumpkinIcon.angleZ=Math.PI;
+        pumpkinIcon.rotation=0;
+        hudLayer.addChild(pumpkinIcon);
+
+        pumpkinKillText=new TextDisplay(Assets.fonts.fofbb_reg);
+        pumpkinKillText.x=1280-200;
+        pumpkinKillText.y=60;
+        pumpkinKillText.fontSize=40;
+        pumpkinKillText.color=Color.Orange;
+        pumpkinKillText.text=pumpkinKill+"";
+        hudLayer.addChild(pumpkinKillText);
     
     }
     override function update(dt:Float) {
@@ -105,10 +145,13 @@ class Test extends State {
         if(Input.i.isKeyCodePressed(KeyCode.R)){
             changeState(new Intro());
         }
+        pumpkinIcon.rotation=Math.PI/4*Math.sin(TimeManager.time);
     }
     function enemyVsBullet(a:ICollider,b:ICollider) {
         (cast a.userData).damage();
         (cast b.userData).die();
+        ++pumpkinKill;
+        pumpkinKillText.text=pumpkinKill+"";
     }
     function bulletsVsMap(a:ICollider,b:ICollider) {
         (cast b.userData).die();
