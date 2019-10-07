@@ -1149,45 +1149,90 @@ var com_collision_platformer_CollisionType = $hxEnums["com.collision.platformer.
 var com_collision_platformer_Sides = function() { };
 $hxClasses["com.collision.platformer.Sides"] = com_collision_platformer_Sides;
 com_collision_platformer_Sides.__name__ = "com.collision.platformer.Sides";
-var com_collision_platformer_Tilemap = function() {
+var com_collision_platformer_Tilemap = function(tmxData,tilesImg,scale) {
+	if(scale == null) {
+		scale = 1;
+	}
+	this.heightInTiles = 0;
+	this.widthIntTiles = 0;
+	this.tmxData = tmxData;
+	this.tilesImg = tilesImg;
+	this.scale = scale;
+	this.collision = new com_collision_platformer_CollisionGroup();
+	this.display = new com_gEngine_display_Layer();
 };
 $hxClasses["com.collision.platformer.Tilemap"] = com_collision_platformer_Tilemap;
 com_collision_platformer_Tilemap.__name__ = "com.collision.platformer.Tilemap";
 com_collision_platformer_Tilemap.prototype = {
-	init: function(tmxData,tilesImg,tileWidth,tileHeight,displayLayer,scale) {
-		if(scale == null) {
-			scale = 1;
+	tmxData: null
+	,tilesImg: null
+	,scale: null
+	,tileWidth: null
+	,tileHeight: null
+	,display: null
+	,collision: null
+	,widthIntTiles: null
+	,heightInTiles: null
+	,createCollisions: function(tileMap) {
+		var tiles = [];
+		var _g = 0;
+		var _g1 = tileMap.data.tiles;
+		while(_g < _g1.length) {
+			var tile = _g1[_g];
+			++_g;
+			tiles.push(tile.gid);
 		}
+		var collision = new com_collision_platformer_CollisionTileMap(tiles,this.tileWidth * this.scale,this.tileHeight * this.scale,tileMap.width,tileMap.height);
+		this.collision.add(collision);
+		return collision;
+	}
+	,createDisplay: function(tileMap) {
+		var tiles = tileMap.data.tiles;
+		var tileMapDisplay = new com_gEngine_display_extra_TileMapDisplay(this.tilesImg,tileMap.width,tileMap.height,this.tileWidth,this.tileHeight);
+		tileMapDisplay.scaleX = tileMapDisplay.scaleY = this.scale;
+		var counter = 0;
+		var _g = 0;
+		while(_g < tiles.length) {
+			var tile = tiles[_g];
+			++_g;
+			tileMapDisplay.setTile2(counter++,tile.gid - 1);
+		}
+		this.display.addChild(tileMapDisplay);
+		return tileMapDisplay;
+	}
+	,init: function(processTileMap,processObject) {
 		var r = new format_tmx_Reader();
-		var t = r.read(Xml.parse(kha_Assets.blobs.get(tmxData).toString()));
+		var t = r.read(Xml.parse(kha_Assets.blobs.get(this.tmxData).toString()));
+		this.tileWidth = t.tileWidth;
+		this.tileHeight = t.tileHeight;
+		this.widthIntTiles = t.width;
+		this.heightInTiles = t.height;
 		var collision = null;
 		var _g = 0;
 		var _g1 = t.layers;
 		while(_g < _g1.length) {
 			var layer = _g1[_g];
 			++_g;
-			if(layer._hx_index == 0) {
+			switch(layer._hx_index) {
+			case 0:
 				var tileMap = layer.layer;
-				var tiles = [];
-				var _g2 = 0;
-				var _g11 = tileMap.data.tiles;
-				while(_g2 < _g11.length) {
-					var tile = _g11[_g2];
-					++_g2;
-					tiles.push(tile.gid);
+				if(processTileMap != null) {
+					processTileMap(this,tileMap);
 				}
-				collision = new com_collision_platformer_CollisionTileMap(tiles,tileWidth * scale,tileHeight * scale,tileMap.width,tileMap.height);
-				var tiles1 = tileMap.data.tiles;
-				var tileMapDisplay = new com_gEngine_display_extra_TileMapDisplay(tilesImg,tileMap.width,tileMap.height,tileWidth,tileHeight);
-				tileMapDisplay.scaleX = tileMapDisplay.scaleY = scale;
-				displayLayer.addChild(tileMapDisplay);
-				var counter = 0;
-				var _g21 = 0;
-				while(_g21 < tiles1.length) {
-					var tile1 = tiles1[_g21];
-					++_g21;
-					tileMapDisplay.setTile2(counter++,tile1.gid - 1);
+				break;
+			case 1:
+				var objectMap = layer.group;
+				if(processObject != null) {
+					var _g2 = 0;
+					var _g11 = objectMap.objects;
+					while(_g2 < _g11.length) {
+						var object = _g11[_g2];
+						++_g2;
+						processObject(this,object);
+					}
 				}
+				break;
+			default:
 			}
 		}
 		return collision;
@@ -37910,7 +37955,7 @@ $hxClasses["states.Test"] = states_Test;
 states_Test.__name__ = "states.Test";
 states_Test.__super__ = com_framework_utils_State;
 states_Test.prototype = $extend(com_framework_utils_State.prototype,{
-	tilemapCollision: null
+	worldMap: null
 	,ivanka: null
 	,enemiesCollisions: null
 	,bullets: null
@@ -37939,6 +37984,15 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		this.stage.addChild(simulationLayer);
 		this.hudLayer = new com_gEngine_display_StaticLayer();
 		this.stage.addChild(this.hudLayer);
+		this.worldMap = new com_collision_platformer_Tilemap("level_tmx","tiles",4);
+		this.worldMap.init(function(layerTilemap,tileLayer) {
+			if(!tileLayer.properties.exists("noCollision")) {
+				layerTilemap.createCollisions(tileLayer);
+			}
+			layerTilemap.createDisplay(tileLayer);
+		});
+		this.stage.cameras[0].limits(0,0,this.worldMap.widthIntTiles * 40,this.worldMap.heightInTiles * 40);
+		simulationLayer.addChild(this.worldMap.display);
 		this.ivanka = new gameObjects_Player();
 		simulationLayer.addChild(this.ivanka.display);
 		this.addChild(this.ivanka);
@@ -37952,9 +38006,6 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 			this.enemiesCollisions.add(enemy.collision);
 		}
 		gameObjects_GameGlobals.bulletCollisions = this.bullets = new com_collision_platformer_CollisionGroup();
-		var tilemap = new com_collision_platformer_Tilemap();
-		this.tilemapCollision = tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
-		this.stage.cameras[0].limits(0,0,this.tilemapCollision.widthIntTiles * 40,this.tilemapCollision.heightInTiles * 40);
 		gameObjects_GameGlobals.blood = new fx_Blood(this,simulationLayer);
 		var ivankaFace = new com_gEngine_display_BasicSprite("ivankaFace");
 		ivankaFace.x = ivankaFace.y = 20;
@@ -37981,10 +38032,10 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	}
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
-		com_collision_platformer_CollisionEngine.collide(this.tilemapCollision,this.ivanka.collision);
-		com_collision_platformer_CollisionEngine.collide(this.tilemapCollision,this.enemiesCollisions);
+		com_collision_platformer_CollisionEngine.collide(this.worldMap.collision,this.ivanka.collision);
+		com_collision_platformer_CollisionEngine.collide(this.worldMap.collision,this.enemiesCollisions);
 		this.enemiesCollisions.overlap(this.bullets,$bind(this,this.enemyVsBullet));
-		this.bullets.collide(this.tilemapCollision,$bind(this,this.bulletsVsMap));
+		this.bullets.collide(this.worldMap.collision,$bind(this,this.bulletsVsMap));
 		this.stage.cameras[0].setTarget(this.ivanka.display.x,this.ivanka.display.y);
 		if(com_framework_utils_Input.i.isKeyCodePressed(82)) {
 			this.changeState(new states_Intro());
