@@ -23,7 +23,7 @@ class Intro extends State {
     override function update(dt:Float) {
         super.update(dt);
         if(Input.i.isKeyCodePressed(KeyCode.Space)){
-            changeState(new Test()); 	
+            changeState(new Test("room1")); 	
         }
     }
 }

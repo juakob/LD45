@@ -1,5 +1,8 @@
 package states;
 
+import com.collision.platformer.CollisionBox;
+import format.tmx.Data.TmxTileLayer;
+import format.tmx.Data.TmxObject;
 import kha.Color;
 import kha.Assets;
 import com.gEngine.display.TextDisplay;
@@ -38,17 +41,22 @@ class Test extends State {
     var worldMap:Tilemap;
     var ivanka:Player;
     var enemiesCollisions:CollisionGroup;
+    var doors:CollisionGroup;
     var bullets:CollisionGroup;
     var hudLayer:StaticLayer;
     var pumpkinIcon:Object3d;
     var pumpkinKillText:TextDisplay;
     var pumpkinKill:Int=0;
-
-    public function new() {
+    var simulationLayer:Layer;
+    var room:String;
+    var fromRoom:String;
+    public function new(room:String,fromRoom:String=null) {
         super();
+        this.room = room;
+        this.fromRoom = fromRoom;
     }
     override function load(resources:Resources) {
-        resources.add(new DataLoader("level_tmx"));
+        resources.add(new DataLoader(room+"_tmx"));
         var atlas=new JoinAtlas(2048,2048);
         atlas.add(new TilesheetLoader("tiles", 10,10,1));
         atlas.add(new SparrowLoader("skins", "skins_xml"));
@@ -67,24 +75,30 @@ class Test extends State {
 
         stageColor(0.5,.5,0.5);
        
-        var simulationLayer=new Layer();
+        simulationLayer=new Layer();
+        var backgroundLayer=new Layer();
+        simulationLayer.addChild(backgroundLayer);
         GameGlobals.simulationLayer = simulationLayer;
        stage.addChild(simulationLayer);
 
         hudLayer=new StaticLayer();
         stage.addChild(hudLayer);
 
-        worldMap=new Tilemap("level_tmx","tiles",4);
+        enemiesCollisions=new CollisionGroup();
+        doors=new CollisionGroup();
+
+        worldMap=new Tilemap(room+"_tmx","tiles",4);
         worldMap.init(
             function(layerTilemap,tileLayer){
                 if(!tileLayer.properties.exists("noCollision")){
                     layerTilemap.createCollisions(tileLayer);
                 }
                 layerTilemap.createDisplay(tileLayer);
-            }
+            },
+            parseMapObjects
         );
         stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
-        simulationLayer.addChild(worldMap.display);
+        backgroundLayer.addChild(worldMap.display);
         
        
        
@@ -92,18 +106,11 @@ class Test extends State {
       // simulationLayer.filter=new Filter([new ShRetro(Blend.blendMultipass()),new ShRgbSplit(Blend.blendDefault())],0.5,.5,0.5,1,false);
         
         
-        ivanka=new Player();
-        simulationLayer.addChild(ivanka.display);
-        addChild(ivanka);
         
         
-        enemiesCollisions=new CollisionGroup();
-        for(i in 0...400){
-            var enemy=new gameObjects.Enemy(100+Math.random()*1900,100);
-            addChild(enemy);
-            simulationLayer.addChild(enemy.display);
-            enemiesCollisions.add(enemy.collision);
-        }
+        
+        
+        
 
         GameGlobals.bulletCollisions=bullets=new CollisionGroup();
        // stage.defaultCamera().offsetX=-1280/2;
@@ -143,11 +150,47 @@ class Test extends State {
         hudLayer.addChild(pumpkinKillText);
     
     }
+    function parseMapObjects(layerTilemap:Tilemap,object:TmxObject){
+        if(object.type=="enemy"){
+            var count=Std.parseInt(object.properties.get("enemyCount"));
+            for(i in 0...count){
+                var enemy=new gameObjects.Enemy(object.x*4+Math.random()*object.width*4,object.y*4+Math.random()*object.height*4);
+                addChild(enemy);
+                simulationLayer.addChild(enemy.display);
+                enemiesCollisions.add(enemy.collision);
+            }
+        }else
+        if(object.type=="player"&&ivanka==null){
+            ivanka=new Player(object.x*4,object.y*4);
+            simulationLayer.addChild(ivanka.display);
+            addChild(ivanka);
+        }else
+        if(object.type=="door"){
+            var door=new CollisionBox();
+            door.x=object.x*4;
+            door.y=object.y*4;
+            door.width=object.width*4;
+            door.height=object.height*4;
+            door.userData=object.properties.get("goTo");
+            doors.add(door);
+            if(door.userData==fromRoom){
+                if(ivanka==null){
+                    ivanka=new Player(object.x*4,object.y*4);
+                    simulationLayer.addChild(ivanka.display);
+                    addChild(ivanka);
+                }else{
+                    ivanka.collision.x=object.x*4;
+                    ivanka.collision.y=object.y*4;
+                }
+            }
+        }
+    }
     override function update(dt:Float) {
         super.update(dt);
         CollisionEngine.collide(worldMap.collision,ivanka.collision);
         CollisionEngine.collide(worldMap.collision,enemiesCollisions);
         enemiesCollisions.overlap(bullets,enemyVsBullet);
+        if(ivanka.interact) ivanka.collision.overlap(doors,ivankaVsDoors);
          bullets.collide(worldMap.collision,bulletsVsMap);
         stage.defaultCamera().setTarget(ivanka.display.x,ivanka.display.y);
 
@@ -161,6 +204,9 @@ class Test extends State {
         (cast b.userData).die();
         ++pumpkinKill;
         pumpkinKillText.text=pumpkinKill+"";
+    }
+    function ivankaVsDoors(a:ICollider,b:ICollider) {
+       changeState(new Test(a.userData,room));
     }
     function bulletsVsMap(a:ICollider,b:ICollider) {
         (cast b.userData).die();

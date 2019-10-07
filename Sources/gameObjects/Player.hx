@@ -14,11 +14,15 @@ import com.framework.utils.Entity;
 
 class Player extends Body {
     var weapon:Gun;
-    public function new() {
+    public var interact:Bool;
+    public function new(x:Float,y:Float) {
         super();
         weapon=new Gun();
         layerArmR.addChild(weapon.display);
         addChild(weapon);
+
+        collision.x=x;
+        collision.y=y;
 
        weapon.display.rotation=-Math.PI/2;
        weapon.display.x=-4;
@@ -43,6 +47,7 @@ class Player extends Body {
         if(Input.i.isKeyCodePressed(KeyCode.Space)){
             collision.velocityY=-1000;
         }
+        interact=(Input.i.isKeyCodePressed(KeyCode.Up));
          if(Input.i.isKeyCodePressed(KeyCode.X)){
              if(display.scaleX>0){
                   weapon.shoot(collision.x-50,collision.y+37,Sides.LEFT);

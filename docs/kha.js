@@ -862,12 +862,7 @@ com_collision_platformer_CollisionBox.prototype = {
 				return true;
 			}
 		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
-			if(aCollider.collide(this)) {
-				if(NotifyCallback != null) {
-					NotifyCallback(this,aCollider);
-				}
-				return true;
-			}
+			aCollider.overlap(this,NotifyCallback);
 		}
 		return false;
 	}
@@ -13268,11 +13263,13 @@ gameObjects_Gun.prototype = $extend(com_framework_utils_Entity.prototype,{
 	}
 	,__class__: gameObjects_Gun
 });
-var gameObjects_Player = function() {
+var gameObjects_Player = function(x,y) {
 	gameObjects_Body.call(this);
 	this.weapon = new gameObjects_Gun();
 	this.layerArmR.addChild(this.weapon.display);
 	this.addChild(this.weapon);
+	this.collision.x = x;
+	this.collision.y = y;
 	this.weapon.display.set_rotation(-Math.PI / 2);
 	this.weapon.display.x = -4;
 	this.weapon.display.y = 14;
@@ -13282,6 +13279,7 @@ gameObjects_Player.__name__ = "gameObjects.Player";
 gameObjects_Player.__super__ = gameObjects_Body;
 gameObjects_Player.prototype = $extend(gameObjects_Body.prototype,{
 	weapon: null
+	,interact: null
 	,update: function(dt) {
 		if(com_framework_utils_Input.i.isKeyCodeDown(37)) {
 			this.collision.accelerationX = -this.maxSpeed * 4;
@@ -13295,6 +13293,7 @@ gameObjects_Player.prototype = $extend(gameObjects_Body.prototype,{
 		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
 			this.collision.velocityY = -1000;
 		}
+		this.interact = com_framework_utils_Input.i.isKeyCodePressed(38);
 		if(com_framework_utils_Input.i.isKeyCodePressed(88)) {
 			if(this.display.scaleX > 0) {
 				this.weapon.shoot(this.collision.x - 50,this.collision.y + 37,1);
@@ -16257,7 +16256,7 @@ kha__$Assets_SoundList.prototype = {
 	,__class__: kha__$Assets_SoundList
 };
 var kha__$Assets_BlobList = function() {
-	this.names = ["Untitled_1_xml","bullets_xml","ivanka_xml","level_tmx","pig_xml","pumpkinBlood_xml","pumpkin_ogex","skins_xml","tiles_xml","weapons_xml"];
+	this.names = ["Untitled_1_xml","bullets_xml","ivanka_xml","pig_xml","pumpkinBlood_xml","pumpkin_ogex","room1_tmx","room2_tmx","room3_tmx","room4_tmx","skins_xml","tiles_xml","weapons_xml"];
 	this.weapons_xmlDescription = { name : "weapons_xml", files : ["weapons.xml"], type : "blob"};
 	this.weapons_xmlName = "weapons_xml";
 	this.weapons_xml = null;
@@ -16267,6 +16266,18 @@ var kha__$Assets_BlobList = function() {
 	this.skins_xmlDescription = { name : "skins_xml", files : ["skins.xml"], type : "blob"};
 	this.skins_xmlName = "skins_xml";
 	this.skins_xml = null;
+	this.room4_tmxDescription = { name : "room4_tmx", files : ["room4.tmx"], type : "blob"};
+	this.room4_tmxName = "room4_tmx";
+	this.room4_tmx = null;
+	this.room3_tmxDescription = { name : "room3_tmx", files : ["room3.tmx"], type : "blob"};
+	this.room3_tmxName = "room3_tmx";
+	this.room3_tmx = null;
+	this.room2_tmxDescription = { name : "room2_tmx", files : ["room2.tmx"], type : "blob"};
+	this.room2_tmxName = "room2_tmx";
+	this.room2_tmx = null;
+	this.room1_tmxDescription = { name : "room1_tmx", files : ["room1.tmx"], type : "blob"};
+	this.room1_tmxName = "room1_tmx";
+	this.room1_tmx = null;
 	this.pumpkin_ogexDescription = { name : "pumpkin_ogex", files : ["pumpkin.ogex"], type : "blob"};
 	this.pumpkin_ogexName = "pumpkin_ogex";
 	this.pumpkin_ogex = null;
@@ -16276,9 +16287,6 @@ var kha__$Assets_BlobList = function() {
 	this.pig_xmlDescription = { name : "pig_xml", files : ["pig.xml"], type : "blob"};
 	this.pig_xmlName = "pig_xml";
 	this.pig_xml = null;
-	this.level_tmxDescription = { name : "level_tmx", files : ["level.tmx"], type : "blob"};
-	this.level_tmxName = "level_tmx";
-	this.level_tmx = null;
 	this.ivanka_xmlDescription = { name : "ivanka_xml", files : ["ivanka.xml"], type : "blob"};
 	this.ivanka_xmlName = "ivanka_xml";
 	this.ivanka_xml = null;
@@ -16331,18 +16339,6 @@ kha__$Assets_BlobList.prototype = {
 		this.ivanka_xml.unload();
 		this.ivanka_xml = null;
 	}
-	,level_tmx: null
-	,level_tmxName: null
-	,level_tmxDescription: null
-	,level_tmxLoad: function(done,failure) {
-		kha_Assets.loadBlob("level_tmx",function(blob) {
-			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "level_tmxLoad"});
-	}
-	,level_tmxUnload: function() {
-		this.level_tmx.unload();
-		this.level_tmx = null;
-	}
 	,pig_xml: null
 	,pig_xmlName: null
 	,pig_xmlDescription: null
@@ -16378,6 +16374,54 @@ kha__$Assets_BlobList.prototype = {
 	,pumpkin_ogexUnload: function() {
 		this.pumpkin_ogex.unload();
 		this.pumpkin_ogex = null;
+	}
+	,room1_tmx: null
+	,room1_tmxName: null
+	,room1_tmxDescription: null
+	,room1_tmxLoad: function(done,failure) {
+		kha_Assets.loadBlob("room1_tmx",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "room1_tmxLoad"});
+	}
+	,room1_tmxUnload: function() {
+		this.room1_tmx.unload();
+		this.room1_tmx = null;
+	}
+	,room2_tmx: null
+	,room2_tmxName: null
+	,room2_tmxDescription: null
+	,room2_tmxLoad: function(done,failure) {
+		kha_Assets.loadBlob("room2_tmx",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "room2_tmxLoad"});
+	}
+	,room2_tmxUnload: function() {
+		this.room2_tmx.unload();
+		this.room2_tmx = null;
+	}
+	,room3_tmx: null
+	,room3_tmxName: null
+	,room3_tmxDescription: null
+	,room3_tmxLoad: function(done,failure) {
+		kha_Assets.loadBlob("room3_tmx",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "room3_tmxLoad"});
+	}
+	,room3_tmxUnload: function() {
+		this.room3_tmx.unload();
+		this.room3_tmx = null;
+	}
+	,room4_tmx: null
+	,room4_tmxName: null
+	,room4_tmxDescription: null
+	,room4_tmxLoad: function(done,failure) {
+		kha_Assets.loadBlob("room4_tmx",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "room4_tmxLoad"});
+	}
+	,room4_tmxUnload: function() {
+		this.room4_tmx.unload();
+		this.room4_tmx = null;
 	}
 	,skins_xml: null
 	,skins_xmlName: null
@@ -38059,14 +38103,16 @@ states_Intro.prototype = $extend(com_framework_utils_State.prototype,{
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
 		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
-			this.changeState(new states_Test());
+			this.changeState(new states_Test("room1"));
 		}
 	}
 	,__class__: states_Intro
 });
-var states_Test = function() {
+var states_Test = function(room,fromRoom) {
 	this.pumpkinKill = 0;
 	com_framework_utils_State.call(this);
+	this.room = room;
+	this.fromRoom = fromRoom;
 };
 $hxClasses["states.Test"] = states_Test;
 states_Test.__name__ = "states.Test";
@@ -38075,13 +38121,17 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	worldMap: null
 	,ivanka: null
 	,enemiesCollisions: null
+	,doors: null
 	,bullets: null
 	,hudLayer: null
 	,pumpkinIcon: null
 	,pumpkinKillText: null
 	,pumpkinKill: null
+	,simulationLayer: null
+	,room: null
+	,fromRoom: null
 	,load: function(resources) {
-		resources.add(new com_loading_basicResources_DataLoader("level_tmx"));
+		resources.add(new com_loading_basicResources_DataLoader(this.room + "_tmx"));
 		var atlas = new com_loading_basicResources_JoinAtlas(2048,2048);
 		atlas.add(new com_loading_basicResources_TilesheetLoader("tiles",10,10,1));
 		atlas.add(new com_loading_basicResources_SparrowLoader("skins","skins_xml"));
@@ -38096,34 +38146,26 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	}
 	,init: function() {
 		this.stageColor(0.5,.5,0.5);
-		var simulationLayer = new com_gEngine_display_Layer();
-		gameObjects_GameGlobals.simulationLayer = simulationLayer;
-		this.stage.addChild(simulationLayer);
+		this.simulationLayer = new com_gEngine_display_Layer();
+		var backgroundLayer = new com_gEngine_display_Layer();
+		this.simulationLayer.addChild(backgroundLayer);
+		gameObjects_GameGlobals.simulationLayer = this.simulationLayer;
+		this.stage.addChild(this.simulationLayer);
 		this.hudLayer = new com_gEngine_display_StaticLayer();
 		this.stage.addChild(this.hudLayer);
-		this.worldMap = new com_collision_platformer_Tilemap("level_tmx","tiles",4);
+		this.enemiesCollisions = new com_collision_platformer_CollisionGroup();
+		this.doors = new com_collision_platformer_CollisionGroup();
+		this.worldMap = new com_collision_platformer_Tilemap(this.room + "_tmx","tiles",4);
 		this.worldMap.init(function(layerTilemap,tileLayer) {
 			if(!tileLayer.properties.exists("noCollision")) {
 				layerTilemap.createCollisions(tileLayer);
 			}
 			layerTilemap.createDisplay(tileLayer);
-		});
+		},$bind(this,this.parseMapObjects));
 		this.stage.cameras[0].limits(0,0,this.worldMap.widthIntTiles * 40,this.worldMap.heightInTiles * 40);
-		simulationLayer.addChild(this.worldMap.display);
-		this.ivanka = new gameObjects_Player();
-		simulationLayer.addChild(this.ivanka.display);
-		this.addChild(this.ivanka);
-		this.enemiesCollisions = new com_collision_platformer_CollisionGroup();
-		var _g = 0;
-		while(_g < 400) {
-			var i = _g++;
-			var enemy = new gameObjects_Enemy(100 + Math.random() * 1900,100);
-			this.addChild(enemy);
-			simulationLayer.addChild(enemy.display);
-			this.enemiesCollisions.add(enemy.collision);
-		}
+		backgroundLayer.addChild(this.worldMap.display);
 		gameObjects_GameGlobals.bulletCollisions = this.bullets = new com_collision_platformer_CollisionGroup();
-		gameObjects_GameGlobals.blood = new fx_Blood(this,simulationLayer);
+		gameObjects_GameGlobals.blood = new fx_Blood(this,this.simulationLayer);
 		var ivankaFace = new com_gEngine_display_BasicSprite("ivankaFace");
 		ivankaFace.x = ivankaFace.y = 20;
 		ivankaFace.scaleX = ivankaFace.scaleY = 4;
@@ -38147,11 +38189,50 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		this.pumpkinKillText.set_text(this.pumpkinKill + "");
 		this.hudLayer.addChild(this.pumpkinKillText);
 	}
+	,parseMapObjects: function(layerTilemap,object) {
+		if(object.type == "enemy") {
+			var count = Std.parseInt(object.properties.getString("enemyCount"));
+			var _g = 0;
+			var _g1 = count;
+			while(_g < _g1) {
+				var i = _g++;
+				var enemy = new gameObjects_Enemy(object.x * 4 + Math.random() * object.width * 4,object.y * 4 + Math.random() * object.height * 4);
+				this.addChild(enemy);
+				this.simulationLayer.addChild(enemy.display);
+				this.enemiesCollisions.add(enemy.collision);
+			}
+		} else if(object.type == "player" && this.ivanka == null) {
+			this.ivanka = new gameObjects_Player(object.x * 4,object.y * 4);
+			this.simulationLayer.addChild(this.ivanka.display);
+			this.addChild(this.ivanka);
+		} else if(object.type == "door") {
+			var door = new com_collision_platformer_CollisionBox();
+			door.x = object.x * 4;
+			door.y = object.y * 4;
+			door.width = object.width * 4;
+			door.height = object.height * 4;
+			door.userData = object.properties.getString("goTo");
+			this.doors.add(door);
+			if(door.userData == this.fromRoom) {
+				if(this.ivanka == null) {
+					this.ivanka = new gameObjects_Player(object.x * 4,object.y * 4);
+					this.simulationLayer.addChild(this.ivanka.display);
+					this.addChild(this.ivanka);
+				} else {
+					this.ivanka.collision.x = object.x * 4;
+					this.ivanka.collision.y = object.y * 4;
+				}
+			}
+		}
+	}
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
 		com_collision_platformer_CollisionEngine.collide(this.worldMap.collision,this.ivanka.collision);
 		com_collision_platformer_CollisionEngine.collide(this.worldMap.collision,this.enemiesCollisions);
 		this.enemiesCollisions.overlap(this.bullets,$bind(this,this.enemyVsBullet));
+		if(this.ivanka.interact) {
+			this.ivanka.collision.overlap(this.doors,$bind(this,this.ivankaVsDoors));
+		}
 		this.bullets.collide(this.worldMap.collision,$bind(this,this.bulletsVsMap));
 		this.stage.cameras[0].setTarget(this.ivanka.display.x,this.ivanka.display.y);
 		if(com_framework_utils_Input.i.isKeyCodePressed(82)) {
@@ -38164,6 +38245,9 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		b.userData.die();
 		++this.pumpkinKill;
 		this.pumpkinKillText.set_text(this.pumpkinKill + "");
+	}
+	,ivankaVsDoors: function(a,b) {
+		this.changeState(new states_Test(a.userData,this.room));
 	}
 	,bulletsVsMap: function(a,b) {
 		b.userData.die();
