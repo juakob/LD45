@@ -35,7 +35,7 @@ import com.loading.Resources;
 import com.framework.utils.State;
 
 class Test extends State {
-    var tilemapCollision:CollisionTileMap;
+    var worldMap:Tilemap;
     var ivanka:Player;
     var enemiesCollisions:CollisionGroup;
     var bullets:CollisionGroup;
@@ -74,6 +74,17 @@ class Test extends State {
         hudLayer=new StaticLayer();
         stage.addChild(hudLayer);
 
+        worldMap=new Tilemap("level_tmx","tiles",4);
+        worldMap.init(
+            function(layerTilemap,tileLayer){
+                if(!tileLayer.properties.exists("noCollision")){
+                    layerTilemap.createCollisions(tileLayer);
+                }
+                layerTilemap.createDisplay(tileLayer);
+            }
+        );
+        stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
+        simulationLayer.addChild(worldMap.display);
         
        
        
@@ -101,9 +112,7 @@ class Test extends State {
 
          
        
-        var tilemap:Tilemap=new Tilemap();
-        tilemapCollision=tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
-        stage.defaultCamera().limits(0,0,tilemapCollision.widthIntTiles*40,tilemapCollision.heightInTiles*40);
+       
 
         GameGlobals.blood=new Blood(this,simulationLayer);
         
@@ -136,10 +145,10 @@ class Test extends State {
     }
     override function update(dt:Float) {
         super.update(dt);
-        CollisionEngine.collide(tilemapCollision,ivanka.collision);
-        CollisionEngine.collide(tilemapCollision,enemiesCollisions);
+        CollisionEngine.collide(worldMap.collision,ivanka.collision);
+        CollisionEngine.collide(worldMap.collision,enemiesCollisions);
         enemiesCollisions.overlap(bullets,enemyVsBullet);
-         bullets.collide(tilemapCollision,bulletsVsMap);
+         bullets.collide(worldMap.collision,bulletsVsMap);
         stage.defaultCamera().setTarget(ivanka.display.x,ivanka.display.y);
 
         if(Input.i.isKeyCodePressed(KeyCode.R)){
