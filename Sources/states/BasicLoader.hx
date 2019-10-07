@@ -50,7 +50,7 @@ class BasicLoader extends State
 		bar.scaleX=Assets.progress *GEngine.virtualWidth-50*2;
 		if (allLoaded) {
 			Simulation.i.manualLoad = true;
-			changeState(new Test()); 	
+			changeState(new Intro()); 	
 		}
 	}
 }

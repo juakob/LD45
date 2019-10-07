@@ -1,5 +1,9 @@
 package states;
 
+import kha.input.KeyCode;
+import com.framework.utils.Input;
+import com.gEngine.display.BasicSprite;
+import com.gEngine.display.StaticLayer;
 import fx.Blood;
 import com.collision.platformer.ICollider;
 import gameObjects.GameGlobals;
@@ -28,19 +32,20 @@ class Test extends State {
     var ivanka:Player;
     var enemiesCollisions:CollisionGroup;
     var bullets:CollisionGroup;
+    var hudLayer:StaticLayer;
     public function new() {
         super();
     }
     override function load(resources:Resources) {
         resources.add(new DataLoader("level_tmx"));
         var atlas=new JoinAtlas(2048,2048);
-        atlas.add(new SparrowLoader("Untitled_1","Untitled_1_xml"));
         atlas.add(new TilesheetLoader("tiles", 10,10,1));
         atlas.add(new SparrowLoader("skins", "skins_xml"));
         atlas.add(new SparrowLoader("weapons", "weapons_xml"));
         atlas.add(new SparrowLoader("bullets", "bullets_xml"));
         atlas.add(new SparrowLoader("pumpkinBlood", "pumpkinBlood_xml"));
         atlas.add(new ImageLoader("ivankaArm"));
+        atlas.add(new ImageLoader("ivankaFace"));
         resources.add(atlas);
         
     }
@@ -79,6 +84,15 @@ class Test extends State {
         stage.defaultCamera().limits(0,0,tilemapCollision.widthIntTiles*40,tilemapCollision.heightInTiles*40);
 
         GameGlobals.blood=new Blood(this,simulationLayer);
+        
+        hudLayer=new StaticLayer();
+        stage.addChild(hudLayer);
+        var ivankaFace:BasicSprite=new BasicSprite("ivankaFace");
+        ivankaFace.x=ivankaFace.y=20;
+        ivankaFace.scaleX=ivankaFace.scaleY=4;
+        ivankaFace.smooth=false;
+        hudLayer.addChild(ivankaFace);
+    
     }
     override function update(dt:Float) {
         super.update(dt);
@@ -87,6 +101,10 @@ class Test extends State {
         enemiesCollisions.overlap(bullets,enemyVsBullet);
          bullets.collide(tilemapCollision,bulletsVsMap);
         stage.defaultCamera().setTarget(ivanka.display.x,ivanka.display.y);
+
+        if(Input.i.isKeyCodePressed(KeyCode.R)){
+            changeState(new Intro());
+        }
     }
     function enemyVsBullet(a:ICollider,b:ICollider) {
         (cast a.userData).damage();

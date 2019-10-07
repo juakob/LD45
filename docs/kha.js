@@ -2,7 +2,6 @@
 (function ($hx_exports, $global) { "use strict";
 $hx_exports["kha"] = $hx_exports["kha"] || {};
 $hx_exports["kha"]["input"] = $hx_exports["kha"]["input"] || {};
-;$hx_exports["kha"]["_Color"] = $hx_exports["kha"]["_Color"] || {};
 var $hxClasses = {},$estr = function() { return js_Boot.__string_rec(this,''); },$hxEnums = $hxEnums || {},$_;
 function $extend(from, fields) {
 	var proto = Object.create(from);
@@ -112,7 +111,7 @@ Main.main = function() {
 	var windowsOptions = new kha_WindowOptions("MECHANGREJO",0,0,1280,720,null,true,1,0);
 	var frameBufferOptions = new kha_FramebufferOptions(60,true,32,16,8,0);
 	kha_System.start(new kha_SystemOptions("coalTest",1280,720,windowsOptions,frameBufferOptions),function(w) {
-		new com_framework_Simulation(states_Test,1280,720,1,0);
+		new com_framework_Simulation(states_BasicLoader,1280,720,1,0);
 	});
 };
 Math.__name__ = "Math";
@@ -1350,7 +1349,9 @@ com_framework_Simulation.prototype = {
 		}
 		this.currentState = state;
 		this.currentState.load(this.resources);
-		if(!this.get_manualLoad()) {
+		if(this.get_manualLoad()) {
+			this.resources.loadLocal($bind(this,this.finishUpload));
+		} else {
 			this.resources.load($bind(this,this.finishUpload));
 		}
 	}
@@ -3729,7 +3730,7 @@ var com_gEngine_GEngine = function(oversample,antiAlias) {
 	com_gEngine_PainterGarbage.init();
 	this.renderTargetPool = new com_helpers_RenderTargetPool();
 	this.textures = [];
-	haxe_Log.trace(kha_System.windowWidth() + "x" + kha_System.windowHeight(),{ fileName : "com/gEngine/GEngine.hx", lineNumber : 94, className : "com.gEngine.GEngine", methodName : "new"});
+	haxe_Log.trace(kha_System.windowWidth() + "x" + kha_System.windowHeight(),{ fileName : "com/gEngine/GEngine.hx", lineNumber : 95, className : "com.gEngine.GEngine", methodName : "new"});
 	this.createBuffer(kha_System.windowWidth(),kha_System.windowHeight());
 	var recTexture = kha_Image.createRenderTarget(1,1);
 	recTexture.get_g2().begin(true,-16777216);
@@ -3747,7 +3748,7 @@ com_gEngine_GEngine.init = function(virtualWidth,virtualHeight,oversample,antiAl
 	com_gEngine_GEngine.virtualWidth = virtualWidth;
 	com_gEngine_GEngine.virtualHeight = virtualHeight;
 	com_gEngine_GEngine.i = new com_gEngine_GEngine(oversample,antiAlias);
-	kha_Assets.loadFont("mainfont",com_gEngine_GEngine.setFont,null,{ fileName : "com/gEngine/GEngine.hx", lineNumber : 169, className : "com.gEngine.GEngine", methodName : "init"});
+	kha_Assets.loadFont("mainfont",com_gEngine_GEngine.setFont,null,{ fileName : "com/gEngine/GEngine.hx", lineNumber : 170, className : "com.gEngine.GEngine", methodName : "init"});
 };
 com_gEngine_GEngine.setFont = function(aFont) {
 	com_gEngine_GEngine.get_i().font = aFont;
@@ -4305,11 +4306,12 @@ com_gEngine_GEngine.prototype = {
 	}
 	,unload: function() {
 		var end = this.textures.length;
-		var _g = 2;
-		var _g1 = end;
-		while(_g < _g1) {
-			var j = _g++;
-			this.textures.pop().unload();
+		var _g = 0;
+		var _g1 = this.renderTargetPool.targets;
+		while(_g < _g1.length) {
+			var proxy = _g1[_g];
+			++_g;
+			this.textures[proxy.textureId].unload();
 		}
 		com_gEngine_PainterGarbage.get_i().clear();
 		this.renderTargetPool.clear();
@@ -6153,6 +6155,20 @@ com_gEngine_display_Stage.prototype = {
 	,__class__: com_gEngine_display_Stage
 	,__properties__: {set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x"}
 };
+var com_gEngine_display_StaticLayer = function() {
+	this.identity = new kha_math_FastMatrix4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+	com_gEngine_display_Layer.call(this);
+};
+$hxClasses["com.gEngine.display.StaticLayer"] = com_gEngine_display_StaticLayer;
+com_gEngine_display_StaticLayer.__name__ = "com.gEngine.display.StaticLayer";
+com_gEngine_display_StaticLayer.__super__ = com_gEngine_display_Layer;
+com_gEngine_display_StaticLayer.prototype = $extend(com_gEngine_display_Layer.prototype,{
+	identity: null
+	,render: function(paintMode,transform) {
+		com_gEngine_display_Layer.prototype.render.call(this,paintMode,this.identity);
+	}
+	,__class__: com_gEngine_display_StaticLayer
+});
 var com_gEngine_display_extra_TileMapDisplay = function(tileType,widthInTiles,heightInTiles,tileWidth,tileHeight) {
 	com_gEngine_display_Layer.call(this);
 	this.widthInTiles = widthInTiles;
@@ -6703,7 +6719,7 @@ com_gEngine_painters_Painter.prototype = {
 		pipeline.alphaBlendDestination = blend.alphaBlendDestination;
 		this.pipeline.compile();
 		this.getConstantLocations(this.pipeline);
-		this.vertexBuffer = new kha_graphics4_VertexBuffer(5000,structure,1);
+		this.vertexBuffer = new kha_graphics4_VertexBuffer(2500,structure,1);
 		this.createIndexBuffer();
 	}
 	,getConstantLocations: function(pipeline) {
@@ -6711,10 +6727,10 @@ com_gEngine_painters_Painter.prototype = {
 		this.textureConstantID = pipeline.getTextureUnit("tex");
 	}
 	,createIndexBuffer: function() {
-		this.indexBuffer = new kha_graphics4_IndexBuffer(7500,0);
+		this.indexBuffer = new kha_graphics4_IndexBuffer(3750,0);
 		var iData = this.indexBuffer.lock();
 		var _g = 0;
-		while(_g < 1250) {
+		while(_g < 625) {
 			var i = _g++;
 			iData[i * 6] = i * 4 + 1;
 			iData[i * 6 + 1] = i * 4;
@@ -6761,7 +6777,7 @@ com_gEngine_painters_Painter.prototype = {
 	}
 	,canBatch: function(info,size) {
 		if(info.texture == this.textureID && info.mipMapFilter == this.mipMapFilter && info.textureFilter == this.filter) {
-			return this.counter + size * this.dataPerVertex <= 5000 * this.dataPerVertex;
+			return this.counter + size * this.dataPerVertex <= 2500 * this.dataPerVertex;
 		} else {
 			return false;
 		}
@@ -8603,7 +8619,9 @@ com_loading_Resource.__name__ = "com.loading.Resource";
 com_loading_Resource.__isInterface__ = true;
 com_loading_Resource.prototype = {
 	load: null
+	,loadLocal: null
 	,unload: null
+	,unloadLocal: null
 	,__class__: com_loading_Resource
 };
 var com_loading_AtlasJoinable = function() { };
@@ -8644,6 +8662,21 @@ com_loading_Resources.prototype = {
 			resource.load($bind(this,this.onLoad));
 		}
 	}
+	,loadLocal: function(onFinish) {
+		this.loadedCount = 0;
+		this.onFinish = onFinish;
+		if(this.resources.length == 0) {
+			onFinish();
+			return;
+		}
+		var _g = 0;
+		var _g1 = this.resources;
+		while(_g < _g1.length) {
+			var resource = _g1[_g];
+			++_g;
+			resource.loadLocal($bind(this,this.onLoad));
+		}
+	}
 	,onLoad: function() {
 		++this.loadedCount;
 		if(this.loadedCount == this.resources.length) {
@@ -8651,14 +8684,25 @@ com_loading_Resources.prototype = {
 		}
 	}
 	,unload: function() {
-		var _g = 0;
-		var _g1 = this.resources;
-		while(_g < _g1.length) {
-			var resource = _g1[_g];
-			++_g;
-			resource.unload();
+		if(this.keepData) {
+			var _g = 0;
+			var _g1 = this.resources;
+			while(_g < _g1.length) {
+				var resource = _g1[_g];
+				++_g;
+				resource.unloadLocal();
+			}
+			this.resources.splice(0,this.resources.length);
+		} else {
+			var _g2 = 0;
+			var _g11 = this.resources;
+			while(_g2 < _g11.length) {
+				var resource1 = _g11[_g2];
+				++_g2;
+				resource1.unload();
+			}
+			this.resources.splice(0,this.resources.length);
 		}
-		this.resources.splice(0,this.resources.length);
 	}
 	,__class__: com_loading_Resources
 };
@@ -8675,8 +8719,13 @@ com_loading_basicResources_DataLoader.prototype = {
 			callback();
 		},null,{ fileName : "com/loading/basicResources/DataLoader.hx", lineNumber : 18, className : "com.loading.basicResources.DataLoader", methodName : "load"});
 	}
+	,loadLocal: function(callback) {
+		callback();
+	}
 	,unload: function() {
 		Reflect.field(kha_Assets.blobs,this.name + "Unload").apply(kha_Assets.blobs,[]);
+	}
+	,unloadLocal: function() {
 	}
 	,__class__: com_loading_basicResources_DataLoader
 };
@@ -8743,7 +8792,15 @@ com_loading_basicResources_TilesheetLoader.prototype = {
 			callback();
 		},null,{ fileName : "com/loading/basicResources/TilesheetLoader.hx", lineNumber : 34, className : "com.loading.basicResources.TilesheetLoader", methodName : "load"});
 	}
+	,loadLocal: function(callback) {
+		this.fromSpriteSheet();
+		callback();
+	}
 	,unload: function() {
+		kha_Assets.images.get(this.imageName).unload();
+		kha_Assets.images[this.imageName] = null;
+	}
+	,unloadLocal: function() {
 	}
 	,fromSpriteSheet: function() {
 		var image = Reflect.field(kha_Assets.images,this.imageName);
@@ -8830,6 +8887,7 @@ com_loading_basicResources_JoinAtlas.prototype = {
 	,onFinish: null
 	,loadedCounter: null
 	,separation: null
+	,image: null
 	,add: function(resource) {
 		this.resources.push(resource);
 	}
@@ -8841,6 +8899,16 @@ com_loading_basicResources_JoinAtlas.prototype = {
 			var resource = _g1[_g];
 			++_g;
 			resource.load($bind(this,this.onLoad));
+		}
+	}
+	,loadLocal: function(callback) {
+		this.onFinish = callback;
+		var _g = 0;
+		var _g1 = this.resources;
+		while(_g < _g1.length) {
+			var resource = _g1[_g];
+			++_g;
+			resource.loadLocal($bind(this,this.onLoad));
 		}
 	}
 	,onLoad: function() {
@@ -8858,20 +8926,13 @@ com_loading_basicResources_JoinAtlas.prototype = {
 			++_g;
 			bitmaps = bitmaps.concat(resource.getBitmaps());
 		}
-		var img = com_imageAtlas_AtlasGenerator.generate(this.width,this.height,bitmaps,this.separation);
+		this.image = com_imageAtlas_AtlasGenerator.generate(this.width,this.height,bitmaps,this.separation);
+		var textureId = com_gEngine_GEngine.get_i().addTexture(this.image);
 		var _g2 = 0;
-		while(_g2 < bitmaps.length) {
-			var bitmap = bitmaps[_g2];
+		var _g3 = this.resources;
+		while(_g2 < _g3.length) {
+			var resource1 = _g3[_g2];
 			++_g2;
-			bitmap.image.unload();
-			kha_Assets.images[bitmap.name] = null;
-		}
-		var textureId = com_gEngine_GEngine.get_i().addTexture(img);
-		var _g3 = 0;
-		var _g4 = this.resources;
-		while(_g3 < _g4.length) {
-			var resource1 = _g4[_g3];
-			++_g3;
 			resource1.update(textureId);
 		}
 		this.onFinish();
@@ -8884,6 +8945,17 @@ com_loading_basicResources_JoinAtlas.prototype = {
 			++_g;
 			resource.unload();
 		}
+		this.image.unload();
+	}
+	,unloadLocal: function() {
+		var _g = 0;
+		var _g1 = this.resources;
+		while(_g < _g1.length) {
+			var resource = _g1[_g];
+			++_g;
+			resource.unloadLocal();
+		}
+		this.image.unload();
 	}
 	,__class__: com_loading_basicResources_JoinAtlas
 };
@@ -14388,7 +14460,7 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Untitled_1","bullets","ivanka","ivankaArm","neutron","pig","proton","pumpkinBlood","skins","tiles","weapons"];
+	this.names = ["Untitled_1","bullets","intro","ivanka","ivankaArm","ivankaFace","neutron","pig","proton","pumpkinBlood","skins","tiles","weapons"];
 	this.weaponsDescription = { name : "weapons", original_height : 6, original_width : 30, files : ["weapons.png"], type : "image"};
 	this.weaponsName = "weapons";
 	this.weapons = null;
@@ -14410,12 +14482,18 @@ var kha__$Assets_ImageList = function() {
 	this.neutronDescription = { name : "neutron", original_height : 13, original_width : 14, files : ["neutron.png"], type : "image"};
 	this.neutronName = "neutron";
 	this.neutron = null;
+	this.ivankaFaceDescription = { name : "ivankaFace", original_height : 26, original_width : 20, files : ["ivankaFace.png"], type : "image"};
+	this.ivankaFaceName = "ivankaFace";
+	this.ivankaFace = null;
 	this.ivankaArmDescription = { name : "ivankaArm", original_height : 7, original_width : 4, files : ["ivankaArm.png"], type : "image"};
 	this.ivankaArmName = "ivankaArm";
 	this.ivankaArm = null;
 	this.ivankaDescription = { name : "ivanka", original_height : 23, original_width : 16, files : ["ivanka.png"], type : "image"};
 	this.ivankaName = "ivanka";
 	this.ivanka = null;
+	this.introDescription = { name : "intro", original_height : 180, original_width : 320, files : ["intro.png"], type : "image"};
+	this.introName = "intro";
+	this.intro = null;
 	this.bulletsDescription = { name : "bullets", original_height : 10, original_width : 5, files : ["bullets.png"], type : "image"};
 	this.bulletsName = "bullets";
 	this.bullets = null;
@@ -14435,7 +14513,7 @@ kha__$Assets_ImageList.prototype = {
 	,Untitled_1Load: function(done,failure) {
 		kha_Assets.loadImage("Untitled_1",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "Untitled_1Load"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "Untitled_1Load"});
 	}
 	,Untitled_1Unload: function() {
 		this.Untitled_1.unload();
@@ -14447,11 +14525,23 @@ kha__$Assets_ImageList.prototype = {
 	,bulletsLoad: function(done,failure) {
 		kha_Assets.loadImage("bullets",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "bulletsLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "bulletsLoad"});
 	}
 	,bulletsUnload: function() {
 		this.bullets.unload();
 		this.bullets = null;
+	}
+	,intro: null
+	,introName: null
+	,introDescription: null
+	,introLoad: function(done,failure) {
+		kha_Assets.loadImage("intro",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "introLoad"});
+	}
+	,introUnload: function() {
+		this.intro.unload();
+		this.intro = null;
 	}
 	,ivanka: null
 	,ivankaName: null
@@ -14459,7 +14549,7 @@ kha__$Assets_ImageList.prototype = {
 	,ivankaLoad: function(done,failure) {
 		kha_Assets.loadImage("ivanka",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "ivankaLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "ivankaLoad"});
 	}
 	,ivankaUnload: function() {
 		this.ivanka.unload();
@@ -14471,11 +14561,23 @@ kha__$Assets_ImageList.prototype = {
 	,ivankaArmLoad: function(done,failure) {
 		kha_Assets.loadImage("ivankaArm",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "ivankaArmLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "ivankaArmLoad"});
 	}
 	,ivankaArmUnload: function() {
 		this.ivankaArm.unload();
 		this.ivankaArm = null;
+	}
+	,ivankaFace: null
+	,ivankaFaceName: null
+	,ivankaFaceDescription: null
+	,ivankaFaceLoad: function(done,failure) {
+		kha_Assets.loadImage("ivankaFace",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "ivankaFaceLoad"});
+	}
+	,ivankaFaceUnload: function() {
+		this.ivankaFace.unload();
+		this.ivankaFace = null;
 	}
 	,neutron: null
 	,neutronName: null
@@ -14483,7 +14585,7 @@ kha__$Assets_ImageList.prototype = {
 	,neutronLoad: function(done,failure) {
 		kha_Assets.loadImage("neutron",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "neutronLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "neutronLoad"});
 	}
 	,neutronUnload: function() {
 		this.neutron.unload();
@@ -14495,7 +14597,7 @@ kha__$Assets_ImageList.prototype = {
 	,pigLoad: function(done,failure) {
 		kha_Assets.loadImage("pig",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "pigLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "pigLoad"});
 	}
 	,pigUnload: function() {
 		this.pig.unload();
@@ -14507,7 +14609,7 @@ kha__$Assets_ImageList.prototype = {
 	,protonLoad: function(done,failure) {
 		kha_Assets.loadImage("proton",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "protonLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "protonLoad"});
 	}
 	,protonUnload: function() {
 		this.proton.unload();
@@ -14519,7 +14621,7 @@ kha__$Assets_ImageList.prototype = {
 	,pumpkinBloodLoad: function(done,failure) {
 		kha_Assets.loadImage("pumpkinBlood",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "pumpkinBloodLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "pumpkinBloodLoad"});
 	}
 	,pumpkinBloodUnload: function() {
 		this.pumpkinBlood.unload();
@@ -14531,7 +14633,7 @@ kha__$Assets_ImageList.prototype = {
 	,skinsLoad: function(done,failure) {
 		kha_Assets.loadImage("skins",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "skinsLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "skinsLoad"});
 	}
 	,skinsUnload: function() {
 		this.skins.unload();
@@ -14543,7 +14645,7 @@ kha__$Assets_ImageList.prototype = {
 	,tilesLoad: function(done,failure) {
 		kha_Assets.loadImage("tiles",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "tilesLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "tilesLoad"});
 	}
 	,tilesUnload: function() {
 		this.tiles.unload();
@@ -14555,7 +14657,7 @@ kha__$Assets_ImageList.prototype = {
 	,weaponsLoad: function(done,failure) {
 		kha_Assets.loadImage("weapons",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 132, className : "kha._Assets.ImageList", methodName : "weaponsLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "weaponsLoad"});
 	}
 	,weaponsUnload: function() {
 		this.weapons.unload();
@@ -14618,7 +14720,7 @@ kha__$Assets_BlobList.prototype = {
 	,Untitled_1_xmlLoad: function(done,failure) {
 		kha_Assets.loadBlob("Untitled_1_xml",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "Untitled_1_xmlLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "Untitled_1_xmlLoad"});
 	}
 	,Untitled_1_xmlUnload: function() {
 		this.Untitled_1_xml.unload();
@@ -14630,7 +14732,7 @@ kha__$Assets_BlobList.prototype = {
 	,bullets_xmlLoad: function(done,failure) {
 		kha_Assets.loadBlob("bullets_xml",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "bullets_xmlLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "bullets_xmlLoad"});
 	}
 	,bullets_xmlUnload: function() {
 		this.bullets_xml.unload();
@@ -14642,7 +14744,7 @@ kha__$Assets_BlobList.prototype = {
 	,ivanka_xmlLoad: function(done,failure) {
 		kha_Assets.loadBlob("ivanka_xml",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "ivanka_xmlLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "ivanka_xmlLoad"});
 	}
 	,ivanka_xmlUnload: function() {
 		this.ivanka_xml.unload();
@@ -14654,7 +14756,7 @@ kha__$Assets_BlobList.prototype = {
 	,level_tmxLoad: function(done,failure) {
 		kha_Assets.loadBlob("level_tmx",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "level_tmxLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "level_tmxLoad"});
 	}
 	,level_tmxUnload: function() {
 		this.level_tmx.unload();
@@ -14666,7 +14768,7 @@ kha__$Assets_BlobList.prototype = {
 	,pig_xmlLoad: function(done,failure) {
 		kha_Assets.loadBlob("pig_xml",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "pig_xmlLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "pig_xmlLoad"});
 	}
 	,pig_xmlUnload: function() {
 		this.pig_xml.unload();
@@ -14678,7 +14780,7 @@ kha__$Assets_BlobList.prototype = {
 	,pumpkinBlood_xmlLoad: function(done,failure) {
 		kha_Assets.loadBlob("pumpkinBlood_xml",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "pumpkinBlood_xmlLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "pumpkinBlood_xmlLoad"});
 	}
 	,pumpkinBlood_xmlUnload: function() {
 		this.pumpkinBlood_xml.unload();
@@ -14690,7 +14792,7 @@ kha__$Assets_BlobList.prototype = {
 	,skins_xmlLoad: function(done,failure) {
 		kha_Assets.loadBlob("skins_xml",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "skins_xmlLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "skins_xmlLoad"});
 	}
 	,skins_xmlUnload: function() {
 		this.skins_xml.unload();
@@ -14702,7 +14804,7 @@ kha__$Assets_BlobList.prototype = {
 	,tiles_xmlLoad: function(done,failure) {
 		kha_Assets.loadBlob("tiles_xml",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "tiles_xmlLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "tiles_xmlLoad"});
 	}
 	,tiles_xmlUnload: function() {
 		this.tiles_xml.unload();
@@ -14714,7 +14816,7 @@ kha__$Assets_BlobList.prototype = {
 	,weapons_xmlLoad: function(done,failure) {
 		kha_Assets.loadBlob("weapons_xml",function(blob) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 140, className : "kha._Assets.BlobList", methodName : "weapons_xmlLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "weapons_xmlLoad"});
 	}
 	,weapons_xmlUnload: function() {
 		this.weapons_xml.unload();
@@ -14741,7 +14843,7 @@ kha__$Assets_FontList.prototype = {
 	,mainfontLoad: function(done,failure) {
 		kha_Assets.loadFont("mainfont",function(font) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 144, className : "kha._Assets.FontList", methodName : "mainfontLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 138, className : "kha._Assets.FontList", methodName : "mainfontLoad"});
 	}
 	,mainfontUnload: function() {
 		this.mainfont.unload();
@@ -14767,50 +14869,21 @@ $hxClasses["kha.Assets"] = kha_Assets;
 kha_Assets.__name__ = "kha.Assets";
 kha_Assets.__properties__ = {get_videoFormats:"get_videoFormats",get_fontFormats:"get_fontFormats",get_soundFormats:"get_soundFormats",get_imageFormats:"get_imageFormats"};
 kha_Assets.loadEverything = function(callback,filter,uncompressSoundsFilter,failed) {
+	var lists = [kha__$Assets_ImageList,kha__$Assets_SoundList,kha__$Assets_BlobList,kha__$Assets_FontList,kha__$Assets_VideoList];
+	var listInstances = [kha_Assets.images,kha_Assets.sounds,kha_Assets.blobs,kha_Assets.fonts,kha_Assets.videos];
 	var fileCount = 0;
 	var _g = 0;
-	var _g1 = Type.getInstanceFields(kha__$Assets_BlobList);
-	while(_g < _g1.length) {
-		var blob = _g1[_g];
+	while(_g < lists.length) {
+		var list = lists[_g];
 		++_g;
-		if(StringTools.endsWith(blob,"Load")) {
-			fileCount += 1;
-		}
-	}
-	var _g2 = 0;
-	var _g3 = Type.getInstanceFields(kha__$Assets_ImageList);
-	while(_g2 < _g3.length) {
-		var image = _g3[_g2];
-		++_g2;
-		if(StringTools.endsWith(image,"Load")) {
-			fileCount += 1;
-		}
-	}
-	var _g4 = 0;
-	var _g5 = Type.getInstanceFields(kha__$Assets_SoundList);
-	while(_g4 < _g5.length) {
-		var sound = _g5[_g4];
-		++_g4;
-		if(StringTools.endsWith(sound,"Load")) {
-			fileCount += 1;
-		}
-	}
-	var _g6 = 0;
-	var _g7 = Type.getInstanceFields(kha__$Assets_FontList);
-	while(_g6 < _g7.length) {
-		var font = _g7[_g6];
-		++_g6;
-		if(StringTools.endsWith(font,"Load")) {
-			fileCount += 1;
-		}
-	}
-	var _g8 = 0;
-	var _g9 = Type.getInstanceFields(kha__$Assets_VideoList);
-	while(_g8 < _g9.length) {
-		var video = _g9[_g8];
-		++_g8;
-		if(StringTools.endsWith(video,"Load")) {
-			fileCount += 1;
+		var _g1 = 0;
+		var _g11 = Type.getInstanceFields(list);
+		while(_g1 < _g11.length) {
+			var file = _g11[_g1];
+			++_g1;
+			if(StringTools.endsWith(file,"Description")) {
+				fileCount += 1;
+			}
 		}
 	}
 	if(fileCount == 0) {
@@ -14818,6 +14891,40 @@ kha_Assets.loadEverything = function(callback,filter,uncompressSoundsFilter,fail
 		return;
 	}
 	var filesLeft = fileCount;
+	var loadFunc = function(desc,done,failure) {
+		var name = desc.name;
+		switch(desc.type) {
+		case "blob":
+			kha_Assets.loadBlob(name,function(blob) {
+				done();
+			},failure,{ fileName : "kha/Assets.hx", lineNumber : 122, className : "kha.Assets", methodName : "loadEverything"});
+			break;
+		case "font":
+			kha_Assets.loadFont(name,function(font) {
+				done();
+			},failure,{ fileName : "kha/Assets.hx", lineNumber : 124, className : "kha.Assets", methodName : "loadEverything"});
+			break;
+		case "image":
+			kha_Assets.loadImage(name,function(image) {
+				done();
+			},failure,{ fileName : "kha/Assets.hx", lineNumber : 113, className : "kha.Assets", methodName : "loadEverything"});
+			break;
+		case "sound":
+			kha_Assets.loadSound(name,function(sound) {
+				if(uncompressSoundsFilter == null || uncompressSoundsFilter(desc)) {
+					sound.uncompress(done);
+				} else {
+					done();
+				}
+			},failure,{ fileName : "kha/Assets.hx", lineNumber : 115, className : "kha.Assets", methodName : "loadEverything"});
+			break;
+		case "video":
+			kha_Assets.loadVideo(name,function(video) {
+				done();
+			},failure,{ fileName : "kha/Assets.hx", lineNumber : 126, className : "kha.Assets", methodName : "loadEverything"});
+			break;
+		}
+	};
 	var onLoaded = function() {
 		filesLeft -= 1;
 		kha_Assets.progress = 1 - filesLeft / fileCount;
@@ -14825,102 +14932,27 @@ kha_Assets.loadEverything = function(callback,filter,uncompressSoundsFilter,fail
 			callback();
 		}
 	};
-	var _g10 = 0;
-	var _g11 = Type.getInstanceFields(kha__$Assets_BlobList);
-	while(_g10 < _g11.length) {
-		var blob1 = _g11[_g10];
-		++_g10;
-		if(StringTools.endsWith(blob1,"Load")) {
-			var name = HxOverrides.substr(blob1,0,blob1.length - 4);
-			var description = Reflect.field(kha_Assets.blobs,name + "Description");
-			if(filter == null || filter(description)) {
-				(Reflect.field(kha_Assets.blobs,blob1))(onLoaded,function(err) {
-					(kha_Assets.reporter(failed,{ fileName : "kha/Assets.hx", lineNumber : 142, className : "kha.Assets", methodName : "loadEverything"}))(err);
-					onLoaded();
-				});
-			} else {
-				onLoaded();
-			}
-		}
-	}
+	var onError = function(err) {
+		(kha_Assets.reporter(failed,{ fileName : "kha/Assets.hx", lineNumber : 137, className : "kha.Assets", methodName : "loadEverything"}))(err);
+		onLoaded();
+	};
 	var _g12 = 0;
-	var _g13 = Type.getInstanceFields(kha__$Assets_ImageList);
-	while(_g12 < _g13.length) {
-		var image1 = _g13[_g12];
-		++_g12;
-		if(StringTools.endsWith(image1,"Load")) {
-			var name1 = HxOverrides.substr(image1,0,image1.length - 4);
-			var description1 = Reflect.field(kha_Assets.images,name1 + "Description");
-			if(filter == null || filter(description1)) {
-				(Reflect.field(kha_Assets.images,image1))(onLoaded,function(err1) {
-					(kha_Assets.reporter(failed,{ fileName : "kha/Assets.hx", lineNumber : 158, className : "kha.Assets", methodName : "loadEverything"}))(err1);
-					onLoaded();
-				});
-			} else {
-				onLoaded();
+	var _g2 = lists.length;
+	while(_g12 < _g2) {
+		var i = _g12++;
+		var list1 = lists[i];
+		var listInstance = listInstances[i];
+		var _g13 = 0;
+		var _g21 = Type.getInstanceFields(list1);
+		while(_g13 < _g21.length) {
+			var field = _g21[_g13];
+			++_g13;
+			if(!StringTools.endsWith(field,"Description")) {
+				continue;
 			}
-		}
-	}
-	var _g14 = 0;
-	var _g15 = Type.getInstanceFields(kha__$Assets_SoundList);
-	while(_g14 < _g15.length) {
-		var sound1 = [_g15[_g14]];
-		++_g14;
-		if(StringTools.endsWith(sound1[0],"Load")) {
-			var name2 = HxOverrides.substr(sound1[0],0,sound1[0].length - 4);
-			var description2 = [Reflect.field(kha_Assets.sounds,name2 + "Description")];
-			if(filter == null || filter(description2[0])) {
-				(Reflect.field(kha_Assets.sounds,sound1[0]))((function(description3,sound2) {
-					return function() {
-						if(uncompressSoundsFilter == null || uncompressSoundsFilter(description3[0])) {
-							var sound3 = Reflect.field(kha_Assets.sounds,sound2[0].substring(0,sound2[0].length - 4));
-							sound3.uncompress(onLoaded);
-						} else {
-							onLoaded();
-						}
-					};
-				})(description2,sound1),(function() {
-					return function(err2) {
-						(kha_Assets.reporter(failed,{ fileName : "kha/Assets.hx", lineNumber : 181, className : "kha.Assets", methodName : "loadEverything"}))(err2);
-						onLoaded();
-					};
-				})());
-			} else {
-				onLoaded();
-			}
-		}
-	}
-	var _g16 = 0;
-	var _g17 = Type.getInstanceFields(kha__$Assets_FontList);
-	while(_g16 < _g17.length) {
-		var font1 = _g17[_g16];
-		++_g16;
-		if(StringTools.endsWith(font1,"Load")) {
-			var name3 = HxOverrides.substr(font1,0,font1.length - 4);
-			var description4 = Reflect.field(kha_Assets.fonts,name3 + "Description");
-			if(filter == null || filter(description4)) {
-				(Reflect.field(kha_Assets.fonts,font1))(onLoaded,function(err3) {
-					(kha_Assets.reporter(failed,{ fileName : "kha/Assets.hx", lineNumber : 196, className : "kha.Assets", methodName : "loadEverything"}))(err3);
-					onLoaded();
-				});
-			} else {
-				onLoaded();
-			}
-		}
-	}
-	var _g18 = 0;
-	var _g19 = Type.getInstanceFields(kha__$Assets_VideoList);
-	while(_g18 < _g19.length) {
-		var video1 = _g19[_g18];
-		++_g18;
-		if(StringTools.endsWith(video1,"Load")) {
-			var name4 = HxOverrides.substr(video1,0,video1.length - 4);
-			var description5 = Reflect.field(kha_Assets.videos,name4 + "Description");
-			if(filter == null || filter(description5)) {
-				(Reflect.field(kha_Assets.videos,video1))(onLoaded,function(err4) {
-					(kha_Assets.reporter(failed,{ fileName : "kha/Assets.hx", lineNumber : 211, className : "kha.Assets", methodName : "loadEverything"}))(err4);
-					onLoaded();
-				});
+			var desc1 = Reflect.field(listInstance,field);
+			if(filter == null || filter(desc1)) {
+				loadFunc(desc1,onLoaded,onError);
 			} else {
 				onLoaded();
 			}
@@ -15420,7 +15452,7 @@ kha_CanvasImage.prototype = $extend(kha_Image.prototype,{
 	}
 	,__class__: kha_CanvasImage
 });
-var kha__$Color_Color_$Impl_$ = $hx_exports["kha"]["_Color"]["Color_Impl_"] = {};
+var kha__$Color_Color_$Impl_$ = {};
 $hxClasses["kha._Color.Color_Impl_"] = kha__$Color_Color_$Impl_$;
 kha__$Color_Color_$Impl_$.__name__ = "kha._Color.Color_Impl_";
 kha__$Color_Color_$Impl_$.__properties__ = {set_value:"set_value",get_value:"get_value",set_A:"set_A",get_A:"get_A",set_B:"set_B",get_B:"get_B",set_G:"set_G",get_G:"get_G",set_R:"set_R",get_R:"get_R",set_Ab:"set_Ab",get_Ab:"get_Ab",set_Bb:"set_Bb",get_Bb:"get_Bb",set_Gb:"set_Gb",get_Gb:"get_Gb",set_Rb:"set_Rb",get_Rb:"get_Rb"};
@@ -15921,6 +15953,9 @@ kha_LoaderImpl.getSoundFormats = function() {
 	if(element.canPlayType("audio/mp3") != "") {
 		formats.push("mp3");
 	}
+	if(element.canPlayType("audio/wav") != "") {
+		formats.push("wav");
+	}
 	if(kha_SystemImpl._hasWebAudio || element.canPlayType("audio/ogg") != "") {
 		formats.push("ogg");
 	}
@@ -15953,49 +15988,73 @@ kha_LoaderImpl.loadSoundFromDescription = function(desc,done,failed) {
 				}
 			}
 		}
-		var _g3 = 0;
-		var _g12 = desc.files.length;
-		while(_g3 < _g12) {
-			var i2 = _g3++;
-			var file2 = desc.files[i2];
-			if(StringTools.endsWith(file2,".ogg")) {
-				new kha_js_WebAudioSound(file2,done,failed);
+		if(element.canPlayType("audio/wav") != "") {
+			var _g3 = 0;
+			var _g12 = desc.files.length;
+			while(_g3 < _g12) {
+				var i2 = _g3++;
+				var file2 = desc.files[i2];
+				if(StringTools.endsWith(file2,".wav")) {
+					new kha_js_WebAudioSound(file2,done,failed);
+					return;
+				}
+			}
+		}
+		var _g4 = 0;
+		var _g13 = desc.files.length;
+		while(_g4 < _g13) {
+			var i3 = _g4++;
+			var file3 = desc.files[i3];
+			if(StringTools.endsWith(file3,".ogg")) {
+				new kha_js_WebAudioSound(file3,done,failed);
 				return;
 			}
 		}
 	} else if(kha_SystemImpl.mobile) {
 		var element1 = window.document.createElement("audio");
 		if(element1.canPlayType("audio/mp4") != "") {
-			var _g4 = 0;
-			var _g13 = desc.files.length;
-			while(_g4 < _g13) {
-				var i3 = _g4++;
-				var file3 = desc.files[i3];
-				if(StringTools.endsWith(file3,".mp4")) {
-					new kha_js_MobileWebAudioSound(file3,done,failed);
-					return;
-				}
-			}
-		}
-		if(element1.canPlayType("audio/mp3") != "") {
 			var _g5 = 0;
 			var _g14 = desc.files.length;
 			while(_g5 < _g14) {
 				var i4 = _g5++;
 				var file4 = desc.files[i4];
-				if(StringTools.endsWith(file4,".mp3")) {
+				if(StringTools.endsWith(file4,".mp4")) {
 					new kha_js_MobileWebAudioSound(file4,done,failed);
 					return;
 				}
 			}
 		}
-		var _g6 = 0;
-		var _g15 = desc.files.length;
-		while(_g6 < _g15) {
-			var i5 = _g6++;
-			var file5 = desc.files[i5];
-			if(StringTools.endsWith(file5,".ogg")) {
-				new kha_js_MobileWebAudioSound(file5,done,failed);
+		if(element1.canPlayType("audio/mp3") != "") {
+			var _g6 = 0;
+			var _g15 = desc.files.length;
+			while(_g6 < _g15) {
+				var i5 = _g6++;
+				var file5 = desc.files[i5];
+				if(StringTools.endsWith(file5,".mp3")) {
+					new kha_js_MobileWebAudioSound(file5,done,failed);
+					return;
+				}
+			}
+		}
+		if(element1.canPlayType("audio/wav") != "") {
+			var _g7 = 0;
+			var _g16 = desc.files.length;
+			while(_g7 < _g16) {
+				var i6 = _g7++;
+				var file6 = desc.files[i6];
+				if(StringTools.endsWith(file6,".wav")) {
+					new kha_js_MobileWebAudioSound(file6,done,failed);
+					return;
+				}
+			}
+		}
+		var _g8 = 0;
+		var _g17 = desc.files.length;
+		while(_g8 < _g17) {
+			var i7 = _g8++;
+			var file7 = desc.files[i7];
+			if(StringTools.endsWith(file7,".ogg")) {
+				new kha_js_MobileWebAudioSound(file7,done,failed);
 				return;
 			}
 		}
@@ -16572,12 +16631,6 @@ kha_Scheduler.sortFrameTasks = function() {
 		}
 	});
 	kha_Scheduler.frame_tasks_sorted = true;
-};
-var kha_ScreenRotation = $hxEnums["kha.ScreenRotation"] = { __ename__ : true, __constructs__ : ["RotationNone","Rotation90","Rotation180","Rotation270"]
-	,RotationNone: {_hx_index:0,__enum__:"kha.ScreenRotation",toString:$estr}
-	,Rotation90: {_hx_index:1,__enum__:"kha.ScreenRotation",toString:$estr}
-	,Rotation180: {_hx_index:2,__enum__:"kha.ScreenRotation",toString:$estr}
-	,Rotation270: {_hx_index:3,__enum__:"kha.ScreenRotation",toString:$estr}
 };
 var kha_Shaders = function() { };
 $hxClasses["kha.Shaders"] = kha_Shaders;
@@ -17303,7 +17356,7 @@ kha_System.windowHeight = function($window) {
 	return kha_Window.get_all()[$window].get_height();
 };
 kha_System.get_screenRotation = function() {
-	return kha_ScreenRotation.RotationNone;
+	return 0;
 };
 kha_System.get_systemId = function() {
 	return kha_SystemImpl.getSystemId();
@@ -17459,7 +17512,7 @@ kha_SystemImpl.setCanvas = function(canvas) {
 	kha_SystemImpl.khanvas = canvas;
 };
 kha_SystemImpl.getScreenRotation = function() {
-	return kha_ScreenRotation.RotationNone;
+	return 0;
 };
 kha_SystemImpl.getTime = function() {
 	var performance = window.performance ? window.performance : window.Date;
@@ -17472,7 +17525,8 @@ kha_SystemImpl.vibrate = function(ms) {
 	window.navigator.vibrate(ms);
 };
 kha_SystemImpl.getLanguage = function() {
-	return window.navigator.language;
+	var lang = window.navigator.language;
+	return HxOverrides.substr(lang,0,2).toLowerCase();
 };
 kha_SystemImpl.requestShutdown = function() {
 	window.close();
@@ -17854,13 +17908,7 @@ kha_SystemImpl.mouseDown = function(event) {
 	kha_SystemImpl.unlockSound();
 	kha_SystemImpl.setMouseXY(event);
 	if(event.which == 1) {
-		if(event.ctrlKey) {
-			kha_SystemImpl.leftMouseCtrlDown = true;
-			kha_SystemImpl.mouse.sendDownEvent(0,1,kha_SystemImpl.mouseX,kha_SystemImpl.mouseY);
-		} else {
-			kha_SystemImpl.leftMouseCtrlDown = false;
-			kha_SystemImpl.mouse.sendDownEvent(0,0,kha_SystemImpl.mouseX,kha_SystemImpl.mouseY);
-		}
+		kha_SystemImpl.mouse.sendDownEvent(0,0,kha_SystemImpl.mouseX,kha_SystemImpl.mouseY);
 		if(kha_SystemImpl.khanvas.setCapture != null) {
 			kha_SystemImpl.khanvas.setCapture();
 		} else {
@@ -17888,12 +17936,7 @@ kha_SystemImpl.mouseLeftUp = function(event) {
 	} else {
 		kha_SystemImpl.khanvas.ownerDocument.removeEventListener("mousemove",kha_SystemImpl.documentMouseMove,true);
 	}
-	if(kha_SystemImpl.leftMouseCtrlDown) {
-		kha_SystemImpl.mouse.sendUpEvent(0,1,kha_SystemImpl.mouseX,kha_SystemImpl.mouseY);
-	} else {
-		kha_SystemImpl.mouse.sendUpEvent(0,0,kha_SystemImpl.mouseX,kha_SystemImpl.mouseY);
-	}
-	kha_SystemImpl.leftMouseCtrlDown = false;
+	kha_SystemImpl.mouse.sendUpEvent(0,0,kha_SystemImpl.mouseX,kha_SystemImpl.mouseY);
 	kha_SystemImpl.insideInputEvent = false;
 };
 kha_SystemImpl.mouseMiddleUp = function(event) {
@@ -19183,6 +19226,35 @@ kha_arrays__$Int16Array_Int16Array_$Impl_$.arrayWrite = function(this1,index,val
 kha_arrays__$Int16Array_Int16Array_$Impl_$.subarray = function(this1,start,end) {
 	return this1.subarray(start,end);
 };
+var kha_arrays__$Int32Array_Int32Array_$Impl_$ = {};
+$hxClasses["kha.arrays._Int32Array.Int32Array_Impl_"] = kha_arrays__$Int32Array_Int32Array_$Impl_$;
+kha_arrays__$Int32Array_Int32Array_$Impl_$.__name__ = "kha.arrays._Int32Array.Int32Array_Impl_";
+kha_arrays__$Int32Array_Int32Array_$Impl_$.__properties__ = {get_length:"get_length"};
+kha_arrays__$Int32Array_Int32Array_$Impl_$._new = function(elements) {
+	var this1 = new Int32Array(elements);
+	return this1;
+};
+kha_arrays__$Int32Array_Int32Array_$Impl_$.get_length = function(this1) {
+	return this1.length;
+};
+kha_arrays__$Int32Array_Int32Array_$Impl_$.set = function(this1,index,value) {
+	return this1[index] = value;
+};
+kha_arrays__$Int32Array_Int32Array_$Impl_$.get = function(this1,index) {
+	return this1[index];
+};
+kha_arrays__$Int32Array_Int32Array_$Impl_$.data = function(this1) {
+	return this1;
+};
+kha_arrays__$Int32Array_Int32Array_$Impl_$.arrayRead = function(this1,index) {
+	return this1[index];
+};
+kha_arrays__$Int32Array_Int32Array_$Impl_$.arrayWrite = function(this1,index,value) {
+	return this1[index] = value;
+};
+kha_arrays__$Int32Array_Int32Array_$Impl_$.subarray = function(this1,start,end) {
+	return this1.subarray(start,end);
+};
 var kha_arrays__$Uint32Array_Uint32Array_$Impl_$ = {};
 $hxClasses["kha.arrays._Uint32Array.Uint32Array_Impl_"] = kha_arrays__$Uint32Array_Uint32Array_$Impl_$;
 kha_arrays__$Uint32Array_Uint32Array_$Impl_$.__name__ = "kha.arrays._Uint32Array.Uint32Array_Impl_";
@@ -19900,13 +19972,8 @@ kha_audio2_StreamChannel.prototype = {
 	,__class__: kha_audio2_StreamChannel
 	,__properties__: {get_finished:"get_finished",set_volume:"set_volume",get_volume:"get_volume",set_position:"set_position",get_position:"get_position",get_length:"get_length"}
 };
-var kha_audio2_PlayMode = $hxEnums["kha.audio2.PlayMode"] = { __ename__ : true, __constructs__ : ["Stopped","Paused","Playing"]
-	,Stopped: {_hx_index:0,__enum__:"kha.audio2.PlayMode",toString:$estr}
-	,Paused: {_hx_index:1,__enum__:"kha.audio2.PlayMode",toString:$estr}
-	,Playing: {_hx_index:2,__enum__:"kha.audio2.PlayMode",toString:$estr}
-};
 var kha_audio2_VirtualStreamChannel = function(aeChannel,looping) {
-	this.mode = kha_audio2_PlayMode.Playing;
+	this.mode = 2;
 	this.aeChannel = aeChannel;
 	this.looping = looping;
 	this.lastTickTime = kha_Scheduler.realTime();
@@ -19928,7 +19995,7 @@ kha_audio2_VirtualStreamChannel.prototype = {
 	}
 	,updatePosition: function() {
 		var now = kha_Scheduler.realTime();
-		switch(this.mode._hx_index) {
+		switch(this.mode) {
 		case 0:
 			this.lastPosition = 0;
 			break;
@@ -19946,7 +20013,7 @@ kha_audio2_VirtualStreamChannel.prototype = {
 			this.aeChannel.play();
 		} else {
 			this.updatePosition();
-			this.mode = kha_audio2_PlayMode.Playing;
+			this.mode = 2;
 		}
 	}
 	,pause: function() {
@@ -19954,7 +20021,7 @@ kha_audio2_VirtualStreamChannel.prototype = {
 			this.aeChannel.pause();
 		} else {
 			this.updatePosition();
-			this.mode = kha_audio2_PlayMode.Paused;
+			this.mode = 1;
 		}
 	}
 	,stop: function() {
@@ -19962,7 +20029,7 @@ kha_audio2_VirtualStreamChannel.prototype = {
 			this.aeChannel.stop();
 		} else {
 			this.updatePosition();
-			this.mode = kha_audio2_PlayMode.Stopped;
+			this.mode = 0;
 		}
 	}
 	,length: null
@@ -19995,7 +20062,7 @@ kha_audio2_VirtualStreamChannel.prototype = {
 	,get_finished: function() {
 		if(kha_SystemImpl.mobileAudioPlaying) {
 			return this.aeChannel.get_finished();
-		} else if(this.mode != kha_audio2_PlayMode.Stopped) {
+		} else if(this.mode != 0) {
 			if(!this.looping) {
 				return this.get_position() >= this.get_length();
 			} else {
@@ -25675,6 +25742,10 @@ kha_graphics4_Graphics.prototype = {
 	,setPipeline: null
 	,setBool: null
 	,setInt: null
+	,setInt2: null
+	,setInt3: null
+	,setInt4: null
+	,setInts: null
 	,setFloat: null
 	,setFloat2: null
 	,setFloat3: null
@@ -25853,6 +25924,14 @@ kha_graphics1_Graphics4.prototype = {
 	,setBool: function(location,value) {
 	}
 	,setInt: function(location,value) {
+	}
+	,setInt2: function(location,value1,value2) {
+	}
+	,setInt3: function(location,value1,value2,value3) {
+	}
+	,setInt4: function(location,value1,value2,value3,value4) {
+	}
+	,setInts: function(location,ints) {
 	}
 	,setFloat: function(location,value) {
 	}
@@ -26115,16 +26194,16 @@ kha_graphics2_Graphics.prototype = {
 	,fillTriangle: function(x1,y1,x2,y2,x3,y3) {
 	}
 	,get_imageScaleQuality: function() {
-		return kha_graphics2_ImageScaleQuality.Low;
+		return 0;
 	}
 	,set_imageScaleQuality: function(value) {
-		return kha_graphics2_ImageScaleQuality.High;
+		return 1;
 	}
 	,get_mipmapScaleQuality: function() {
-		return kha_graphics2_ImageScaleQuality.Low;
+		return 0;
 	}
 	,set_mipmapScaleQuality: function(value) {
-		return kha_graphics2_ImageScaleQuality.High;
+		return 1;
 	}
 	,get_color: function() {
 		return -16777216;
@@ -26549,10 +26628,6 @@ kha_graphics2_Graphics1.prototype = {
 		this.pixels.setInt32(y * this.texture.get_realWidth() * 4 + x * 4,kha__$Color_Color_$Impl_$.fromBytes(color & 255,(color & 65280) >>> 8,(color & 16711680) >>> 16,color >>> 24));
 	}
 	,__class__: kha_graphics2_Graphics1
-};
-var kha_graphics2_ImageScaleQuality = $hxEnums["kha.graphics2.ImageScaleQuality"] = { __ename__ : true, __constructs__ : ["Low","High"]
-	,Low: {_hx_index:0,__enum__:"kha.graphics2.ImageScaleQuality",toString:$estr}
-	,High: {_hx_index:1,__enum__:"kha.graphics2.ImageScaleQuality",toString:$estr}
 };
 var kha_graphics2_truetype_VectorOfIntPointer = function() {
 };
@@ -29987,8 +30062,8 @@ var kha_graphics4_Graphics2 = function(canvas) {
 	this.scissorEnabled = false;
 	this.lastPipeline = null;
 	this.pipelineCache = new haxe_ds_ObjectMap();
-	this.myMipmapScaleQuality = kha_graphics2_ImageScaleQuality.Low;
-	this.myImageScaleQuality = kha_graphics2_ImageScaleQuality.Low;
+	this.myMipmapScaleQuality = 0;
+	this.myImageScaleQuality = 0;
 	kha_graphics2_Graphics.call(this);
 	this.set_color(-1);
 	this.canvas = canvas;
@@ -31320,8 +31395,8 @@ kha_graphics4_Graphics2.prototype = $extend(kha_graphics2_Graphics.prototype,{
 		if(value == this.myImageScaleQuality) {
 			return value;
 		}
-		this.imagePainter.setBilinearFilter(value == kha_graphics2_ImageScaleQuality.High);
-		this.textPainter.setBilinearFilter(value == kha_graphics2_ImageScaleQuality.High);
+		this.imagePainter.setBilinearFilter(value == 1);
+		this.textPainter.setBilinearFilter(value == 1);
 		return this.myImageScaleQuality = value;
 	}
 	,myMipmapScaleQuality: null
@@ -31329,7 +31404,7 @@ kha_graphics4_Graphics2.prototype = $extend(kha_graphics2_Graphics.prototype,{
 		return this.myMipmapScaleQuality;
 	}
 	,set_mipmapScaleQuality: function(value) {
-		this.imagePainter.setBilinearMipmapFilter(value == kha_graphics2_ImageScaleQuality.High);
+		this.imagePainter.setBilinearMipmapFilter(value == 1);
 		return this.myMipmapScaleQuality = value;
 	}
 	,pipelineCache: null
@@ -32706,7 +32781,7 @@ var kha_input_Sensor = function() {
 $hxClasses["kha.input.Sensor"] = kha_input_Sensor;
 kha_input_Sensor.__name__ = "kha.input.Sensor";
 kha_input_Sensor.get = function(type) {
-	switch(type._hx_index) {
+	switch(type) {
 	case 0:
 		return kha_input_Sensor.accelerometer;
 	case 1:
@@ -32714,7 +32789,7 @@ kha_input_Sensor.get = function(type) {
 	}
 };
 kha_input_Sensor._changed = function(type,x,y,z) {
-	var sensor = kha_input_Sensor.get(type == 0 ? kha_input_SensorType.Accelerometer : kha_input_SensorType.Gyroscope);
+	var sensor = kha_input_Sensor.get(type == 0 ? 0 : 1);
 	var _g = 0;
 	var _g1 = sensor.listeners;
 	while(_g < _g1.length) {
@@ -32733,10 +32808,6 @@ kha_input_Sensor.prototype = {
 		this.listeners.push(listener);
 	}
 	,__class__: kha_input_Sensor
-};
-var kha_input_SensorType = $hxEnums["kha.input.SensorType"] = { __ename__ : true, __constructs__ : ["Accelerometer","Gyroscope"]
-	,Accelerometer: {_hx_index:0,__enum__:"kha.input.SensorType",toString:$estr}
-	,Gyroscope: {_hx_index:1,__enum__:"kha.input.SensorType",toString:$estr}
 };
 var kha_input_Surface = $hx_exports["kha"]["input"]["Surface"] = function() {
 	this.touchStartListeners = [];
@@ -33345,7 +33416,7 @@ kha_js_CanvasGraphics.prototype = $extend(kha_graphics2_Graphics.prototype,{
 		return this.scaleQuality;
 	}
 	,set_imageScaleQuality: function(value) {
-		if(value == kha_graphics2_ImageScaleQuality.Low) {
+		if(value == 0) {
 			this.canvas.mozImageSmoothingEnabled = false;
 			this.canvas.webkitImageSmoothingEnabled = false;
 			this.canvas.msImageSmoothingEnabled = false;
@@ -33744,6 +33815,9 @@ var kha_js_Sound = function(filenames,done,failed) {
 		if(this.element.canPlayType("audio/mp4") != "" && StringTools.endsWith(filename,".mp4")) {
 			this.filenames.push(filename);
 		}
+		if(this.element.canPlayType("audio/wav") != "" && StringTools.endsWith(filename,".wav")) {
+			this.filenames.push(filename);
+		}
 	}
 	this.element.addEventListener("error",$bind(this,this.errorListener),false);
 	this.element.addEventListener("canplay",$bind(this,this.canPlayThroughListener),false);
@@ -33932,60 +34006,34 @@ kha_js_WebAudioSound.prototype = $extend(kha_Sound.prototype,{
 		var _gthis = this;
 		kha_audio2_Audio._context.decodeAudioData(this.compressedData.b.bufferValue,function(buffer) {
 			var ch0 = buffer.getChannelData(0);
+			var ch1 = buffer.numberOfChannels == 1 ? ch0 : buffer.getChannelData(1);
 			var len = ch0.length;
 			var this1 = new Float32Array(len * 2);
 			_gthis.uncompressedData = this1;
 			_gthis.length = buffer.duration;
 			_gthis.channels = buffer.numberOfChannels;
 			_gthis.sampleRate = Math.round(buffer.sampleRate);
-			if(buffer.numberOfChannels == 1) {
-				var idx = 0;
-				var i = 0;
-				var lidx = len * 2;
-				var uncompressInner = function() {
-				};
-				uncompressInner = function() {
-					var chk_len = idx + 11025;
-					var next_chk = chk_len > lidx ? lidx : chk_len;
-					while(idx < next_chk) {
-						_gthis.uncompressedData[idx] = ch0[i];
-						_gthis.uncompressedData[idx + 1] = ch0[i];
-						idx += 2;
-						i += 1;
-					}
-					if(idx < lidx) {
-						window.setTimeout(uncompressInner,0);
-					} else {
-						_gthis.compressedData = null;
-					}
-				};
-				uncompressInner();
-				window.setTimeout(done,250);
-			} else {
-				var ch1 = buffer.getChannelData(1);
-				var idx1 = 0;
-				var i1 = 0;
-				var lidx1 = len * 2;
-				var uncompressInner1 = function() {
-				};
-				uncompressInner1 = function() {
-					var chk_len1 = idx1 + 11025;
-					var next_chk1 = chk_len1 > lidx1 ? lidx1 : chk_len1;
-					while(idx1 < next_chk1) {
-						_gthis.uncompressedData[idx1] = ch0[i1];
-						_gthis.uncompressedData[idx1 + 1] = ch1[i1];
-						idx1 += 2;
-						i1 += 1;
-					}
-					if(idx1 < lidx1) {
-						window.setTimeout(uncompressInner1,0);
-					} else {
-						_gthis.compressedData = null;
-					}
-				};
-				uncompressInner1();
-				window.setTimeout(done,250);
-			}
+			var idx = 0;
+			var i = 0;
+			var lidx = len * 2;
+			var uncompressInner = null;
+			uncompressInner = function() {
+				var chk_len = idx + 11025;
+				var next_chk = chk_len > lidx ? lidx : chk_len;
+				while(idx < next_chk) {
+					_gthis.uncompressedData[idx] = ch0[i];
+					_gthis.uncompressedData[idx + 1] = ch1[i];
+					idx += 2;
+					i += 1;
+				}
+				if(idx < lidx) {
+					window.setTimeout(uncompressInner,0);
+				} else {
+					_gthis.compressedData = null;
+					done();
+				}
+			};
+			uncompressInner();
 		},function() {
 			_gthis.superUncompress(done);
 		});
@@ -34451,6 +34499,31 @@ kha_js_graphics4_Graphics.prototype = {
 	}
 	,setInt: function(location,value) {
 		kha_SystemImpl.gl.uniform1i((js_Boot.__cast(location , kha_js_graphics4_ConstantLocation)).value,value);
+	}
+	,setInt2: function(location,value1,value2) {
+		kha_SystemImpl.gl.uniform2i((js_Boot.__cast(location , kha_js_graphics4_ConstantLocation)).value,value1,value2);
+	}
+	,setInt3: function(location,value1,value2,value3) {
+		kha_SystemImpl.gl.uniform3i((js_Boot.__cast(location , kha_js_graphics4_ConstantLocation)).value,value1,value2,value3);
+	}
+	,setInt4: function(location,value1,value2,value3,value4) {
+		kha_SystemImpl.gl.uniform4i((js_Boot.__cast(location , kha_js_graphics4_ConstantLocation)).value,value1,value2,value3,value4);
+	}
+	,setInts: function(location,values) {
+		var webglLocation = js_Boot.__cast(location , kha_js_graphics4_ConstantLocation);
+		switch(webglLocation.type) {
+		case 35667:
+			kha_SystemImpl.gl.uniform2iv(webglLocation.value,values);
+			break;
+		case 35668:
+			kha_SystemImpl.gl.uniform3iv(webglLocation.value,values);
+			break;
+		case 35669:
+			kha_SystemImpl.gl.uniform4iv(webglLocation.value,values);
+			break;
+		default:
+			kha_SystemImpl.gl.uniform1iv(webglLocation.value,values);
+		}
 	}
 	,setFloat: function(location,value) {
 		kha_SystemImpl.gl.uniform1f((js_Boot.__cast(location , kha_js_graphics4_ConstantLocation)).value,value);
@@ -36249,6 +36322,69 @@ kha_vr_TimeWarpParms.prototype = {
 	,RightOverlay: null
 	,__class__: kha_vr_TimeWarpParms
 };
+var states_BasicLoader = function() {
+	com_framework_utils_State.call(this);
+};
+$hxClasses["states.BasicLoader"] = states_BasicLoader;
+states_BasicLoader.__name__ = "states.BasicLoader";
+states_BasicLoader.__super__ = com_framework_utils_State;
+states_BasicLoader.prototype = $extend(com_framework_utils_State.prototype,{
+	allLoaded: null
+	,backgroundLoader: null
+	,bar: null
+	,init: function() {
+		this.stageColor(0.2,0.2,0.2);
+		kha_Assets.loadEverything($bind(this,this.onAllLoaded));
+		this.backgroundLoader = new com_gEngine_helper_RectangleDisplay();
+		this.backgroundLoader.x = 50;
+		this.backgroundLoader.y = com_gEngine_GEngine.virtualHeight * 0.5;
+		this.backgroundLoader.scaleX = com_gEngine_GEngine.virtualWidth - 100;
+		this.backgroundLoader.scaleY = 50;
+		this.stage.addChild(this.backgroundLoader);
+		this.bar = new com_gEngine_helper_RectangleDisplay();
+		this.bar.x = 50;
+		this.bar.y = com_gEngine_GEngine.virtualHeight * 0.5;
+		this.bar.scaleX = 0;
+		this.bar.scaleY = 50;
+		this.bar.setColor(0,255,0);
+		this.stage.addChild(this.bar);
+	}
+	,onAllLoaded: function() {
+		this.allLoaded = true;
+	}
+	,onUpdate: function(aDt) {
+		this.bar.scaleX = kha_Assets.progress * com_gEngine_GEngine.virtualWidth - 100;
+		if(this.allLoaded) {
+			com_framework_Simulation.i.set_manualLoad(true);
+			this.changeState(new states_Intro());
+		}
+	}
+	,__class__: states_BasicLoader
+});
+var states_Intro = function() {
+	com_framework_utils_State.call(this);
+};
+$hxClasses["states.Intro"] = states_Intro;
+states_Intro.__name__ = "states.Intro";
+states_Intro.__super__ = com_framework_utils_State;
+states_Intro.prototype = $extend(com_framework_utils_State.prototype,{
+	load: function(resources) {
+		resources.add(new com_loading_basicResources_ImageLoader("intro"));
+	}
+	,init: function() {
+		var intro = new com_gEngine_display_BasicSprite("intro");
+		intro.set_smooth(false);
+		intro.scaleX = intro.scaleY = 4;
+		this.stage.addChild(intro);
+	}
+	,update: function(dt) {
+		com_framework_utils_State.prototype.update.call(this,dt);
+		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
+			this.changeState(new states_Test());
+		}
+	}
+	,__class__: states_Intro
+});
 var states_Test = function() {
 	com_framework_utils_State.call(this);
 };
@@ -36260,16 +36396,17 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	,ivanka: null
 	,enemiesCollisions: null
 	,bullets: null
+	,hudLayer: null
 	,load: function(resources) {
 		resources.add(new com_loading_basicResources_DataLoader("level_tmx"));
 		var atlas = new com_loading_basicResources_JoinAtlas(2048,2048);
-		atlas.add(new com_loading_basicResources_SparrowLoader("Untitled_1","Untitled_1_xml"));
 		atlas.add(new com_loading_basicResources_TilesheetLoader("tiles",10,10,1));
 		atlas.add(new com_loading_basicResources_SparrowLoader("skins","skins_xml"));
 		atlas.add(new com_loading_basicResources_SparrowLoader("weapons","weapons_xml"));
 		atlas.add(new com_loading_basicResources_SparrowLoader("bullets","bullets_xml"));
 		atlas.add(new com_loading_basicResources_SparrowLoader("pumpkinBlood","pumpkinBlood_xml"));
 		atlas.add(new com_loading_basicResources_ImageLoader("ivankaArm"));
+		atlas.add(new com_loading_basicResources_ImageLoader("ivankaFace"));
 		resources.add(atlas);
 	}
 	,init: function() {
@@ -36294,6 +36431,13 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		this.tilemapCollision = tilemap.init("level_tmx","tiles",10,10,simulationLayer,4);
 		this.stage.cameras[0].limits(0,0,this.tilemapCollision.widthIntTiles * 40,this.tilemapCollision.heightInTiles * 40);
 		gameObjects_GameGlobals.blood = new fx_Blood(this,simulationLayer);
+		this.hudLayer = new com_gEngine_display_StaticLayer();
+		this.stage.addChild(this.hudLayer);
+		var ivankaFace = new com_gEngine_display_BasicSprite("ivankaFace");
+		ivankaFace.x = ivankaFace.y = 20;
+		ivankaFace.scaleX = ivankaFace.scaleY = 4;
+		ivankaFace.set_smooth(false);
+		this.hudLayer.addChild(ivankaFace);
 	}
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
@@ -36302,6 +36446,9 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		this.enemiesCollisions.overlap(this.bullets,$bind(this,this.enemyVsBullet));
 		this.bullets.collide(this.tilemapCollision,$bind(this,this.bulletsVsMap));
 		this.stage.cameras[0].setTarget(this.ivanka.display.x,this.ivanka.display.y);
+		if(com_framework_utils_Input.i.isKeyCodePressed(82)) {
+			this.changeState(new states_Intro());
+		}
 	}
 	,enemyVsBullet: function(a,b) {
 		a.userData.damage();
@@ -36362,7 +36509,7 @@ com_gEngine_GEngine.initialIndex = 2;
 com_gEngine_GEngine.drawCount = 0;
 com_gEngine_GEngine.extraInfo = "";
 com_gEngine_GEngine.backBufferId = 0;
-com_gEngine_painters_Painter.MAX_VERTEX_PER_BUFFER = 5000;
+com_gEngine_painters_Painter.MAX_VERTEX_PER_BUFFER = 2500;
 com_gEngine_painters_Painter.ratioIndexVertex = 1.5;
 com_helpers_MinMax.weak = new com_helpers_MinMax();
 com_soundLib_SoundManager.musicPosition = 0;
@@ -36578,7 +36725,6 @@ kha_SystemImpl.firefox = false;
 kha_SystemImpl.ie = false;
 kha_SystemImpl.insideInputEvent = false;
 kha_SystemImpl.maxGamepads = 4;
-kha_SystemImpl.leftMouseCtrlDown = false;
 kha_SystemImpl.minimumScroll = 999;
 kha_SystemImpl.lastFirstTouchX = 0;
 kha_SystemImpl.lastFirstTouchY = 0;
