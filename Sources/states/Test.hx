@@ -52,7 +52,7 @@ class Test extends State {
     var simulationLayer:Layer;
     var room:String;
     var fromRoom:String;
-    public function new(room:String="room1",fromRoom:String=null) {
+    public function new(room:String,fromRoom:String=null) {
         super();
         this.room = room;
         this.fromRoom = fromRoom;
@@ -76,7 +76,7 @@ class Test extends State {
         atlas.add(new ImageLoader("bodyDead"));
         atlas.add(new ImageLoader("guts"));
         resources.add(atlas);
-        resources.add(new FontLoader("fofbb_reg"));
+        resources.add(new FontLoader("fofbb_reg_ttf"));
         resources.add(new Object3dLoader("gun3d_ogex"));
         
     }
@@ -109,7 +109,7 @@ class Test extends State {
         );
         stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
 
-       simulationLayer.filter=new Filter([new ShFilmGrain(Blend.blendDefault())],0.5,.5,0.5,1,false);
+       simulationLayer.filter=new Filter([new ShRgbSplit(Blend.blendDefault()),new ShFilmGrain(Blend.blendDefault())],0.5,.5,0.5,1,false);
 
         GameGlobals.bulletCollisions=bullets=new CollisionGroup();
        // stage.defaultCamera().offsetX=-1280/2;
