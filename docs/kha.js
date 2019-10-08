@@ -5978,8 +5978,6 @@ com_gEngine_display_BasicSprite.prototype = {
 		var frame = this.animationData.frames[this.timeline.currentFrame];
 		var vertexs = frame.vertexs;
 		var uvs = frame.UVs;
-		var drawTo = vertexs.length / 8 | 0;
-		var drawFrom = 0;
 		this.paintInfo.blend = this.blend;
 		this.paintInfo.mipMapFilter = this.mipMapFilter;
 		this.paintInfo.textureFilter = this.textureFilter;
@@ -5991,74 +5989,190 @@ com_gEngine_display_BasicSprite.prototype = {
 				paintMode.render();
 				paintMode.changePainter(painter,paintInfo);
 			}
-			var redMul;
-			var blueMul;
-			var greenMul;
-			var alphaMul;
-			var redAdd;
-			var blueAdd;
-			var greenAdd;
-			var alphaAdd;
 			var buffer = painter.getVertexBuffer();
 			var vertexBufferCounter = painter.getVertexDataCounter();
-			var _g = drawFrom;
-			var _g1 = drawTo;
-			while(_g < _g1) {
-				var i = _g++;
-				redMul = this.mulRed;
-				greenMul = this.mulGreen;
-				blueMul = this.mulBlue;
-				alphaMul = this.alpha;
-				redAdd = this.addRed;
-				greenAdd = this.addGreen;
-				blueAdd = this.addBlue;
-				alphaAdd = this.addAlpha;
-				var _g2 = 0;
-				while(_g2 < 4) {
-					var k = _g2++;
-					vertexX = vertexs[i * 8 + k * 2] - this.pivotX;
-					vertexY = vertexs[i * 8 + k * 2 + 1] - this.pivotY;
-					var x = vertexX;
-					var y = vertexY;
-					var z = 0;
-					if(z == null) {
-						z = 0;
-					}
-					if(y == null) {
-						y = 0;
-					}
-					if(x == null) {
-						x = 0;
-					}
-					var value_x = x;
-					var value_y = y;
-					var value_z = z;
-					var value_w = 1;
-					var pos_x = 0;
-					var pos_y = 0;
-					var pos_z = 0;
-					var pos_w = 1;
-					pos_x = model__00 * value_x + model__10 * value_y + model__20 * value_z + model__30 * value_w;
-					pos_y = model__01 * value_x + model__11 * value_y + model__21 * value_z + model__31 * value_w;
-					pos_z = model__02 * value_x + model__12 * value_y + model__22 * value_z + model__32 * value_w;
-					pos_w = model__03 * value_x + model__13 * value_y + model__23 * value_z + model__33 * value_w;
-					var offsetPos = vertexBufferCounter;
-					buffer[offsetPos++] = pos_x;
-					buffer[offsetPos++] = pos_y;
-					buffer[offsetPos++] = pos_z;
-					buffer[offsetPos++] = uvs[i * 8 + k * 2];
-					buffer[offsetPos++] = uvs[i * 8 + k * 2 + 1];
-					buffer[offsetPos++] = redMul;
-					buffer[offsetPos++] = greenMul;
-					buffer[offsetPos++] = blueMul;
-					buffer[offsetPos++] = alphaMul;
-					buffer[offsetPos++] = redAdd;
-					buffer[offsetPos++] = greenAdd;
-					buffer[offsetPos++] = blueAdd;
-					buffer[offsetPos++] = alphaAdd;
-					vertexBufferCounter += 13;
-				}
+			var redMul = this.mulRed;
+			var greenMul = this.mulGreen;
+			var blueMul = this.mulBlue;
+			var alphaMul = this.alpha;
+			var redAdd = this.addRed;
+			var greenAdd = this.addGreen;
+			var blueAdd = this.addBlue;
+			var alphaAdd = this.addAlpha;
+			var vertexIndex = 0;
+			var uvIndex = 0;
+			vertexX = vertexs[vertexIndex++] - this.pivotX + this.offsetX;
+			vertexY = vertexs[vertexIndex++] - this.pivotY + this.offsetY;
+			var x = vertexX;
+			var y = vertexY;
+			var z = 0;
+			if(z == null) {
+				z = 0;
 			}
+			if(y == null) {
+				y = 0;
+			}
+			if(x == null) {
+				x = 0;
+			}
+			var value_x = x;
+			var value_y = y;
+			var value_z = z;
+			var value_w = 1;
+			var pos_x = 0;
+			var pos_y = 0;
+			var pos_z = 0;
+			var pos_w = 1;
+			pos_x = model__00 * value_x + model__10 * value_y + model__20 * value_z + model__30 * value_w;
+			pos_y = model__01 * value_x + model__11 * value_y + model__21 * value_z + model__31 * value_w;
+			pos_z = model__02 * value_x + model__12 * value_y + model__22 * value_z + model__32 * value_w;
+			pos_w = model__03 * value_x + model__13 * value_y + model__23 * value_z + model__33 * value_w;
+			var u = uvs[uvIndex++];
+			var v = uvs[uvIndex++];
+			var offsetPos = vertexBufferCounter;
+			buffer[offsetPos++] = pos_x;
+			buffer[offsetPos++] = pos_y;
+			buffer[offsetPos++] = pos_z;
+			buffer[offsetPos++] = u;
+			buffer[offsetPos++] = v;
+			buffer[offsetPos++] = redMul;
+			buffer[offsetPos++] = greenMul;
+			buffer[offsetPos++] = blueMul;
+			buffer[offsetPos++] = alphaMul;
+			buffer[offsetPos++] = redAdd;
+			buffer[offsetPos++] = greenAdd;
+			buffer[offsetPos++] = blueAdd;
+			buffer[offsetPos++] = alphaAdd;
+			vertexBufferCounter += 13;
+			vertexX = vertexs[vertexIndex++] - this.pivotX + this.offsetX;
+			vertexY = vertexs[vertexIndex++] - this.pivotY + this.offsetY;
+			var x1 = vertexX;
+			var y1 = vertexY;
+			var z1 = 0;
+			if(z1 == null) {
+				z1 = 0;
+			}
+			if(y1 == null) {
+				y1 = 0;
+			}
+			if(x1 == null) {
+				x1 = 0;
+			}
+			var value_x1 = x1;
+			var value_y1 = y1;
+			var value_z1 = z1;
+			var value_w1 = 1;
+			var pos_x1 = 0;
+			var pos_y1 = 0;
+			var pos_z1 = 0;
+			var pos_w1 = 1;
+			pos_x1 = model__00 * value_x1 + model__10 * value_y1 + model__20 * value_z1 + model__30 * value_w1;
+			pos_y1 = model__01 * value_x1 + model__11 * value_y1 + model__21 * value_z1 + model__31 * value_w1;
+			pos_z1 = model__02 * value_x1 + model__12 * value_y1 + model__22 * value_z1 + model__32 * value_w1;
+			pos_w1 = model__03 * value_x1 + model__13 * value_y1 + model__23 * value_z1 + model__33 * value_w1;
+			var u1 = uvs[uvIndex++];
+			var v1 = uvs[uvIndex++];
+			var offsetPos1 = vertexBufferCounter;
+			buffer[offsetPos1++] = pos_x1;
+			buffer[offsetPos1++] = pos_y1;
+			buffer[offsetPos1++] = pos_z1;
+			buffer[offsetPos1++] = u1;
+			buffer[offsetPos1++] = v1;
+			buffer[offsetPos1++] = redMul;
+			buffer[offsetPos1++] = greenMul;
+			buffer[offsetPos1++] = blueMul;
+			buffer[offsetPos1++] = alphaMul;
+			buffer[offsetPos1++] = redAdd;
+			buffer[offsetPos1++] = greenAdd;
+			buffer[offsetPos1++] = blueAdd;
+			buffer[offsetPos1++] = alphaAdd;
+			vertexBufferCounter += 13;
+			vertexX = vertexs[vertexIndex++] - this.pivotX + this.offsetX;
+			vertexY = vertexs[vertexIndex++] - this.pivotY + this.offsetY;
+			var x2 = vertexX;
+			var y2 = vertexY;
+			var z2 = 0;
+			if(z2 == null) {
+				z2 = 0;
+			}
+			if(y2 == null) {
+				y2 = 0;
+			}
+			if(x2 == null) {
+				x2 = 0;
+			}
+			var value_x2 = x2;
+			var value_y2 = y2;
+			var value_z2 = z2;
+			var value_w2 = 1;
+			var pos_x2 = 0;
+			var pos_y2 = 0;
+			var pos_z2 = 0;
+			var pos_w2 = 1;
+			pos_x2 = model__00 * value_x2 + model__10 * value_y2 + model__20 * value_z2 + model__30 * value_w2;
+			pos_y2 = model__01 * value_x2 + model__11 * value_y2 + model__21 * value_z2 + model__31 * value_w2;
+			pos_z2 = model__02 * value_x2 + model__12 * value_y2 + model__22 * value_z2 + model__32 * value_w2;
+			pos_w2 = model__03 * value_x2 + model__13 * value_y2 + model__23 * value_z2 + model__33 * value_w2;
+			var u2 = uvs[uvIndex++];
+			var v2 = uvs[uvIndex++];
+			var offsetPos2 = vertexBufferCounter;
+			buffer[offsetPos2++] = pos_x2;
+			buffer[offsetPos2++] = pos_y2;
+			buffer[offsetPos2++] = pos_z2;
+			buffer[offsetPos2++] = u2;
+			buffer[offsetPos2++] = v2;
+			buffer[offsetPos2++] = redMul;
+			buffer[offsetPos2++] = greenMul;
+			buffer[offsetPos2++] = blueMul;
+			buffer[offsetPos2++] = alphaMul;
+			buffer[offsetPos2++] = redAdd;
+			buffer[offsetPos2++] = greenAdd;
+			buffer[offsetPos2++] = blueAdd;
+			buffer[offsetPos2++] = alphaAdd;
+			vertexBufferCounter += 13;
+			vertexX = vertexs[vertexIndex++] - this.pivotX + this.offsetX;
+			vertexY = vertexs[vertexIndex++] - this.pivotY + this.offsetY;
+			var x3 = vertexX;
+			var y3 = vertexY;
+			var z3 = 0;
+			if(z3 == null) {
+				z3 = 0;
+			}
+			if(y3 == null) {
+				y3 = 0;
+			}
+			if(x3 == null) {
+				x3 = 0;
+			}
+			var value_x3 = x3;
+			var value_y3 = y3;
+			var value_z3 = z3;
+			var value_w3 = 1;
+			var pos_x3 = 0;
+			var pos_y3 = 0;
+			var pos_z3 = 0;
+			var pos_w3 = 1;
+			pos_x3 = model__00 * value_x3 + model__10 * value_y3 + model__20 * value_z3 + model__30 * value_w3;
+			pos_y3 = model__01 * value_x3 + model__11 * value_y3 + model__21 * value_z3 + model__31 * value_w3;
+			pos_z3 = model__02 * value_x3 + model__12 * value_y3 + model__22 * value_z3 + model__32 * value_w3;
+			pos_w3 = model__03 * value_x3 + model__13 * value_y3 + model__23 * value_z3 + model__33 * value_w3;
+			var u3 = uvs[uvIndex++];
+			var v3 = uvs[uvIndex++];
+			var offsetPos3 = vertexBufferCounter;
+			buffer[offsetPos3++] = pos_x3;
+			buffer[offsetPos3++] = pos_y3;
+			buffer[offsetPos3++] = pos_z3;
+			buffer[offsetPos3++] = u3;
+			buffer[offsetPos3++] = v3;
+			buffer[offsetPos3++] = redMul;
+			buffer[offsetPos3++] = greenMul;
+			buffer[offsetPos3++] = blueMul;
+			buffer[offsetPos3++] = alphaMul;
+			buffer[offsetPos3++] = redAdd;
+			buffer[offsetPos3++] = greenAdd;
+			buffer[offsetPos3++] = blueAdd;
+			buffer[offsetPos3++] = alphaAdd;
+			vertexBufferCounter += 13;
 			painter.setVertexDataCounter(vertexBufferCounter);
 		} else if(this.alpha != 1) {
 			var painter1 = com_gEngine_display_BasicSprite.alphaPainters[this.blend];
@@ -6069,42 +6183,42 @@ com_gEngine_display_BasicSprite.prototype = {
 			}
 			var buffer1 = painter1.getVertexBuffer();
 			var vertexBufferCounter1 = painter1.getVertexDataCounter();
-			var vertexIndex = 0;
-			var uvIndex = 0;
-			var _g3 = 0;
-			while(_g3 < 4) {
-				var i1 = _g3++;
-				vertexX = vertexs[vertexIndex++] - this.pivotX;
-				vertexY = vertexs[vertexIndex++] - this.pivotY;
-				var x1 = vertexX;
-				var y1 = vertexY;
-				var z1 = 0;
-				if(z1 == null) {
-					z1 = 0;
+			var vertexIndex1 = 0;
+			var uvIndex1 = 0;
+			var _g = 0;
+			while(_g < 4) {
+				var i = _g++;
+				vertexX = vertexs[vertexIndex1++] - this.pivotX + this.offsetX;
+				vertexY = vertexs[vertexIndex1++] - this.pivotY + this.offsetY;
+				var x4 = vertexX;
+				var y4 = vertexY;
+				var z4 = 0;
+				if(z4 == null) {
+					z4 = 0;
 				}
-				if(y1 == null) {
-					y1 = 0;
+				if(y4 == null) {
+					y4 = 0;
 				}
-				if(x1 == null) {
-					x1 = 0;
+				if(x4 == null) {
+					x4 = 0;
 				}
-				var value_x1 = x1;
-				var value_y1 = y1;
-				var value_z1 = z1;
-				var value_w1 = 1;
-				var pos_x1 = 0;
-				var pos_y1 = 0;
-				var pos_z1 = 0;
-				var pos_w1 = 1;
-				pos_x1 = model__00 * value_x1 + model__10 * value_y1 + model__20 * value_z1 + model__30 * value_w1;
-				pos_y1 = model__01 * value_x1 + model__11 * value_y1 + model__21 * value_z1 + model__31 * value_w1;
-				pos_z1 = model__02 * value_x1 + model__12 * value_y1 + model__22 * value_z1 + model__32 * value_w1;
-				pos_w1 = model__03 * value_x1 + model__13 * value_y1 + model__23 * value_z1 + model__33 * value_w1;
-				buffer1[vertexBufferCounter1++] = pos_x1;
-				buffer1[vertexBufferCounter1++] = pos_y1;
-				buffer1[vertexBufferCounter1++] = pos_z1;
-				buffer1[vertexBufferCounter1++] = uvs[uvIndex++];
-				buffer1[vertexBufferCounter1++] = uvs[uvIndex++];
+				var value_x4 = x4;
+				var value_y4 = y4;
+				var value_z4 = z4;
+				var value_w4 = 1;
+				var pos_x4 = 0;
+				var pos_y4 = 0;
+				var pos_z4 = 0;
+				var pos_w4 = 1;
+				pos_x4 = model__00 * value_x4 + model__10 * value_y4 + model__20 * value_z4 + model__30 * value_w4;
+				pos_y4 = model__01 * value_x4 + model__11 * value_y4 + model__21 * value_z4 + model__31 * value_w4;
+				pos_z4 = model__02 * value_x4 + model__12 * value_y4 + model__22 * value_z4 + model__32 * value_w4;
+				pos_w4 = model__03 * value_x4 + model__13 * value_y4 + model__23 * value_z4 + model__33 * value_w4;
+				buffer1[vertexBufferCounter1++] = pos_x4;
+				buffer1[vertexBufferCounter1++] = pos_y4;
+				buffer1[vertexBufferCounter1++] = pos_z4;
+				buffer1[vertexBufferCounter1++] = uvs[uvIndex1++];
+				buffer1[vertexBufferCounter1++] = uvs[uvIndex1++];
 				buffer1[vertexBufferCounter1++] = this.alpha;
 			}
 			painter1.setVertexDataCounter(vertexBufferCounter1);
@@ -6117,49 +6231,42 @@ com_gEngine_display_BasicSprite.prototype = {
 			}
 			var buffer2 = painter2.getVertexBuffer();
 			var vertexBufferCounter2 = painter2.getVertexDataCounter();
-			var vertexIndex1;
-			var uvIndex1;
-			var _g4 = drawFrom;
-			var _g11 = drawTo;
-			while(_g4 < _g11) {
-				var i2 = _g4++;
-				vertexIndex1 = i2 * 8;
-				uvIndex1 = vertexIndex1;
-				var _g5 = 0;
-				while(_g5 < 4) {
-					var i3 = _g5++;
-					vertexX = vertexs[vertexIndex1++] - this.pivotX + this.offsetX;
-					vertexY = vertexs[vertexIndex1++] - this.pivotY + this.offsetY;
-					var x2 = vertexX;
-					var y2 = vertexY;
-					var z2 = 0;
-					if(z2 == null) {
-						z2 = 0;
-					}
-					if(y2 == null) {
-						y2 = 0;
-					}
-					if(x2 == null) {
-						x2 = 0;
-					}
-					var value_x2 = x2;
-					var value_y2 = y2;
-					var value_z2 = z2;
-					var value_w2 = 1;
-					var pos_x2 = 0;
-					var pos_y2 = 0;
-					var pos_z2 = 0;
-					var pos_w2 = 1;
-					pos_x2 = model__00 * value_x2 + model__10 * value_y2 + model__20 * value_z2 + model__30 * value_w2;
-					pos_y2 = model__01 * value_x2 + model__11 * value_y2 + model__21 * value_z2 + model__31 * value_w2;
-					pos_z2 = model__02 * value_x2 + model__12 * value_y2 + model__22 * value_z2 + model__32 * value_w2;
-					pos_w2 = model__03 * value_x2 + model__13 * value_y2 + model__23 * value_z2 + model__33 * value_w2;
-					buffer2[vertexBufferCounter2++] = pos_x2;
-					buffer2[vertexBufferCounter2++] = pos_y2;
-					buffer2[vertexBufferCounter2++] = pos_z2;
-					buffer2[vertexBufferCounter2++] = uvs[uvIndex1++];
-					buffer2[vertexBufferCounter2++] = uvs[uvIndex1++];
+			var vertexIndex2 = 0;
+			var uvIndex2 = 0;
+			var _g1 = 0;
+			while(_g1 < 4) {
+				var i1 = _g1++;
+				vertexX = vertexs[vertexIndex2++] - this.pivotX + this.offsetX;
+				vertexY = vertexs[vertexIndex2++] - this.pivotY + this.offsetY;
+				var x5 = vertexX;
+				var y5 = vertexY;
+				var z5 = 0;
+				if(z5 == null) {
+					z5 = 0;
 				}
+				if(y5 == null) {
+					y5 = 0;
+				}
+				if(x5 == null) {
+					x5 = 0;
+				}
+				var value_x5 = x5;
+				var value_y5 = y5;
+				var value_z5 = z5;
+				var value_w5 = 1;
+				var pos_x5 = 0;
+				var pos_y5 = 0;
+				var pos_z5 = 0;
+				var pos_w5 = 1;
+				pos_x5 = model__00 * value_x5 + model__10 * value_y5 + model__20 * value_z5 + model__30 * value_w5;
+				pos_y5 = model__01 * value_x5 + model__11 * value_y5 + model__21 * value_z5 + model__31 * value_w5;
+				pos_z5 = model__02 * value_x5 + model__12 * value_y5 + model__22 * value_z5 + model__32 * value_w5;
+				pos_w5 = model__03 * value_x5 + model__13 * value_y5 + model__23 * value_z5 + model__33 * value_w5;
+				buffer2[vertexBufferCounter2++] = pos_x5;
+				buffer2[vertexBufferCounter2++] = pos_y5;
+				buffer2[vertexBufferCounter2++] = pos_z5;
+				buffer2[vertexBufferCounter2++] = uvs[uvIndex2++];
+				buffer2[vertexBufferCounter2++] = uvs[uvIndex2++];
 			}
 			painter2.setVertexDataCounter(vertexBufferCounter2);
 		}
@@ -13275,8 +13382,13 @@ var fx_Drop = function(startY,floorY,minX,maxX,speed) {
 	this.display = new com_gEngine_display_BasicSprite("drop");
 	this.display.scaleX = this.display.scaleY = 4;
 	this.display.timeline.playAnimation("fall",false);
-	this.display.offsetY = -8;
+	var tmp = kha_math_Random.getFloatIn(15,30);
+	this.display.timeline.frameRate = 1 / tmp;
+	this.display.offsetY = -9;
 	this.display.scaleX = this.display.scaleY = kha_math_Random.getFloatIn(3.9,4.5);
+	if(Math.random() > 0.5) {
+		this.display.scaleX = -this.display.scaleX;
+	}
 	this.reset();
 	this.display.y = kha_math_Random.getFloatIn(startY,floorY);
 	this.display.set_smooth(false);
@@ -16291,10 +16403,13 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Jackolantern","Untitled_1","bullets","drop","intro","ivanka","ivankaArm","ivankaFace","light","lightFocal","neutron","pig","policeCar","proton","pumpkinBlood","rainDrop","skins","tiles","weapons"];
+	this.names = ["Jackolantern","Untitled_1","bodyDead","bullets","drop","faceDead","guts","intro","ivanka","ivankaArm","ivankaFace","light","lightFocal","neutron","pig","policeCar","proton","pumpkinBlood","rainDrop","skins","tiles","tree","weapons"];
 	this.weaponsDescription = { name : "weapons", original_height : 6, original_width : 30, files : ["weapons.png"], type : "image"};
 	this.weaponsName = "weapons";
 	this.weapons = null;
+	this.treeDescription = { name : "tree", original_height : 122, original_width : 68, files : ["tree.png"], type : "image"};
+	this.treeName = "tree";
+	this.tree = null;
 	this.tilesDescription = { name : "tiles", original_height : 100, original_width : 100, files : ["tiles.png"], type : "image"};
 	this.tilesName = "tiles";
 	this.tiles = null;
@@ -16337,12 +16452,21 @@ var kha__$Assets_ImageList = function() {
 	this.introDescription = { name : "intro", original_height : 180, original_width : 320, files : ["intro.png"], type : "image"};
 	this.introName = "intro";
 	this.intro = null;
+	this.gutsDescription = { name : "guts", original_height : 9, original_width : 4, files : ["guts.png"], type : "image"};
+	this.gutsName = "guts";
+	this.guts = null;
+	this.faceDeadDescription = { name : "faceDead", original_height : 11, original_width : 11, files : ["faceDead.png"], type : "image"};
+	this.faceDeadName = "faceDead";
+	this.faceDead = null;
 	this.dropDescription = { name : "drop", original_height : 8, original_width : 30, files : ["drop.png"], type : "image"};
 	this.dropName = "drop";
 	this.drop = null;
 	this.bulletsDescription = { name : "bullets", original_height : 10, original_width : 5, files : ["bullets.png"], type : "image"};
 	this.bulletsName = "bullets";
 	this.bullets = null;
+	this.bodyDeadDescription = { name : "bodyDead", original_height : 10, original_width : 8, files : ["bodyDead.png"], type : "image"};
+	this.bodyDeadName = "bodyDead";
+	this.bodyDead = null;
 	this.Untitled_1Description = { name : "Untitled_1", original_height : 512, original_width : 512, files : ["Untitled-1.png"], type : "image"};
 	this.Untitled_1Name = "Untitled_1";
 	this.Untitled_1 = null;
@@ -16380,6 +16504,18 @@ kha__$Assets_ImageList.prototype = {
 		this.Untitled_1.unload();
 		this.Untitled_1 = null;
 	}
+	,bodyDead: null
+	,bodyDeadName: null
+	,bodyDeadDescription: null
+	,bodyDeadLoad: function(done,failure) {
+		kha_Assets.loadImage("bodyDead",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "bodyDeadLoad"});
+	}
+	,bodyDeadUnload: function() {
+		this.bodyDead.unload();
+		this.bodyDead = null;
+	}
 	,bullets: null
 	,bulletsName: null
 	,bulletsDescription: null
@@ -16403,6 +16539,30 @@ kha__$Assets_ImageList.prototype = {
 	,dropUnload: function() {
 		this.drop.unload();
 		this.drop = null;
+	}
+	,faceDead: null
+	,faceDeadName: null
+	,faceDeadDescription: null
+	,faceDeadLoad: function(done,failure) {
+		kha_Assets.loadImage("faceDead",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "faceDeadLoad"});
+	}
+	,faceDeadUnload: function() {
+		this.faceDead.unload();
+		this.faceDead = null;
+	}
+	,guts: null
+	,gutsName: null
+	,gutsDescription: null
+	,gutsLoad: function(done,failure) {
+		kha_Assets.loadImage("guts",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "gutsLoad"});
+	}
+	,gutsUnload: function() {
+		this.guts.unload();
+		this.guts = null;
 	}
 	,intro: null
 	,introName: null
@@ -16571,6 +16731,18 @@ kha__$Assets_ImageList.prototype = {
 	,tilesUnload: function() {
 		this.tiles.unload();
 		this.tiles = null;
+	}
+	,tree: null
+	,treeName: null
+	,treeDescription: null
+	,treeLoad: function(done,failure) {
+		kha_Assets.loadImage("tree",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "treeLoad"});
+	}
+	,treeUnload: function() {
+		this.tree.unload();
+		this.tree = null;
 	}
 	,weapons: null
 	,weaponsName: null
@@ -38503,11 +38675,16 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		atlas.add(new com_loading_basicResources_ImageLoader("lightFocal"));
 		atlas.add(new com_loading_basicResources_ImageLoader("policeCar"));
 		atlas.add(new com_loading_basicResources_ImageLoader("light"));
+		atlas.add(new com_loading_basicResources_ImageLoader("tree"));
+		atlas.add(new com_loading_basicResources_ImageLoader("faceDead"));
+		atlas.add(new com_loading_basicResources_ImageLoader("bodyDead"));
+		atlas.add(new com_loading_basicResources_ImageLoader("guts"));
 		resources.add(atlas);
 		resources.add(new com_loading_basicResources_FontLoader("fofbb_reg_ttf"));
 		resources.add(new com_g3d_Object3dLoader("pumpkin_ogex"));
 	}
 	,init: function() {
+		var _gthis = this;
 		this.stageColor(0.5,.5,0.5);
 		this.simulationLayer = new com_gEngine_display_Layer();
 		var backgroundLayer = new com_gEngine_display_Layer();
@@ -38523,10 +38700,9 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 			if(!tileLayer.properties.exists("noCollision")) {
 				layerTilemap.createCollisions(tileLayer);
 			}
-			layerTilemap.createDisplay(tileLayer);
+			_gthis.simulationLayer.addChild(layerTilemap.createDisplay(tileLayer));
 		},$bind(this,this.parseMapObjects));
 		this.stage.cameras[0].limits(0,0,this.worldMap.widthIntTiles * 40,this.worldMap.heightInTiles * 40);
-		backgroundLayer.addChild(this.worldMap.display);
 		gameObjects_GameGlobals.bulletCollisions = this.bullets = new com_collision_platformer_CollisionGroup();
 		gameObjects_GameGlobals.blood = new fx_Blood(this,this.simulationLayer);
 		var ivankaFace = new com_gEngine_display_BasicSprite("ivankaFace");
@@ -38609,6 +38785,10 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 				if(object.properties.getString("blend") == "add") {
 					display.blend = 2;
 				}
+			}
+			if(object.properties.exists("multiply")) {
+				var color = kha__$Color_Color_$Impl_$.fromString(object.properties.getString("multiply"));
+				display.colorMultiplication(((color & 16711680) >>> 16) * 0.00392156862745098,((color & 65280) >>> 8) * 0.00392156862745098,(color & 255) * 0.00392156862745098,(color >>> 24) * 0.00392156862745098);
 			}
 			display.set_smooth(!(object.properties.exists("smooth") && object.properties.getString("smooth") == "false"));
 		}
