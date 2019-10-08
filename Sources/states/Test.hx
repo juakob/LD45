@@ -206,6 +206,7 @@ class Test extends State {
         CollisionEngine.collide(worldMap.collision,ivanka.collision);
         CollisionEngine.collide(worldMap.collision,enemiesCollisions);
         enemiesCollisions.overlap(bullets,enemyVsBullet);
+        enemiesCollisions.overlap(ivanka.collision,enemyVsIvanka);
         if(ivanka.interact) ivanka.collision.overlap(doors,ivankaVsDoors);
          bullets.collide(worldMap.collision,bulletsVsMap);
         stage.defaultCamera().setTarget(ivanka.display.x,ivanka.display.y);
@@ -220,6 +221,9 @@ class Test extends State {
         (cast b.userData).die();
         ++pumpkinKill;
         pumpkinKillText.text=pumpkinKill+"";
+    }
+    function enemyVsIvanka(a:ICollider,b:ICollider) {
+        changeState(new Intro());
     }
     function ivankaVsDoors(a:ICollider,b:ICollider) {
        changeState(new Test(a.userData,room));

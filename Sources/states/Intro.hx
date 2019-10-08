@@ -22,7 +22,7 @@ class Intro extends State {
     }
     override function update(dt:Float) {
         super.update(dt);
-        if(Input.i.isKeyCodePressed(KeyCode.Space)){
+        if(Input.i.isKeyCodePressed(KeyCode.Space)||Input.i.isMousePressed()){
             changeState(new Test("room1")); 	
         }
     }

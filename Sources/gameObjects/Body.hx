@@ -63,6 +63,7 @@ class Body extends Entity {
         collision.userData=this;
 
         collision.accelerationY=GameGlobals.Gravity;
+        collision.maxVelocityY=1000;
         
         collision.dragX=0.9;
     }
