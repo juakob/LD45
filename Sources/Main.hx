@@ -45,7 +45,7 @@ class Main {
 		var frameBufferOptions=new FramebufferOptions(60,true,32,16,8,0);
 		System.start(new SystemOptions("coalTest",1280,720,windowsOptions,frameBufferOptions), function (w) {
 			Random.init(0);
-			new Simulation(BasicLoader,1280,720,1,0);
+			new Simulation(Test,1280,720,1,0);
 		});
 	}
 }
