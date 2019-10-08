@@ -271,13 +271,55 @@
 </data>
  </layer>
  <objectgroup id="6" name="info">
+  <object id="95" type="asset" gid="71" x="436.25" y="73.75" width="4" height="9">
+   <properties>
+    <property name="asset" value="guts"/>
+    <property name="smooth" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="96" type="asset" gid="71" x="436.75" y="66.25" width="4" height="9">
+   <properties>
+    <property name="asset" value="guts"/>
+    <property name="smooth" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="97" type="asset" gid="71" x="436.75" y="58" width="4" height="9">
+   <properties>
+    <property name="asset" value="guts"/>
+    <property name="smooth" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="99" type="asset" gid="71" x="434.585" y="47.1954" width="4" height="9" rotation="-270.173">
+   <properties>
+    <property name="asset" value="guts"/>
+    <property name="smooth" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="100" type="asset" gid="69" x="433.682" y="89.4461" width="8" height="10">
+   <properties>
+    <property name="asset" value="bodyDead"/>
+    <property name="smooth" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="102" type="asset" gid="71" x="440.614" y="76.3578" width="4" height="9" rotation="-539.778">
+   <properties>
+    <property name="asset" value="guts"/>
+    <property name="smooth" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="103" type="asset" gid="70" x="433.5" y="81.8636" width="11" height="11" rotation="-21.0375">
+   <properties>
+    <property name="asset" value="faceDead"/>
+    <property name="smooth" type="bool" value="false"/>
+   </properties>
+  </object>
   <object id="24" type="door" x="500" y="145.333">
    <properties>
     <property name="goTo" value="room2"/>
    </properties>
   </object>
   <object id="25" type="player" x="90.6665" y="138.5" width="22.0003" height="19.6667"/>
-  <object id="27" type="rain" x="83" y="-19.6667" width="335.667" height="180.333"/>
+  <object id="27" type="rain" x="83" y="-19.6667" width="385.03" height="180.333"/>
   <object id="29" type="rain" x="417.167" y="-19.8335" width="102.667" height="69.7503"/>
   <object id="34" type="asset" gid="67" x="3" y="160.667" width="82" height="31">
    <properties>
@@ -324,48 +366,6 @@
     <property name="asset" value="light"/>
     <property name="blend" value="add"/>
     <property name="multiply" type="color" value="#ffff0000"/>
-   </properties>
-  </object>
-  <object id="95" type="asset" gid="71" x="436.25" y="73.75" width="4" height="9">
-   <properties>
-    <property name="asset" value="guts"/>
-    <property name="smooth" type="bool" value="false"/>
-   </properties>
-  </object>
-  <object id="96" type="asset" gid="71" x="436.75" y="66.25" width="4" height="9">
-   <properties>
-    <property name="asset" value="guts"/>
-    <property name="smooth" type="bool" value="false"/>
-   </properties>
-  </object>
-  <object id="97" type="asset" gid="71" x="436.75" y="58" width="4" height="9">
-   <properties>
-    <property name="asset" value="guts"/>
-    <property name="smooth" type="bool" value="false"/>
-   </properties>
-  </object>
-  <object id="99" type="asset" gid="71" x="434.585" y="47.1954" width="4" height="9" rotation="-270.173">
-   <properties>
-    <property name="asset" value="guts"/>
-    <property name="smooth" type="bool" value="false"/>
-   </properties>
-  </object>
-  <object id="100" type="asset" gid="69" x="433.682" y="89.4461" width="8" height="10">
-   <properties>
-    <property name="asset" value="bodyDead"/>
-    <property name="smooth" type="bool" value="false"/>
-   </properties>
-  </object>
-  <object id="102" type="asset" gid="71" x="440.614" y="76.3578" width="4" height="9" rotation="-539.778">
-   <properties>
-    <property name="asset" value="guts"/>
-    <property name="smooth" type="bool" value="false"/>
-   </properties>
-  </object>
-  <object id="103" type="asset" gid="70" x="433.5" y="81.8636" width="11" height="11" rotation="-21.0375">
-   <properties>
-    <property name="asset" value="faceDead"/>
-    <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
  </objectgroup>

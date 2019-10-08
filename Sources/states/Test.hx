@@ -109,7 +109,7 @@ class Test extends State {
         );
         stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
 
-      // simulationLayer.filter=new Filter([new ShRetro(Blend.blendMultipass()),new ShRgbSplit(Blend.blendDefault())],0.5,.5,0.5,1,false);
+       simulationLayer.filter=new Filter([new ShRgbSplit(Blend.blendMultipass()),new ShFilmGrain(Blend.blendDefault())],0.5,.5,0.5,1,false);
 
         GameGlobals.bulletCollisions=bullets=new CollisionGroup();
        // stage.defaultCamera().offsetX=-1280/2;
