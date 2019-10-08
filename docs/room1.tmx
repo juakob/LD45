@@ -87,7 +87,7 @@
    </properties>
   </object>
   <object id="25" type="player" x="23.6665" y="145.833" width="22.0003" height="19.6667"/>
-  <object id="27" type="rain" x="0" y="0" width="449.667" height="169.667"/>
-  <object id="29" type="rain" x="448.833" y="-0.166833" width="71.0003" height="60.667"/>
+  <object id="27" type="rain" x="0" y="-10.6667" width="449.333" height="180.333"/>
+  <object id="29" type="rain" x="449.833" y="-10.8335" width="70.0003" height="71.0003"/>
  </objectgroup>
 </map>

@@ -10664,6 +10664,18 @@ com_soundLib_SoundManager.unMuteMusic = function() {
 com_soundLib_SoundManager.reset = function() {
 	com_soundLib_SoundManager.map = new haxe_ds_StringMap();
 };
+var format_png_Color = $hxEnums["format.png.Color"] = { __ename__ : true, __constructs__ : ["ColGrey","ColTrue","ColIndexed"]
+	,ColGrey: ($_=function(alpha) { return {_hx_index:0,alpha:alpha,__enum__:"format.png.Color",toString:$estr}; },$_.__params__ = ["alpha"],$_)
+	,ColTrue: ($_=function(alpha) { return {_hx_index:1,alpha:alpha,__enum__:"format.png.Color",toString:$estr}; },$_.__params__ = ["alpha"],$_)
+	,ColIndexed: {_hx_index:2,__enum__:"format.png.Color",toString:$estr}
+};
+var format_png_Chunk = $hxEnums["format.png.Chunk"] = { __ename__ : true, __constructs__ : ["CEnd","CHeader","CData","CPalette","CUnknown"]
+	,CEnd: {_hx_index:0,__enum__:"format.png.Chunk",toString:$estr}
+	,CHeader: ($_=function(h) { return {_hx_index:1,h:h,__enum__:"format.png.Chunk",toString:$estr}; },$_.__params__ = ["h"],$_)
+	,CData: ($_=function(b) { return {_hx_index:2,b:b,__enum__:"format.png.Chunk",toString:$estr}; },$_.__params__ = ["b"],$_)
+	,CPalette: ($_=function(b) { return {_hx_index:3,b:b,__enum__:"format.png.Chunk",toString:$estr}; },$_.__params__ = ["b"],$_)
+	,CUnknown: ($_=function(id,data) { return {_hx_index:4,id:id,data:data,__enum__:"format.png.Chunk",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+};
 var format_tmx_TmxOrientation = $hxEnums["format.tmx.TmxOrientation"] = { __ename__ : true, __constructs__ : ["Orthogonal","Isometric","Staggered","Hexagonal","Unknown"]
 	,Orthogonal: {_hx_index:0,__enum__:"format.tmx.TmxOrientation",toString:$estr}
 	,Isometric: {_hx_index:1,__enum__:"format.tmx.TmxOrientation",toString:$estr}
@@ -13043,6 +13055,52 @@ fx_Blood.prototype = {
 	}
 	,__class__: fx_Blood
 };
+var fx_Drop = function(startY,floorY,minX,maxX,speed) {
+	com_framework_utils_Entity.call(this);
+	this.startY = startY;
+	this.floorY = floorY;
+	this.minX = minX;
+	this.maxX = maxX;
+	this.speed = speed;
+	this.display = new com_gEngine_display_BasicSprite("drop");
+	this.display.scaleX = this.display.scaleY = 4;
+	this.display.timeline.playAnimation("fall",false);
+	this.display.offsetY = -8;
+	this.display.scaleX = this.display.scaleY = kha_math_Random.getFloatIn(3.9,4.5);
+	this.reset();
+	this.display.y = kha_math_Random.getFloatIn(startY,floorY);
+	this.display.set_smooth(false);
+};
+$hxClasses["fx.Drop"] = fx_Drop;
+fx_Drop.__name__ = "fx.Drop";
+fx_Drop.__super__ = com_framework_utils_Entity;
+fx_Drop.prototype = $extend(com_framework_utils_Entity.prototype,{
+	display: null
+	,speed: null
+	,dropHeight: null
+	,startY: null
+	,floorY: null
+	,minX: null
+	,maxX: null
+	,update: function(dt) {
+		this.display.y += this.speed * dt;
+		if(this.display.y > this.floorY) {
+			this.display.y = this.floorY;
+			if(!this.display.timeline.playing) {
+				this.reset();
+			} else {
+				this.display.timeline.playAnimation("fall",false);
+			}
+		}
+		com_framework_utils_Entity.prototype.update.call(this,dt);
+	}
+	,reset: function() {
+		this.display.y = this.startY;
+		this.display.x = kha_math_Random.getFloatIn(this.minX,this.maxX);
+		this.display.timeline.playAnimation("drop");
+	}
+	,__class__: fx_Drop
+});
 var gameObjects_Body = function() {
 	this.maxSpeed = 400;
 	com_framework_utils_Entity.call(this);
@@ -16022,7 +16080,7 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Jackolantern","Untitled_1","bullets","intro","ivanka","ivankaArm","ivankaFace","neutron","pig","proton","pumpkinBlood","skins","tiles","weapons"];
+	this.names = ["Jackolantern","Untitled_1","bullets","drop","intro","ivanka","ivankaArm","ivankaFace","neutron","pig","proton","pumpkinBlood","rainDrop","skins","tiles","weapons"];
 	this.weaponsDescription = { name : "weapons", original_height : 6, original_width : 30, files : ["weapons.png"], type : "image"};
 	this.weaponsName = "weapons";
 	this.weapons = null;
@@ -16032,6 +16090,9 @@ var kha__$Assets_ImageList = function() {
 	this.skinsDescription = { name : "skins", original_height : 47, original_width : 16, files : ["skins.png"], type : "image"};
 	this.skinsName = "skins";
 	this.skins = null;
+	this.rainDropDescription = { name : "rainDrop", original_height : 9, original_width : 3, files : ["rainDrop.png"], type : "image"};
+	this.rainDropName = "rainDrop";
+	this.rainDrop = null;
 	this.pumpkinBloodDescription = { name : "pumpkinBlood", original_height : 11, original_width : 39, files : ["pumpkinBlood.png"], type : "image"};
 	this.pumpkinBloodName = "pumpkinBlood";
 	this.pumpkinBlood = null;
@@ -16056,6 +16117,9 @@ var kha__$Assets_ImageList = function() {
 	this.introDescription = { name : "intro", original_height : 180, original_width : 320, files : ["intro.png"], type : "image"};
 	this.introName = "intro";
 	this.intro = null;
+	this.dropDescription = { name : "drop", original_height : 8, original_width : 30, files : ["drop.png"], type : "image"};
+	this.dropName = "drop";
+	this.drop = null;
 	this.bulletsDescription = { name : "bullets", original_height : 10, original_width : 5, files : ["bullets.png"], type : "image"};
 	this.bulletsName = "bullets";
 	this.bullets = null;
@@ -16107,6 +16171,18 @@ kha__$Assets_ImageList.prototype = {
 	,bulletsUnload: function() {
 		this.bullets.unload();
 		this.bullets = null;
+	}
+	,drop: null
+	,dropName: null
+	,dropDescription: null
+	,dropLoad: function(done,failure) {
+		kha_Assets.loadImage("drop",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "dropLoad"});
+	}
+	,dropUnload: function() {
+		this.drop.unload();
+		this.drop = null;
 	}
 	,intro: null
 	,introName: null
@@ -16204,6 +16280,18 @@ kha__$Assets_ImageList.prototype = {
 		this.pumpkinBlood.unload();
 		this.pumpkinBlood = null;
 	}
+	,rainDrop: null
+	,rainDropName: null
+	,rainDropDescription: null
+	,rainDropLoad: function(done,failure) {
+		kha_Assets.loadImage("rainDrop",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "rainDropLoad"});
+	}
+	,rainDropUnload: function() {
+		this.rainDrop.unload();
+		this.rainDrop = null;
+	}
 	,skins: null
 	,skinsName: null
 	,skinsDescription: null
@@ -16256,7 +16344,7 @@ kha__$Assets_SoundList.prototype = {
 	,__class__: kha__$Assets_SoundList
 };
 var kha__$Assets_BlobList = function() {
-	this.names = ["Untitled_1_xml","bullets_xml","ivanka_xml","pig_xml","pumpkinBlood_xml","pumpkin_ogex","room1_tmx","room2_tmx","room3_tmx","room4_tmx","skins_xml","tiles_xml","weapons_xml"];
+	this.names = ["Untitled_1_xml","bullets_xml","drop_xml","ivanka_xml","pig_xml","pumpkinBlood_xml","pumpkin_ogex","room1_tmx","room2_tmx","room3_tmx","room4_tmx","skins_xml","tiles_xml","weapons_xml"];
 	this.weapons_xmlDescription = { name : "weapons_xml", files : ["weapons.xml"], type : "blob"};
 	this.weapons_xmlName = "weapons_xml";
 	this.weapons_xml = null;
@@ -16290,6 +16378,9 @@ var kha__$Assets_BlobList = function() {
 	this.ivanka_xmlDescription = { name : "ivanka_xml", files : ["ivanka.xml"], type : "blob"};
 	this.ivanka_xmlName = "ivanka_xml";
 	this.ivanka_xml = null;
+	this.drop_xmlDescription = { name : "drop_xml", files : ["drop.xml"], type : "blob"};
+	this.drop_xmlName = "drop_xml";
+	this.drop_xml = null;
 	this.bullets_xmlDescription = { name : "bullets_xml", files : ["bullets.xml"], type : "blob"};
 	this.bullets_xmlName = "bullets_xml";
 	this.bullets_xml = null;
@@ -16326,6 +16417,18 @@ kha__$Assets_BlobList.prototype = {
 	,bullets_xmlUnload: function() {
 		this.bullets_xml.unload();
 		this.bullets_xml = null;
+	}
+	,drop_xml: null
+	,drop_xmlName: null
+	,drop_xmlDescription: null
+	,drop_xmlLoad: function(done,failure) {
+		kha_Assets.loadBlob("drop_xml",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "drop_xmlLoad"});
+	}
+	,drop_xmlUnload: function() {
+		this.drop_xml.unload();
+		this.drop_xml = null;
 	}
 	,ivanka_xml: null
 	,ivanka_xmlName: null
@@ -38135,6 +38238,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		var atlas = new com_loading_basicResources_JoinAtlas(2048,2048);
 		atlas.add(new com_loading_basicResources_TilesheetLoader("tiles",10,10,1));
 		atlas.add(new com_loading_basicResources_SparrowLoader("skins","skins_xml"));
+		atlas.add(new com_loading_basicResources_SparrowLoader("drop","drop_xml"));
 		atlas.add(new com_loading_basicResources_SparrowLoader("weapons","weapons_xml"));
 		atlas.add(new com_loading_basicResources_SparrowLoader("bullets","bullets_xml"));
 		atlas.add(new com_loading_basicResources_SparrowLoader("pumpkinBlood","pumpkinBlood_xml"));
@@ -38222,6 +38326,16 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 					this.ivanka.collision.x = object.x * 4;
 					this.ivanka.collision.y = object.y * 4;
 				}
+			}
+		} else if(object.type == "rain") {
+			var drops = object.width * object.height * 4 / 1000 | 0;
+			var _g2 = 0;
+			var _g11 = drops;
+			while(_g2 < _g11) {
+				var i1 = _g2++;
+				var drop = new fx_Drop(object.y * 4,(object.y + object.height) * 4,object.x * 4,(object.x + object.width) * 4,800 + Math.random() * 200);
+				this.simulationLayer.addChild(drop.display);
+				this.addChild(drop);
 			}
 		}
 	}
