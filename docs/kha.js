@@ -8228,6 +8228,8 @@ var com_gEngine_painters_Painter = function(autoDestroy,blend,depthWrite,clockWi
 	this.textureID = -1;
 	this.counter = 0;
 	this.resolution = 1;
+	this.canvasHeight = 0;
+	this.canvasWidth = 0;
 	this.dataPerVertex = 5;
 	this.alpha = 0.;
 	this.blue = 0.;
@@ -8258,6 +8260,8 @@ com_gEngine_painters_Painter.prototype = {
 	,dataPerVertex: null
 	,mvpID: null
 	,textureConstantID: null
+	,canvasWidth: null
+	,canvasHeight: null
 	,projection: null
 	,resolution: null
 	,counter: null
@@ -8283,7 +8287,10 @@ com_gEngine_painters_Painter.prototype = {
 			return;
 		}
 		var vertexCount = this.counter / this.dataPerVertex | 0;
-		var g = com_gEngine_GEngine.get_i().currentCanvas().get_g4();
+		var canvas = com_gEngine_GEngine.get_i().currentCanvas();
+		this.canvasWidth = canvas.get_width();
+		this.canvasHeight = canvas.get_height();
+		var g = canvas.get_g4();
 		this.vertexBuffer.unlock(vertexCount);
 		if(clear) {
 			g.clear(kha__$Color_Color_$Impl_$.fromFloats(this.red,this.green,this.blue,this.alpha));
@@ -8532,17 +8539,17 @@ com_gEngine_shaders_ShRetro.prototype = $extend(com_gEngine_painters_Painter.pro
 	,__class__: com_gEngine_shaders_ShRetro
 });
 var com_gEngine_shaders_ShRgbSplit = function(blend) {
+	this.spreadY = 2;
+	this.spreadX = 2;
 	com_gEngine_painters_Painter.call(this,true,blend);
-	this.resX = 2 / com_gEngine_GEngine.get_i().realWidth;
-	this.resY = 2 / com_gEngine_GEngine.get_i().realHeight;
 };
 $hxClasses["com.gEngine.shaders.ShRgbSplit"] = com_gEngine_shaders_ShRgbSplit;
 com_gEngine_shaders_ShRgbSplit.__name__ = "com.gEngine.shaders.ShRgbSplit";
 com_gEngine_shaders_ShRgbSplit.__super__ = com_gEngine_painters_Painter;
 com_gEngine_shaders_ShRgbSplit.prototype = $extend(com_gEngine_painters_Painter.prototype,{
 	resolutionID: null
-	,resX: null
-	,resY: null
+	,spreadX: null
+	,spreadY: null
 	,setShaders: function(pipeline) {
 		pipeline.vertexShader = kha_Shaders.simple_vert;
 		pipeline.fragmentShader = kha_Shaders.simpleRgbSplit_frag;
@@ -8553,7 +8560,7 @@ com_gEngine_shaders_ShRgbSplit.prototype = $extend(com_gEngine_painters_Painter.
 	}
 	,setParameter: function(g) {
 		com_gEngine_painters_Painter.prototype.setParameter.call(this,g);
-		g.setFloat2(this.resolutionID,this.resX,this.resY);
+		g.setFloat2(this.resolutionID,this.spreadX / this.canvasWidth,this.spreadY / this.canvasHeight);
 	}
 	,__class__: com_gEngine_shaders_ShRgbSplit
 });
@@ -38661,7 +38668,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 			_gthis.simulationLayer.addChild(layerTilemap.createDisplay(tileLayer));
 		},$bind(this,this.parseMapObjects));
 		this.stage.cameras[0].limits(0,0,this.worldMap.widthIntTiles * 40,this.worldMap.heightInTiles * 40);
-		var tmp = new com_gEngine_shaders_ShRgbSplit(com_gEngine_display_Blend.blendMultipass());
+		var tmp = new com_gEngine_shaders_ShRgbSplit(com_gEngine_display_Blend.blendDefault());
 		var tmp1 = com_gEngine_display_Blend.blendDefault();
 		this.simulationLayer.filter = new com_gEngine_Filter([tmp,new com_gEngine_shaders_ShFilmGrain(tmp1)],0.5,.5,0.5,1,false);
 		gameObjects_GameGlobals.bulletCollisions = this.bullets = new com_collision_platformer_CollisionGroup();
