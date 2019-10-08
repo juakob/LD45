@@ -108,6 +108,24 @@ var Main = function() { };
 $hxClasses["Main"] = Main;
 Main.__name__ = "Main";
 Main.main = function() {
+	var phone = window.orientation != null || window.navigator.userAgent.indexOf("IEMobile") != -1;
+	if(phone) {
+		haxe_Log.trace("phone",{ fileName : "Main.hx", lineNumber : 25, className : "Main", methodName : "main"});
+		window.document.documentElement.style.padding = "0";
+		window.document.documentElement.style.margin = "0";
+		window.document.body.style.padding = "0";
+		window.document.body.style.margin = "0";
+		var canvas = js_Boot.__cast(window.document.getElementById("khanvas") , HTMLCanvasElement);
+		canvas.style.display = "block";
+		var resize = function() {
+			canvas.width = window.innerWidth * window.devicePixelRatio | 0;
+			canvas.height = window.innerHeight * window.devicePixelRatio | 0;
+			canvas.style.width = window.document.documentElement.clientWidth + "px";
+			canvas.style.height = window.document.documentElement.clientHeight + "px";
+		};
+		window.onresize = resize;
+		resize();
+	}
 	var windowsOptions = new kha_WindowOptions("MECHANGREJO",0,0,1280,720,null,true,1,0);
 	var frameBufferOptions = new kha_FramebufferOptions(60,true,32,16,8,0);
 	kha_System.start(new kha_SystemOptions("coalTest",1280,720,windowsOptions,frameBufferOptions),function(w) {
@@ -16403,7 +16421,7 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Jackolantern","Untitled_1","bodyDead","bullets","drop","faceDead","guts","intro","ivanka","ivankaArm","ivankaFace","light","lightFocal","neutron","pig","policeCar","proton","pumpkinBlood","rainDrop","skins","tiles","tree","weapons"];
+	this.names = ["Untitled","bodyDead","bullets","drop","faceDead","guts","intro","ivanka","ivankaArm","ivankaFace","light","lightFocal","neutron","policeCar","pumpkinBlood","rainDrop","skins","tiles","tree","weapons"];
 	this.weaponsDescription = { name : "weapons", original_height : 6, original_width : 30, files : ["weapons.png"], type : "image"};
 	this.weaponsName = "weapons";
 	this.weapons = null;
@@ -16422,15 +16440,9 @@ var kha__$Assets_ImageList = function() {
 	this.pumpkinBloodDescription = { name : "pumpkinBlood", original_height : 11, original_width : 39, files : ["pumpkinBlood.png"], type : "image"};
 	this.pumpkinBloodName = "pumpkinBlood";
 	this.pumpkinBlood = null;
-	this.protonDescription = { name : "proton", original_height : 100, original_width : 100, files : ["proton.png"], type : "image"};
-	this.protonName = "proton";
-	this.proton = null;
 	this.policeCarDescription = { name : "policeCar", original_height : 31, original_width : 82, files : ["policeCar.png"], type : "image"};
 	this.policeCarName = "policeCar";
 	this.policeCar = null;
-	this.pigDescription = { name : "pig", original_height : 148, original_width : 54, files : ["pig.png"], type : "image"};
-	this.pigName = "pig";
-	this.pig = null;
 	this.neutronDescription = { name : "neutron", original_height : 13, original_width : 14, files : ["neutron.png"], type : "image"};
 	this.neutronName = "neutron";
 	this.neutron = null;
@@ -16467,12 +16479,9 @@ var kha__$Assets_ImageList = function() {
 	this.bodyDeadDescription = { name : "bodyDead", original_height : 10, original_width : 8, files : ["bodyDead.png"], type : "image"};
 	this.bodyDeadName = "bodyDead";
 	this.bodyDead = null;
-	this.Untitled_1Description = { name : "Untitled_1", original_height : 512, original_width : 512, files : ["Untitled-1.png"], type : "image"};
-	this.Untitled_1Name = "Untitled_1";
-	this.Untitled_1 = null;
-	this.JackolanternDescription = { name : "Jackolantern", original_height : 512, original_width : 512, files : ["Jackolantern.png"], type : "image"};
-	this.JackolanternName = "Jackolantern";
-	this.Jackolantern = null;
+	this.UntitledDescription = { name : "Untitled", original_height : 64, original_width : 64, files : ["Untitled.png"], type : "image"};
+	this.UntitledName = "Untitled";
+	this.Untitled = null;
 };
 $hxClasses["kha._Assets.ImageList"] = kha__$Assets_ImageList;
 kha__$Assets_ImageList.__name__ = "kha._Assets.ImageList";
@@ -16480,29 +16489,17 @@ kha__$Assets_ImageList.prototype = {
 	get: function(name) {
 		return Reflect.field(this,name);
 	}
-	,Jackolantern: null
-	,JackolanternName: null
-	,JackolanternDescription: null
-	,JackolanternLoad: function(done,failure) {
-		kha_Assets.loadImage("Jackolantern",function(image) {
+	,Untitled: null
+	,UntitledName: null
+	,UntitledDescription: null
+	,UntitledLoad: function(done,failure) {
+		kha_Assets.loadImage("Untitled",function(image) {
 			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "JackolanternLoad"});
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "UntitledLoad"});
 	}
-	,JackolanternUnload: function() {
-		this.Jackolantern.unload();
-		this.Jackolantern = null;
-	}
-	,Untitled_1: null
-	,Untitled_1Name: null
-	,Untitled_1Description: null
-	,Untitled_1Load: function(done,failure) {
-		kha_Assets.loadImage("Untitled_1",function(image) {
-			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "Untitled_1Load"});
-	}
-	,Untitled_1Unload: function() {
-		this.Untitled_1.unload();
-		this.Untitled_1 = null;
+	,UntitledUnload: function() {
+		this.Untitled.unload();
+		this.Untitled = null;
 	}
 	,bodyDead: null
 	,bodyDeadName: null
@@ -16648,18 +16645,6 @@ kha__$Assets_ImageList.prototype = {
 		this.neutron.unload();
 		this.neutron = null;
 	}
-	,pig: null
-	,pigName: null
-	,pigDescription: null
-	,pigLoad: function(done,failure) {
-		kha_Assets.loadImage("pig",function(image) {
-			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "pigLoad"});
-	}
-	,pigUnload: function() {
-		this.pig.unload();
-		this.pig = null;
-	}
 	,policeCar: null
 	,policeCarName: null
 	,policeCarDescription: null
@@ -16671,18 +16656,6 @@ kha__$Assets_ImageList.prototype = {
 	,policeCarUnload: function() {
 		this.policeCar.unload();
 		this.policeCar = null;
-	}
-	,proton: null
-	,protonName: null
-	,protonDescription: null
-	,protonLoad: function(done,failure) {
-		kha_Assets.loadImage("proton",function(image) {
-			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "protonLoad"});
-	}
-	,protonUnload: function() {
-		this.proton.unload();
-		this.proton = null;
 	}
 	,pumpkinBlood: null
 	,pumpkinBloodName: null
@@ -16772,7 +16745,7 @@ kha__$Assets_SoundList.prototype = {
 	,__class__: kha__$Assets_SoundList
 };
 var kha__$Assets_BlobList = function() {
-	this.names = ["Untitled_1_xml","bullets_xml","drop_xml","ivanka_xml","pig_xml","pumpkinBlood_xml","pumpkin_ogex","room1_tmx","room2_tmx","room3_tmx","room4_tmx","skins_xml","tiles_xml","weapons_xml"];
+	this.names = ["Untitled_1_xml","bullets_xml","drop_xml","gun3d_ogex","ivanka_xml","pumpkinBlood_xml","room1_tmx","room2_tmx","room3_tmx","room4_tmx","skins_xml","tiles_xml","weapons_xml"];
 	this.weapons_xmlDescription = { name : "weapons_xml", files : ["weapons.xml"], type : "blob"};
 	this.weapons_xmlName = "weapons_xml";
 	this.weapons_xml = null;
@@ -16794,18 +16767,15 @@ var kha__$Assets_BlobList = function() {
 	this.room1_tmxDescription = { name : "room1_tmx", files : ["room1.tmx"], type : "blob"};
 	this.room1_tmxName = "room1_tmx";
 	this.room1_tmx = null;
-	this.pumpkin_ogexDescription = { name : "pumpkin_ogex", files : ["pumpkin.ogex"], type : "blob"};
-	this.pumpkin_ogexName = "pumpkin_ogex";
-	this.pumpkin_ogex = null;
 	this.pumpkinBlood_xmlDescription = { name : "pumpkinBlood_xml", files : ["pumpkinBlood.xml"], type : "blob"};
 	this.pumpkinBlood_xmlName = "pumpkinBlood_xml";
 	this.pumpkinBlood_xml = null;
-	this.pig_xmlDescription = { name : "pig_xml", files : ["pig.xml"], type : "blob"};
-	this.pig_xmlName = "pig_xml";
-	this.pig_xml = null;
 	this.ivanka_xmlDescription = { name : "ivanka_xml", files : ["ivanka.xml"], type : "blob"};
 	this.ivanka_xmlName = "ivanka_xml";
 	this.ivanka_xml = null;
+	this.gun3d_ogexDescription = { name : "gun3d_ogex", files : ["gun3d.ogex"], type : "blob"};
+	this.gun3d_ogexName = "gun3d_ogex";
+	this.gun3d_ogex = null;
 	this.drop_xmlDescription = { name : "drop_xml", files : ["drop.xml"], type : "blob"};
 	this.drop_xmlName = "drop_xml";
 	this.drop_xml = null;
@@ -16858,6 +16828,18 @@ kha__$Assets_BlobList.prototype = {
 		this.drop_xml.unload();
 		this.drop_xml = null;
 	}
+	,gun3d_ogex: null
+	,gun3d_ogexName: null
+	,gun3d_ogexDescription: null
+	,gun3d_ogexLoad: function(done,failure) {
+		kha_Assets.loadBlob("gun3d_ogex",function(blob) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "gun3d_ogexLoad"});
+	}
+	,gun3d_ogexUnload: function() {
+		this.gun3d_ogex.unload();
+		this.gun3d_ogex = null;
+	}
 	,ivanka_xml: null
 	,ivanka_xmlName: null
 	,ivanka_xmlDescription: null
@@ -16870,18 +16852,6 @@ kha__$Assets_BlobList.prototype = {
 		this.ivanka_xml.unload();
 		this.ivanka_xml = null;
 	}
-	,pig_xml: null
-	,pig_xmlName: null
-	,pig_xmlDescription: null
-	,pig_xmlLoad: function(done,failure) {
-		kha_Assets.loadBlob("pig_xml",function(blob) {
-			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "pig_xmlLoad"});
-	}
-	,pig_xmlUnload: function() {
-		this.pig_xml.unload();
-		this.pig_xml = null;
-	}
 	,pumpkinBlood_xml: null
 	,pumpkinBlood_xmlName: null
 	,pumpkinBlood_xmlDescription: null
@@ -16893,18 +16863,6 @@ kha__$Assets_BlobList.prototype = {
 	,pumpkinBlood_xmlUnload: function() {
 		this.pumpkinBlood_xml.unload();
 		this.pumpkinBlood_xml = null;
-	}
-	,pumpkin_ogex: null
-	,pumpkin_ogexName: null
-	,pumpkin_ogexDescription: null
-	,pumpkin_ogexLoad: function(done,failure) {
-		kha_Assets.loadBlob("pumpkin_ogex",function(blob) {
-			done();
-		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 134, className : "kha._Assets.BlobList", methodName : "pumpkin_ogexLoad"});
-	}
-	,pumpkin_ogexUnload: function() {
-		this.pumpkin_ogex.unload();
-		this.pumpkin_ogex = null;
 	}
 	,room1_tmx: null
 	,room1_tmxName: null
@@ -38681,7 +38639,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		atlas.add(new com_loading_basicResources_ImageLoader("guts"));
 		resources.add(atlas);
 		resources.add(new com_loading_basicResources_FontLoader("fofbb_reg_ttf"));
-		resources.add(new com_g3d_Object3dLoader("pumpkin_ogex"));
+		resources.add(new com_g3d_Object3dLoader("gun3d_ogex"));
 	}
 	,init: function() {
 		var _gthis = this;
@@ -38713,12 +38671,12 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		ivankaFace.scaleX = ivankaFace.scaleY = 4;
 		ivankaFace.set_smooth(false);
 		this.hudLayer.addChild(ivankaFace);
-		this.pumpkinIcon = new com_g3d_Object3d("pumpkin_ogex");
+		this.pumpkinIcon = new com_g3d_Object3d("gun3d_ogex");
 		this.pumpkinIcon.x = 1180;
 		this.pumpkinIcon.y = 100;
-		this.pumpkinIcon.scaleX = 4;
-		this.pumpkinIcon.scaleY = 4;
-		this.pumpkinIcon.scaleZ = 4;
+		this.pumpkinIcon.scaleX = 40;
+		this.pumpkinIcon.scaleY = 40;
+		this.pumpkinIcon.scaleZ = 40;
 		this.pumpkinIcon.z = -40;
 		this.pumpkinIcon.angleZ = Math.PI;
 		this.pumpkinIcon.set_rotation(0);

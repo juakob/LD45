@@ -77,7 +77,7 @@ class Test extends State {
         atlas.add(new ImageLoader("guts"));
         resources.add(atlas);
         resources.add(new FontLoader("fofbb_reg_ttf"));
-        resources.add(new Object3dLoader("pumpkin_ogex"));
+        resources.add(new Object3dLoader("gun3d_ogex"));
         
     }
 
@@ -125,12 +125,12 @@ class Test extends State {
         ivankaFace.smooth=false;
         hudLayer.addChild(ivankaFace);
 
-        pumpkinIcon=new Object3d("pumpkin_ogex");
+        pumpkinIcon=new Object3d("gun3d_ogex");
         pumpkinIcon.x=1280-100;
         pumpkinIcon.y=100;
-        pumpkinIcon.scaleX=4;
-        pumpkinIcon.scaleY=4;
-        pumpkinIcon.scaleZ=4;
+        pumpkinIcon.scaleX=40;
+        pumpkinIcon.scaleY=40;
+        pumpkinIcon.scaleZ=40;
         pumpkinIcon.z=-40;
         pumpkinIcon.angleZ=Math.PI;
         pumpkinIcon.rotation=0;

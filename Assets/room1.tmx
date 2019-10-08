@@ -318,7 +318,7 @@
     <property name="goTo" value="room2"/>
    </properties>
   </object>
-  <object id="25" type="player" x="90.6665" y="138.5" width="22.0003" height="19.6667"/>
+  <object id="25" type="player" x="124" y="138.833" width="22.0003" height="19.6667"/>
   <object id="27" type="rain" x="83" y="-19.6667" width="385.03" height="180.333"/>
   <object id="29" type="rain" x="417.167" y="-19.8335" width="102.667" height="69.7503"/>
   <object id="34" type="asset" gid="67" x="3" y="160.667" width="82" height="31">
@@ -339,7 +339,7 @@
     <property name="blend" value="add"/>
    </properties>
   </object>
-  <object id="38" type="asset" gid="65" x="196.615" y="186.82" width="65.5086" height="137.206" rotation="272.822">
+  <object id="38" type="asset" gid="65" x="203.615" y="186.487" width="65.5086" height="137.206" rotation="272.822">
    <properties>
     <property name="asset" value="lightFocal"/>
     <property name="blend" value="add"/>
@@ -352,7 +352,7 @@
    </properties>
   </object>
   <object id="39" type="rain" x="24.5002" y="-19.4998" width="36.333" height="153.333"/>
-  <object id="40" type="rain" x="-0.99985" y="-19.4997" width="24.9997" height="164.583"/>
+  <object id="40" type="rain" x="-0.99985" y="-19.4997" width="22.333" height="164.583"/>
   <object id="41" type="rain" x="61.0002" y="-19.4997" width="21.9997" height="163.999"/>
   <object id="35" type="asset" gid="66" x="-2.33333" y="154" width="13.6667" height="14.3333">
    <properties>
