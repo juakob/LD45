@@ -31,7 +31,7 @@ class Body extends Entity {
         armR.smooth=false;
 
         body=new BasicSprite("skins");
-        body.timeline.playAnimation("ivanka");
+        body.timeline.playAnimation("policeWoman");
         display.addChild(body);
         body.smooth=false;
         armL=new BasicSprite("ivankaArm");

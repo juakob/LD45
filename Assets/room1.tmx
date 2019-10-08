@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="53" height="18" tilewidth="10" tileheight="10" infinite="0" nextlayerid="8" nextobjectid="30">
+<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="53" height="18" tilewidth="10" tileheight="10" infinite="0" nextlayerid="13" nextobjectid="42">
  <tileset firstgid="1" name="tiles" tilewidth="10" tileheight="10" spacing="2" margin="2" tilecount="64" columns="8">
   <image source="tiles.png" width="100" height="100"/>
+ </tileset>
+ <tileset firstgid="65" name="light" tilewidth="82" tileheight="56" tilecount="3" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image width="56" height="31" source="lightFocal.png"/>
+  </tile>
+  <tile id="1">
+   <image width="56" height="56" source="light.png"/>
+  </tile>
+  <tile id="2">
+   <image width="82" height="31" source="policeCar.png"/>
+  </tile>
  </tileset>
  <layer id="3" name="background" width="53" height="18">
   <properties>
@@ -86,8 +98,41 @@
     <property name="goTo" value="room2"/>
    </properties>
   </object>
-  <object id="25" type="player" x="23.6665" y="145.833" width="22.0003" height="19.6667"/>
-  <object id="27" type="rain" x="0" y="-10.6667" width="449.333" height="180.333"/>
+  <object id="25" type="player" x="90.6665" y="147.5" width="22.0003" height="19.6667"/>
+  <object id="27" type="rain" x="83" y="-10.6667" width="366.333" height="180.333"/>
   <object id="29" type="rain" x="449.833" y="-10.8335" width="70.0003" height="71.0003"/>
+  <object id="34" type="asset" gid="67" x="3" y="169.667" width="82" height="31">
+   <properties>
+    <property name="asset" value="policeCar"/>
+    <property name="smooth" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="30" type="asset" gid="65" x="446.333" y="168" width="84" height="52.3333">
+   <properties>
+    <property name="asset" value="lightFocal"/>
+    <property name="blend" value="add"/>
+   </properties>
+  </object>
+  <object id="35" type="asset" gid="66" x="16" y="154.667" width="56" height="31.3333">
+   <properties>
+    <property name="asset" value="light"/>
+    <property name="blend" value="add"/>
+   </properties>
+  </object>
+  <object id="37" type="asset" gid="66" x="68.3333" y="163.667" width="18" height="14">
+   <properties>
+    <property name="asset" value="light"/>
+    <property name="blend" value="add"/>
+   </properties>
+  </object>
+  <object id="38" type="asset" gid="65" x="196.615" y="195.82" width="65.5086" height="137.206" rotation="272.822">
+   <properties>
+    <property name="asset" value="lightFocal"/>
+    <property name="blend" value="add"/>
+   </properties>
+  </object>
+  <object id="39" type="rain" x="24.5002" y="-10.4998" width="36.333" height="153.333"/>
+  <object id="40" type="rain" x="2.00015" y="-10.4997" width="21.9997" height="163.333"/>
+  <object id="41" type="rain" x="61.0002" y="-10.4997" width="21.9997" height="163.999"/>
  </objectgroup>
 </map>

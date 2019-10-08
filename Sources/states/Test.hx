@@ -1,5 +1,6 @@
 package states;
 
+import format.swf.Data.BlendMode;
 import format.png.Data;
 import com.collision.platformer.CollisionBox;
 import format.tmx.Data.TmxTileLayer;
@@ -67,6 +68,9 @@ class Test extends State {
         atlas.add(new SparrowLoader("pumpkinBlood", "pumpkinBlood_xml"));
         atlas.add(new ImageLoader("ivankaArm"));
         atlas.add(new ImageLoader("ivankaFace"));
+        atlas.add(new ImageLoader("lightFocal"));
+        atlas.add(new ImageLoader("policeCar"));
+        atlas.add(new ImageLoader("light"));
         resources.add(atlas);
         resources.add(new FontLoader("fofbb_reg_ttf"));
         resources.add(new Object3dLoader("pumpkin_ogex"));
@@ -101,27 +105,13 @@ class Test extends State {
         );
         stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
         backgroundLayer.addChild(worldMap.display);
-        
-       
-       
 
       // simulationLayer.filter=new Filter([new ShRetro(Blend.blendMultipass()),new ShRgbSplit(Blend.blendDefault())],0.5,.5,0.5,1,false);
-        
-        
-        
-        
-        
-        
-        
 
         GameGlobals.bulletCollisions=bullets=new CollisionGroup();
        // stage.defaultCamera().offsetX=-1280/2;
        // stage.defaultCamera().offsetX=-720/2;
        // stage.defaultCamera().rotation=Math.PI/4;
-
-         
-       
-       
 
         GameGlobals.blood=new Blood(this,simulationLayer);
         
@@ -193,6 +183,22 @@ class Test extends State {
                 simulationLayer.addChild(drop.display);
                 addChild(drop);
             }
+        }else
+        if(object.type=="asset"){
+             var display=new BasicSprite(object.properties.get("asset"));
+             display.scaleX=(object.width/display.width())*4;
+             display.scaleY=(object.height/display.height())*4;
+             display.offsetY=-display.height();// origin at the bottom?
+             display.x=object.x*4;
+             display.y=object.y*4;
+             display.rotation=object.rotation*Math.PI/180;
+             simulationLayer.addChild(display);
+             if(object.properties.exists("blend")){
+                if(object.properties.get("blend")=="add"){
+                    display.blend=com.gEngine.display.BlendMode.Add;
+                }
+             }
+             display.smooth=!(object.properties.exists("smooth")&&object.properties.get("smooth")=="false");
         }
     }
     override function update(dt:Float) {

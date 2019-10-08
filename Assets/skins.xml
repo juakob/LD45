@@ -2,7 +2,8 @@
 Created with Free texture packer v0.4.7 http://free-tex-packer.com
 -->
 <?xml version="1.0" encoding="UTF-8"?>
-<TextureAtlas imagePath="skins.png" width="16" height="47">
-  <SubTexture name="pumpkin" x="1" y="1"  width="13" height="22" frameX="-1" frameY="-1" frameWidth="19" frameHeight="24"/>
-  <SubTexture name="ivanka" x="1" y="25"  width="14" height="21" frameX="-3" frameY="-2" frameWidth="19" frameHeight="24"/>
+<TextureAtlas imagePath="skins.png" width="18" height="72">
+  <SubTexture name="policeWoman" x="1" y="1"  width="16" height="23" frameX="-1" frameY="-0" frameWidth="19" frameHeight="24"/>
+  <SubTexture name="pumpkin" x="1" y="26"  width="13" height="22" frameX="-1" frameY="-1" frameWidth="19" frameHeight="24"/>
+  <SubTexture name="ivanka" x="1" y="50"  width="14" height="21" frameX="-3" frameY="-2" frameWidth="19" frameHeight="24"/>
 </TextureAtlas>
