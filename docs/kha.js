@@ -10577,6 +10577,45 @@ com_loading_basicResources_JoinAtlas.prototype = {
 	}
 	,__class__: com_loading_basicResources_JoinAtlas
 };
+var com_loading_basicResources_SoundLoader = function(soundName,uncompress) {
+	if(uncompress == null) {
+		uncompress = true;
+	}
+	this.uncompress = true;
+	this.name = soundName;
+	this.uncompress = uncompress;
+};
+$hxClasses["com.loading.basicResources.SoundLoader"] = com_loading_basicResources_SoundLoader;
+com_loading_basicResources_SoundLoader.__name__ = "com.loading.basicResources.SoundLoader";
+com_loading_basicResources_SoundLoader.__interfaces__ = [com_loading_Resource];
+com_loading_basicResources_SoundLoader.prototype = {
+	name: null
+	,onLoad: null
+	,uncompress: null
+	,load: function(callback) {
+		this.onLoad = callback;
+		kha_Assets.loadSound(this.name,$bind(this,this.onSoundLoad),null,{ fileName : "com/loading/basicResources/SoundLoader.hx", lineNumber : 21, className : "com.loading.basicResources.SoundLoader", methodName : "load"});
+	}
+	,loadLocal: function(callback) {
+		this.onLoad = callback;
+		this.onSoundLoad(Reflect.field(kha_Assets.sounds,this.name));
+	}
+	,onSoundLoad: function(sound) {
+		com_soundLib_SoundManager.addSound(this.name,sound);
+		if(this.uncompress && sound.compressedData != null) {
+			sound.uncompress(this.onLoad);
+		} else {
+			this.onLoad();
+		}
+		this.onLoad = null;
+	}
+	,unload: function() {
+		Reflect.field(kha_Assets.sounds,this.name + "Unload").apply(kha_Assets.sounds,[]);
+	}
+	,unloadLocal: function() {
+	}
+	,__class__: com_loading_basicResources_SoundLoader
+};
 var com_loading_basicResources_SparrowLoader = function(imageName,dataName) {
 	com_loading_basicResources_TilesheetLoader.call(this,imageName,0,0,0);
 	this.dataName = dataName;
@@ -10712,13 +10751,12 @@ com_soundLib_SoundManager.init = function() {
 	com_soundLib_SoundManager.map = new haxe_ds_StringMap();
 	com_soundLib_SoundManager.initied = true;
 };
-com_soundLib_SoundManager.addSound = function(sound) {
-	var value = Reflect.field(kha_Assets.sounds,sound);
+com_soundLib_SoundManager.addSound = function(soundName,sound) {
 	var _this = com_soundLib_SoundManager.map;
-	if(__map_reserved[sound] != null) {
-		_this.setReserved(sound,value);
+	if(__map_reserved[soundName] != null) {
+		_this.setReserved(soundName,sound);
 	} else {
-		_this.h[sound] = value;
+		_this.h[soundName] = sound;
 	}
 };
 com_soundLib_SoundManager.playFx = function(sound,loop) {
@@ -10731,21 +10769,26 @@ com_soundLib_SoundManager.playFx = function(sound,loop) {
 	}
 	return null;
 };
-com_soundLib_SoundManager.playMusic = function(sound,loop) {
+com_soundLib_SoundManager.playMusic = function(soundName,loop) {
 	if(loop == null) {
 		loop = true;
 	}
 	var _this = com_soundLib_SoundManager.map;
-	if(!(__map_reserved[sound] != null ? _this.existsReserved(sound) : _this.h.hasOwnProperty(sound))) {
-		throw new js__$Boot_HaxeError("Sound not found " + sound);
+	if(!(__map_reserved[soundName] != null ? _this.existsReserved(soundName) : _this.h.hasOwnProperty(soundName))) {
+		throw new js__$Boot_HaxeError("Sound not found " + soundName);
 	}
 	if(com_soundLib_SoundManager.music != null) {
 		com_soundLib_SoundManager.music.stop();
 	}
-	com_soundLib_SoundManager.musicName = sound;
+	com_soundLib_SoundManager.musicName = soundName;
 	if(!com_soundLib_SoundManager.musicMuted) {
 		var _this1 = com_soundLib_SoundManager.map;
-		com_soundLib_SoundManager.music = kha_audio2_Audio1.stream(__map_reserved[sound] != null ? _this1.getReserved(sound) : _this1.h[sound],loop);
+		var sound = __map_reserved[soundName] != null ? _this1.getReserved(soundName) : _this1.h[soundName];
+		if(sound.compressedData != null) {
+			com_soundLib_SoundManager.music = kha_audio2_Audio1.stream(sound,loop);
+		} else {
+			com_soundLib_SoundManager.music = kha_audio2_Audio1.play(sound,loop);
+		}
 	}
 };
 com_soundLib_SoundManager.switchSound = function() {
@@ -16740,13 +16783,28 @@ kha__$Assets_ImageList.prototype = {
 	,__class__: kha__$Assets_ImageList
 };
 var kha__$Assets_SoundList = function() {
-	this.names = [];
+	this.names = ["rain"];
+	this.rainDescription = { name : "rain", files : ["rain.ogg","rain.mp3"], type : "sound"};
+	this.rainName = "rain";
+	this.rain = null;
 };
 $hxClasses["kha._Assets.SoundList"] = kha__$Assets_SoundList;
 kha__$Assets_SoundList.__name__ = "kha._Assets.SoundList";
 kha__$Assets_SoundList.prototype = {
 	get: function(name) {
 		return Reflect.field(this,name);
+	}
+	,rain: null
+	,rainName: null
+	,rainDescription: null
+	,rainLoad: function(done,failure) {
+		kha_Assets.loadSound("rain",function(sound) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 130, className : "kha._Assets.SoundList", methodName : "rainLoad"});
+	}
+	,rainUnload: function() {
+		this.rain.unload();
+		this.rain = null;
 	}
 	,names: null
 	,__class__: kha__$Assets_SoundList
@@ -38647,9 +38705,11 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		resources.add(atlas);
 		resources.add(new com_loading_basicResources_FontLoader("fofbb_reg_ttf"));
 		resources.add(new com_g3d_Object3dLoader("gun3d_ogex"));
+		resources.add(new com_loading_basicResources_SoundLoader("rain",false));
 	}
 	,init: function() {
 		var _gthis = this;
+		com_soundLib_SoundManager.playMusic("rain");
 		this.stageColor(0.5,.5,0.5);
 		this.simulationLayer = new com_gEngine_display_Layer();
 		var backgroundLayer = new com_gEngine_display_Layer();

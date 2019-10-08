@@ -1,5 +1,7 @@
 package states;
 
+import com.soundLib.SoundManager.SM;
+import com.loading.basicResources.SoundLoader;
 import format.swf.Data.BlendMode;
 import format.png.Data;
 import com.collision.platformer.CollisionBox;
@@ -78,11 +80,12 @@ class Test extends State {
         resources.add(atlas);
         resources.add(new FontLoader("fofbb_reg_ttf"));
         resources.add(new Object3dLoader("gun3d_ogex"));
+        resources.add(new SoundLoader("rain",false));
         
     }
 
     override function init() {
-
+        SM.playMusic("rain");
         stageColor(0.5,.5,0.5);
        
         simulationLayer=new Layer();
