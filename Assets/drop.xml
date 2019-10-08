@@ -1,0 +1,10 @@
+<!--
+Created with Free texture packer v0.4.7 http://free-tex-packer.com
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="drop.png" width="30" height="8">
+  <SubTexture name="fall2" x="1" y="1"  width="9" height="5" frameX="-0" frameY="-4" frameWidth="9" frameHeight="9"/>
+  <SubTexture name="fall3." x="12" y="1"  width="8" height="3" frameX="-0" frameY="-6" frameWidth="9" frameHeight="9"/>
+  <SubTexture name="fall1" x="22" y="1"  width="7" height="5" frameX="-1" frameY="-4" frameWidth="9" frameHeight="9"/>
+  <SubTexture name="drop" x="12" y="6" width="7" height="1" rotated="true"  frameX="-4" frameY="-1" frameWidth="9" frameHeight="9"/>
+</TextureAtlas>

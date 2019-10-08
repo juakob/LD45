@@ -1,5 +1,6 @@
 package states;
 
+import format.png.Data;
 import com.collision.platformer.CollisionBox;
 import format.tmx.Data.TmxTileLayer;
 import format.tmx.Data.TmxObject;
@@ -60,6 +61,7 @@ class Test extends State {
         var atlas=new JoinAtlas(2048,2048);
         atlas.add(new TilesheetLoader("tiles", 10,10,1));
         atlas.add(new SparrowLoader("skins", "skins_xml"));
+        atlas.add(new SparrowLoader("drop", "drop_xml"));
         atlas.add(new SparrowLoader("weapons", "weapons_xml"));
         atlas.add(new SparrowLoader("bullets", "bullets_xml"));
         atlas.add(new SparrowLoader("pumpkinBlood", "pumpkinBlood_xml"));
@@ -182,6 +184,14 @@ class Test extends State {
                     ivanka.collision.x=object.x*4;
                     ivanka.collision.y=object.y*4;
                 }
+            }
+        }else
+        if(object.type=="rain"){
+            var drops:Int=Std.int(object.width*object.height*4/1000);
+            for(i in 0...drops){
+                var drop=new fx.Drop(object.y*4,(object.y+object.height)*4,object.x*4,(object.x+object.width)*4,800+Math.random()*200);
+                simulationLayer.addChild(drop.display);
+                addChild(drop);
             }
         }
     }
