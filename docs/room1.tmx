@@ -132,7 +132,7 @@
    </properties>
   </object>
   <object id="39" type="rain" x="24.5002" y="-10.4998" width="36.333" height="153.333"/>
-  <object id="40" type="rain" x="2.00015" y="-10.4997" width="21.9997" height="163.333"/>
+  <object id="40" type="rain" x="-0.99985" y="-10.4997" width="24.9997" height="163.333"/>
   <object id="41" type="rain" x="61.0002" y="-10.4997" width="21.9997" height="163.999"/>
  </objectgroup>
 </map>

@@ -13346,6 +13346,7 @@ var gameObjects_Body = function() {
 	this.display.y = this.collision.y = 200;
 	this.collision.userData = this;
 	this.collision.accelerationY = 2000;
+	this.collision.maxVelocityY = 1000;
 	this.collision.dragX = 0.9;
 };
 $hxClasses["gameObjects.Body"] = gameObjects_Body;
@@ -38460,7 +38461,7 @@ states_Intro.prototype = $extend(com_framework_utils_State.prototype,{
 	}
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
-		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
+		if(com_framework_utils_Input.i.isKeyCodePressed(32) || com_framework_utils_Input.i.isMousePressed()) {
 			this.changeState(new states_Test("room1"));
 		}
 	}
@@ -38617,6 +38618,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		com_collision_platformer_CollisionEngine.collide(this.worldMap.collision,this.ivanka.collision);
 		com_collision_platformer_CollisionEngine.collide(this.worldMap.collision,this.enemiesCollisions);
 		this.enemiesCollisions.overlap(this.bullets,$bind(this,this.enemyVsBullet));
+		this.enemiesCollisions.overlap(this.ivanka.collision,$bind(this,this.enemyVsIvanka));
 		if(this.ivanka.interact) {
 			this.ivanka.collision.overlap(this.doors,$bind(this,this.ivankaVsDoors));
 		}
@@ -38632,6 +38634,9 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		b.userData.die();
 		++this.pumpkinKill;
 		this.pumpkinKillText.set_text(this.pumpkinKill + "");
+	}
+	,enemyVsIvanka: function(a,b) {
+		this.changeState(new states_Intro());
 	}
 	,ivankaVsDoors: function(a,b) {
 		this.changeState(new states_Test(a.userData,this.room));
