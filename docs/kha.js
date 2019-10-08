@@ -38703,6 +38703,9 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 			_gthis.simulationLayer.addChild(layerTilemap.createDisplay(tileLayer));
 		},$bind(this,this.parseMapObjects));
 		this.stage.cameras[0].limits(0,0,this.worldMap.widthIntTiles * 40,this.worldMap.heightInTiles * 40);
+		var tmp = new com_gEngine_shaders_ShRgbSplit(com_gEngine_display_Blend.blendMultipass());
+		var tmp1 = com_gEngine_display_Blend.blendDefault();
+		this.simulationLayer.filter = new com_gEngine_Filter([tmp,new com_gEngine_shaders_ShFilmGrain(tmp1)],0.5,.5,0.5,1,false);
 		gameObjects_GameGlobals.bulletCollisions = this.bullets = new com_collision_platformer_CollisionGroup();
 		gameObjects_GameGlobals.blood = new fx_Blood(this,this.simulationLayer);
 		var ivankaFace = new com_gEngine_display_BasicSprite("ivankaFace");
