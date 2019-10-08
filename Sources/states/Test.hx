@@ -71,6 +71,10 @@ class Test extends State {
         atlas.add(new ImageLoader("lightFocal"));
         atlas.add(new ImageLoader("policeCar"));
         atlas.add(new ImageLoader("light"));
+        atlas.add(new ImageLoader("tree"));
+        atlas.add(new ImageLoader("faceDead"));
+        atlas.add(new ImageLoader("bodyDead"));
+        atlas.add(new ImageLoader("guts"));
         resources.add(atlas);
         resources.add(new FontLoader("fofbb_reg_ttf"));
         resources.add(new Object3dLoader("pumpkin_ogex"));
@@ -99,12 +103,11 @@ class Test extends State {
                 if(!tileLayer.properties.exists("noCollision")){
                     layerTilemap.createCollisions(tileLayer);
                 }
-                layerTilemap.createDisplay(tileLayer);
+                simulationLayer.addChild(layerTilemap.createDisplay(tileLayer));
             },
             parseMapObjects
         );
         stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
-        backgroundLayer.addChild(worldMap.display);
 
       // simulationLayer.filter=new Filter([new ShRetro(Blend.blendMultipass()),new ShRgbSplit(Blend.blendDefault())],0.5,.5,0.5,1,false);
 
@@ -197,6 +200,10 @@ class Test extends State {
                 if(object.properties.get("blend")=="add"){
                     display.blend=com.gEngine.display.BlendMode.Add;
                 }
+             }
+             if(object.properties.exists("multiply")){
+                 var color:kha.Color=kha.Color.fromString(object.properties.get("multiply"));
+                 display.colorMultiplication(color.R,color.G,color.B,color.A);
              }
              display.smooth=!(object.properties.exists("smooth")&&object.properties.get("smooth")=="false");
         }

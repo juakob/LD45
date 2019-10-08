@@ -26,8 +26,10 @@ class Drop extends Entity {
         display=new BasicSprite("drop");
         display.scaleX=display.scaleY=4;
         display.timeline.playAnimation("fall",false);
-        display.offsetY=-8;
+        display.timeline.frameRate=1/(Random.getFloatIn(15,30));
+        display.offsetY=-9;
         display.scaleX=display.scaleY=Random.getFloatIn(3.9,4.5);
+        if(Math.random()>0.5)display.scaleX=-display.scaleX;
         reset();
         display.y = Random.getFloatIn(startY,floorY);
         display.smooth=false;
