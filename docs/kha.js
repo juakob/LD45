@@ -10676,6 +10676,216 @@ var format_png_Chunk = $hxEnums["format.png.Chunk"] = { __ename__ : true, __cons
 	,CPalette: ($_=function(b) { return {_hx_index:3,b:b,__enum__:"format.png.Chunk",toString:$estr}; },$_.__params__ = ["b"],$_)
 	,CUnknown: ($_=function(id,data) { return {_hx_index:4,id:id,data:data,__enum__:"format.png.Chunk",toString:$estr}; },$_.__params__ = ["id","data"],$_)
 };
+var format_swf_SWFTag = $hxEnums["format.swf.SWFTag"] = { __ename__ : true, __constructs__ : ["TShowFrame","TShape","TMorphShape","TFont","TFontInfo","TButton","TBackgroundColor","TDoActions","TClip","TPlaceObject2","TPlaceObject3","TRemoveObject2","TFrameLabel","TExport","TDoInitActions","TActionScript3","TSymbolClass","TExportAssets","TSandBox","TBitsLossless","TBitsLossless2","TBitsJPEG","TJPEGTables","TBinaryData","TSound","TScenes","TUnknown"]
+	,TShowFrame: {_hx_index:0,__enum__:"format.swf.SWFTag",toString:$estr}
+	,TShape: ($_=function(id,data) { return {_hx_index:1,id:id,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+	,TMorphShape: ($_=function(id,data) { return {_hx_index:2,id:id,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+	,TFont: ($_=function(id,data) { return {_hx_index:3,id:id,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+	,TFontInfo: ($_=function(id,data) { return {_hx_index:4,id:id,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+	,TButton: ($_=function(id,trackAsMenu,records) { return {_hx_index:5,id:id,trackAsMenu:trackAsMenu,records:records,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","trackAsMenu","records"],$_)
+	,TBackgroundColor: ($_=function(color) { return {_hx_index:6,color:color,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["color"],$_)
+	,TDoActions: ($_=function(data) { return {_hx_index:7,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,TClip: ($_=function(id,frames,tags) { return {_hx_index:8,id:id,frames:frames,tags:tags,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","frames","tags"],$_)
+	,TPlaceObject2: ($_=function(po) { return {_hx_index:9,po:po,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["po"],$_)
+	,TPlaceObject3: ($_=function(po) { return {_hx_index:10,po:po,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["po"],$_)
+	,TRemoveObject2: ($_=function(depth) { return {_hx_index:11,depth:depth,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["depth"],$_)
+	,TFrameLabel: ($_=function(label,anchor) { return {_hx_index:12,label:label,anchor:anchor,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["label","anchor"],$_)
+	,TExport: ($_=function(el) { return {_hx_index:13,el:el,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["el"],$_)
+	,TDoInitActions: ($_=function(id,data) { return {_hx_index:14,id:id,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+	,TActionScript3: ($_=function(data,context) { return {_hx_index:15,data:data,context:context,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["data","context"],$_)
+	,TSymbolClass: ($_=function(symbols) { return {_hx_index:16,symbols:symbols,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["symbols"],$_)
+	,TExportAssets: ($_=function(symbols) { return {_hx_index:17,symbols:symbols,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["symbols"],$_)
+	,TSandBox: ($_=function(useDirectBlit,useGpu,hasMeta,useAs3,useNetwork) { return {_hx_index:18,useDirectBlit:useDirectBlit,useGpu:useGpu,hasMeta:hasMeta,useAs3:useAs3,useNetwork:useNetwork,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["useDirectBlit","useGpu","hasMeta","useAs3","useNetwork"],$_)
+	,TBitsLossless: ($_=function(data) { return {_hx_index:19,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,TBitsLossless2: ($_=function(data) { return {_hx_index:20,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,TBitsJPEG: ($_=function(id,data) { return {_hx_index:21,id:id,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+	,TJPEGTables: ($_=function(data) { return {_hx_index:22,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,TBinaryData: ($_=function(id,data) { return {_hx_index:23,id:id,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+	,TSound: ($_=function(data) { return {_hx_index:24,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,TScenes: ($_=function(scenes,labels) { return {_hx_index:25,scenes:scenes,labels:labels,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["scenes","labels"],$_)
+	,TUnknown: ($_=function(id,data) { return {_hx_index:26,id:id,data:data,__enum__:"format.swf.SWFTag",toString:$estr}; },$_.__params__ = ["id","data"],$_)
+};
+var format_swf_PlaceObject = function() {
+};
+$hxClasses["format.swf.PlaceObject"] = format_swf_PlaceObject;
+format_swf_PlaceObject.__name__ = "format.swf.PlaceObject";
+format_swf_PlaceObject.prototype = {
+	depth: null
+	,move: null
+	,cid: null
+	,matrix: null
+	,color: null
+	,ratio: null
+	,instanceName: null
+	,clipDepth: null
+	,events: null
+	,filters: null
+	,blendMode: null
+	,bitmapCache: null
+	,hasImage: null
+	,className: null
+	,__class__: format_swf_PlaceObject
+};
+var format_swf_ShapeData = $hxEnums["format.swf.ShapeData"] = { __ename__ : true, __constructs__ : ["SHDShape1","SHDShape2","SHDShape3","SHDShape4"]
+	,SHDShape1: ($_=function(bounds,shapes) { return {_hx_index:0,bounds:bounds,shapes:shapes,__enum__:"format.swf.ShapeData",toString:$estr}; },$_.__params__ = ["bounds","shapes"],$_)
+	,SHDShape2: ($_=function(bounds,shapes) { return {_hx_index:1,bounds:bounds,shapes:shapes,__enum__:"format.swf.ShapeData",toString:$estr}; },$_.__params__ = ["bounds","shapes"],$_)
+	,SHDShape3: ($_=function(bounds,shapes) { return {_hx_index:2,bounds:bounds,shapes:shapes,__enum__:"format.swf.ShapeData",toString:$estr}; },$_.__params__ = ["bounds","shapes"],$_)
+	,SHDShape4: ($_=function(data) { return {_hx_index:3,data:data,__enum__:"format.swf.ShapeData",toString:$estr}; },$_.__params__ = ["data"],$_)
+};
+var format_swf_MorphShapeData = $hxEnums["format.swf.MorphShapeData"] = { __ename__ : true, __constructs__ : ["MSDShape1","MSDShape2"]
+	,MSDShape1: ($_=function(data) { return {_hx_index:0,data:data,__enum__:"format.swf.MorphShapeData",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,MSDShape2: ($_=function(data) { return {_hx_index:1,data:data,__enum__:"format.swf.MorphShapeData",toString:$estr}; },$_.__params__ = ["data"],$_)
+};
+var format_swf_MorphFillStyle = $hxEnums["format.swf.MorphFillStyle"] = { __ename__ : true, __constructs__ : ["MFSSolid","MFSLinearGradient","MFSRadialGradient","MFSBitmap"]
+	,MFSSolid: ($_=function(startColor,endColor) { return {_hx_index:0,startColor:startColor,endColor:endColor,__enum__:"format.swf.MorphFillStyle",toString:$estr}; },$_.__params__ = ["startColor","endColor"],$_)
+	,MFSLinearGradient: ($_=function(startMatrix,endMatrix,gradients) { return {_hx_index:1,startMatrix:startMatrix,endMatrix:endMatrix,gradients:gradients,__enum__:"format.swf.MorphFillStyle",toString:$estr}; },$_.__params__ = ["startMatrix","endMatrix","gradients"],$_)
+	,MFSRadialGradient: ($_=function(startMatrix,endMatrix,gradients) { return {_hx_index:2,startMatrix:startMatrix,endMatrix:endMatrix,gradients:gradients,__enum__:"format.swf.MorphFillStyle",toString:$estr}; },$_.__params__ = ["startMatrix","endMatrix","gradients"],$_)
+	,MFSBitmap: ($_=function(cid,startMatrix,endMatrix,repeat,smooth) { return {_hx_index:3,cid:cid,startMatrix:startMatrix,endMatrix:endMatrix,repeat:repeat,smooth:smooth,__enum__:"format.swf.MorphFillStyle",toString:$estr}; },$_.__params__ = ["cid","startMatrix","endMatrix","repeat","smooth"],$_)
+};
+var format_swf_Morph2LineStyle = $hxEnums["format.swf.Morph2LineStyle"] = { __ename__ : true, __constructs__ : ["M2LSNoFill","M2LSFill"]
+	,M2LSNoFill: ($_=function(startColor,endColor,data) { return {_hx_index:0,startColor:startColor,endColor:endColor,data:data,__enum__:"format.swf.Morph2LineStyle",toString:$estr}; },$_.__params__ = ["startColor","endColor","data"],$_)
+	,M2LSFill: ($_=function(fill,data) { return {_hx_index:1,fill:fill,data:data,__enum__:"format.swf.Morph2LineStyle",toString:$estr}; },$_.__params__ = ["fill","data"],$_)
+};
+var format_swf_ShapeRecord = $hxEnums["format.swf.ShapeRecord"] = { __ename__ : true, __constructs__ : ["SHREnd","SHRChange","SHREdge","SHRCurvedEdge"]
+	,SHREnd: {_hx_index:0,__enum__:"format.swf.ShapeRecord",toString:$estr}
+	,SHRChange: ($_=function(data) { return {_hx_index:1,data:data,__enum__:"format.swf.ShapeRecord",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,SHREdge: ($_=function(dx,dy) { return {_hx_index:2,dx:dx,dy:dy,__enum__:"format.swf.ShapeRecord",toString:$estr}; },$_.__params__ = ["dx","dy"],$_)
+	,SHRCurvedEdge: ($_=function(cdx,cdy,adx,ady) { return {_hx_index:3,cdx:cdx,cdy:cdy,adx:adx,ady:ady,__enum__:"format.swf.ShapeRecord",toString:$estr}; },$_.__params__ = ["cdx","cdy","adx","ady"],$_)
+};
+var format_swf_FillStyle = $hxEnums["format.swf.FillStyle"] = { __ename__ : true, __constructs__ : ["FSSolid","FSSolidAlpha","FSLinearGradient","FSRadialGradient","FSFocalGradient","FSBitmap"]
+	,FSSolid: ($_=function(rgb) { return {_hx_index:0,rgb:rgb,__enum__:"format.swf.FillStyle",toString:$estr}; },$_.__params__ = ["rgb"],$_)
+	,FSSolidAlpha: ($_=function(rgb) { return {_hx_index:1,rgb:rgb,__enum__:"format.swf.FillStyle",toString:$estr}; },$_.__params__ = ["rgb"],$_)
+	,FSLinearGradient: ($_=function(mat,grad) { return {_hx_index:2,mat:mat,grad:grad,__enum__:"format.swf.FillStyle",toString:$estr}; },$_.__params__ = ["mat","grad"],$_)
+	,FSRadialGradient: ($_=function(mat,grad) { return {_hx_index:3,mat:mat,grad:grad,__enum__:"format.swf.FillStyle",toString:$estr}; },$_.__params__ = ["mat","grad"],$_)
+	,FSFocalGradient: ($_=function(mat,grad) { return {_hx_index:4,mat:mat,grad:grad,__enum__:"format.swf.FillStyle",toString:$estr}; },$_.__params__ = ["mat","grad"],$_)
+	,FSBitmap: ($_=function(cid,mat,repeat,smooth) { return {_hx_index:5,cid:cid,mat:mat,repeat:repeat,smooth:smooth,__enum__:"format.swf.FillStyle",toString:$estr}; },$_.__params__ = ["cid","mat","repeat","smooth"],$_)
+};
+var format_swf_LineStyleData = $hxEnums["format.swf.LineStyleData"] = { __ename__ : true, __constructs__ : ["LSRGB","LSRGBA","LS2"]
+	,LSRGB: ($_=function(rgb) { return {_hx_index:0,rgb:rgb,__enum__:"format.swf.LineStyleData",toString:$estr}; },$_.__params__ = ["rgb"],$_)
+	,LSRGBA: ($_=function(rgba) { return {_hx_index:1,rgba:rgba,__enum__:"format.swf.LineStyleData",toString:$estr}; },$_.__params__ = ["rgba"],$_)
+	,LS2: ($_=function(data) { return {_hx_index:2,data:data,__enum__:"format.swf.LineStyleData",toString:$estr}; },$_.__params__ = ["data"],$_)
+};
+var format_swf_LineCapStyle = $hxEnums["format.swf.LineCapStyle"] = { __ename__ : true, __constructs__ : ["LCRound","LCNone","LCSquare"]
+	,LCRound: {_hx_index:0,__enum__:"format.swf.LineCapStyle",toString:$estr}
+	,LCNone: {_hx_index:1,__enum__:"format.swf.LineCapStyle",toString:$estr}
+	,LCSquare: {_hx_index:2,__enum__:"format.swf.LineCapStyle",toString:$estr}
+};
+var format_swf_LineJoinStyle = $hxEnums["format.swf.LineJoinStyle"] = { __ename__ : true, __constructs__ : ["LJRound","LJBevel","LJMiter"]
+	,LJRound: {_hx_index:0,__enum__:"format.swf.LineJoinStyle",toString:$estr}
+	,LJBevel: {_hx_index:1,__enum__:"format.swf.LineJoinStyle",toString:$estr}
+	,LJMiter: ($_=function(limitFactor) { return {_hx_index:2,limitFactor:limitFactor,__enum__:"format.swf.LineJoinStyle",toString:$estr}; },$_.__params__ = ["limitFactor"],$_)
+};
+var format_swf_LS2Fill = $hxEnums["format.swf.LS2Fill"] = { __ename__ : true, __constructs__ : ["LS2FColor","LS2FStyle"]
+	,LS2FColor: ($_=function(color) { return {_hx_index:0,color:color,__enum__:"format.swf.LS2Fill",toString:$estr}; },$_.__params__ = ["color"],$_)
+	,LS2FStyle: ($_=function(style) { return {_hx_index:1,style:style,__enum__:"format.swf.LS2Fill",toString:$estr}; },$_.__params__ = ["style"],$_)
+};
+var format_swf_GradRecord = $hxEnums["format.swf.GradRecord"] = { __ename__ : true, __constructs__ : ["GRRGB","GRRGBA"]
+	,GRRGB: ($_=function(pos,col) { return {_hx_index:0,pos:pos,col:col,__enum__:"format.swf.GradRecord",toString:$estr}; },$_.__params__ = ["pos","col"],$_)
+	,GRRGBA: ($_=function(pos,col) { return {_hx_index:1,pos:pos,col:col,__enum__:"format.swf.GradRecord",toString:$estr}; },$_.__params__ = ["pos","col"],$_)
+};
+var format_swf_ButtonRecord = function() {
+};
+$hxClasses["format.swf.ButtonRecord"] = format_swf_ButtonRecord;
+format_swf_ButtonRecord.__name__ = "format.swf.ButtonRecord";
+format_swf_ButtonRecord.prototype = {
+	stateHitTest: null
+	,stateDown: null
+	,stateOver: null
+	,stateUp: null
+	,cid: null
+	,depth: null
+	,matrix: null
+	,color: null
+	,filters: null
+	,blendMode: null
+	,__class__: format_swf_ButtonRecord
+};
+var format_swf_SpreadMode = $hxEnums["format.swf.SpreadMode"] = { __ename__ : true, __constructs__ : ["SMPad","SMReflect","SMRepeat","SMReserved"]
+	,SMPad: {_hx_index:0,__enum__:"format.swf.SpreadMode",toString:$estr}
+	,SMReflect: {_hx_index:1,__enum__:"format.swf.SpreadMode",toString:$estr}
+	,SMRepeat: {_hx_index:2,__enum__:"format.swf.SpreadMode",toString:$estr}
+	,SMReserved: {_hx_index:3,__enum__:"format.swf.SpreadMode",toString:$estr}
+};
+var format_swf_InterpolationMode = $hxEnums["format.swf.InterpolationMode"] = { __ename__ : true, __constructs__ : ["IMNormalRGB","IMLinearRGB","IMReserved1","IMReserved2"]
+	,IMNormalRGB: {_hx_index:0,__enum__:"format.swf.InterpolationMode",toString:$estr}
+	,IMLinearRGB: {_hx_index:1,__enum__:"format.swf.InterpolationMode",toString:$estr}
+	,IMReserved1: {_hx_index:2,__enum__:"format.swf.InterpolationMode",toString:$estr}
+	,IMReserved2: {_hx_index:3,__enum__:"format.swf.InterpolationMode",toString:$estr}
+};
+var format_swf_BlendMode = $hxEnums["format.swf.BlendMode"] = { __ename__ : true, __constructs__ : ["BNormal","BLayer","BMultiply","BScreen","BLighten","BDarken","BDifference","BAdd","BSubtract","BInvert","BAlpha","BErase","BOverlay","BHardLight"]
+	,BNormal: {_hx_index:0,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BLayer: {_hx_index:1,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BMultiply: {_hx_index:2,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BScreen: {_hx_index:3,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BLighten: {_hx_index:4,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BDarken: {_hx_index:5,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BDifference: {_hx_index:6,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BAdd: {_hx_index:7,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BSubtract: {_hx_index:8,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BInvert: {_hx_index:9,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BAlpha: {_hx_index:10,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BErase: {_hx_index:11,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BOverlay: {_hx_index:12,__enum__:"format.swf.BlendMode",toString:$estr}
+	,BHardLight: {_hx_index:13,__enum__:"format.swf.BlendMode",toString:$estr}
+};
+var format_swf_Filter = $hxEnums["format.swf.Filter"] = { __ename__ : true, __constructs__ : ["FDropShadow","FBlur","FGlow","FBevel","FGradientGlow","FColorMatrix","FGradientBevel"]
+	,FDropShadow: ($_=function(data) { return {_hx_index:0,data:data,__enum__:"format.swf.Filter",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,FBlur: ($_=function(data) { return {_hx_index:1,data:data,__enum__:"format.swf.Filter",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,FGlow: ($_=function(data) { return {_hx_index:2,data:data,__enum__:"format.swf.Filter",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,FBevel: ($_=function(data) { return {_hx_index:3,data:data,__enum__:"format.swf.Filter",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,FGradientGlow: ($_=function(data) { return {_hx_index:4,data:data,__enum__:"format.swf.Filter",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,FColorMatrix: ($_=function(data) { return {_hx_index:5,data:data,__enum__:"format.swf.Filter",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,FGradientBevel: ($_=function(data) { return {_hx_index:6,data:data,__enum__:"format.swf.Filter",toString:$estr}; },$_.__params__ = ["data"],$_)
+};
+var format_swf_JPEGData = $hxEnums["format.swf.JPEGData"] = { __ename__ : true, __constructs__ : ["JDJPEG1","JDJPEG2","JDJPEG3"]
+	,JDJPEG1: ($_=function(data) { return {_hx_index:0,data:data,__enum__:"format.swf.JPEGData",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,JDJPEG2: ($_=function(data) { return {_hx_index:1,data:data,__enum__:"format.swf.JPEGData",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,JDJPEG3: ($_=function(data,mask) { return {_hx_index:2,data:data,mask:mask,__enum__:"format.swf.JPEGData",toString:$estr}; },$_.__params__ = ["data","mask"],$_)
+};
+var format_swf_ColorModel = $hxEnums["format.swf.ColorModel"] = { __ename__ : true, __constructs__ : ["CM8Bits","CM15Bits","CM24Bits","CM32Bits"]
+	,CM8Bits: ($_=function(ncolors) { return {_hx_index:0,ncolors:ncolors,__enum__:"format.swf.ColorModel",toString:$estr}; },$_.__params__ = ["ncolors"],$_)
+	,CM15Bits: {_hx_index:1,__enum__:"format.swf.ColorModel",toString:$estr}
+	,CM24Bits: {_hx_index:2,__enum__:"format.swf.ColorModel",toString:$estr}
+	,CM32Bits: {_hx_index:3,__enum__:"format.swf.ColorModel",toString:$estr}
+};
+var format_swf_SoundData = $hxEnums["format.swf.SoundData"] = { __ename__ : true, __constructs__ : ["SDMp3","SDRaw","SDOther"]
+	,SDMp3: ($_=function(seek,data) { return {_hx_index:0,seek:seek,data:data,__enum__:"format.swf.SoundData",toString:$estr}; },$_.__params__ = ["seek","data"],$_)
+	,SDRaw: ($_=function(data) { return {_hx_index:1,data:data,__enum__:"format.swf.SoundData",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,SDOther: ($_=function(data) { return {_hx_index:2,data:data,__enum__:"format.swf.SoundData",toString:$estr}; },$_.__params__ = ["data"],$_)
+};
+var format_swf_SoundFormat = $hxEnums["format.swf.SoundFormat"] = { __ename__ : true, __constructs__ : ["SFNativeEndianUncompressed","SFADPCM","SFMP3","SFLittleEndianUncompressed","SFNellymoser16k","SFNellymoser8k","SFNellymoser","SFSpeex"]
+	,SFNativeEndianUncompressed: {_hx_index:0,__enum__:"format.swf.SoundFormat",toString:$estr}
+	,SFADPCM: {_hx_index:1,__enum__:"format.swf.SoundFormat",toString:$estr}
+	,SFMP3: {_hx_index:2,__enum__:"format.swf.SoundFormat",toString:$estr}
+	,SFLittleEndianUncompressed: {_hx_index:3,__enum__:"format.swf.SoundFormat",toString:$estr}
+	,SFNellymoser16k: {_hx_index:4,__enum__:"format.swf.SoundFormat",toString:$estr}
+	,SFNellymoser8k: {_hx_index:5,__enum__:"format.swf.SoundFormat",toString:$estr}
+	,SFNellymoser: {_hx_index:6,__enum__:"format.swf.SoundFormat",toString:$estr}
+	,SFSpeex: {_hx_index:7,__enum__:"format.swf.SoundFormat",toString:$estr}
+};
+var format_swf_SoundRate = $hxEnums["format.swf.SoundRate"] = { __ename__ : true, __constructs__ : ["SR5k","SR11k","SR22k","SR44k"]
+	,SR5k: {_hx_index:0,__enum__:"format.swf.SoundRate",toString:$estr}
+	,SR11k: {_hx_index:1,__enum__:"format.swf.SoundRate",toString:$estr}
+	,SR22k: {_hx_index:2,__enum__:"format.swf.SoundRate",toString:$estr}
+	,SR44k: {_hx_index:3,__enum__:"format.swf.SoundRate",toString:$estr}
+};
+var format_swf_FontData = $hxEnums["format.swf.FontData"] = { __ename__ : true, __constructs__ : ["FDFont1","FDFont2","FDFont3"]
+	,FDFont1: ($_=function(data) { return {_hx_index:0,data:data,__enum__:"format.swf.FontData",toString:$estr}; },$_.__params__ = ["data"],$_)
+	,FDFont2: ($_=function(hasWideChars,data) { return {_hx_index:1,hasWideChars:hasWideChars,data:data,__enum__:"format.swf.FontData",toString:$estr}; },$_.__params__ = ["hasWideChars","data"],$_)
+	,FDFont3: ($_=function(data) { return {_hx_index:2,data:data,__enum__:"format.swf.FontData",toString:$estr}; },$_.__params__ = ["data"],$_)
+};
+var format_swf_FontInfoData = $hxEnums["format.swf.FontInfoData"] = { __ename__ : true, __constructs__ : ["FIDFont1","FIDFont2"]
+	,FIDFont1: ($_=function(shiftJIS,isANSI,hasWideCodes,data) { return {_hx_index:0,shiftJIS:shiftJIS,isANSI:isANSI,hasWideCodes:hasWideCodes,data:data,__enum__:"format.swf.FontInfoData",toString:$estr}; },$_.__params__ = ["shiftJIS","isANSI","hasWideCodes","data"],$_)
+	,FIDFont2: ($_=function(language,data) { return {_hx_index:1,language:language,data:data,__enum__:"format.swf.FontInfoData",toString:$estr}; },$_.__params__ = ["language","data"],$_)
+};
+var format_swf_LangCode = $hxEnums["format.swf.LangCode"] = { __ename__ : true, __constructs__ : ["LCNone","LCLatin","LCJapanese","LCKorean","LCSimplifiedChinese","LCTraditionalChinese"]
+	,LCNone: {_hx_index:0,__enum__:"format.swf.LangCode",toString:$estr}
+	,LCLatin: {_hx_index:1,__enum__:"format.swf.LangCode",toString:$estr}
+	,LCJapanese: {_hx_index:2,__enum__:"format.swf.LangCode",toString:$estr}
+	,LCKorean: {_hx_index:3,__enum__:"format.swf.LangCode",toString:$estr}
+	,LCSimplifiedChinese: {_hx_index:4,__enum__:"format.swf.LangCode",toString:$estr}
+	,LCTraditionalChinese: {_hx_index:5,__enum__:"format.swf.LangCode",toString:$estr}
+};
 var format_tmx_TmxOrientation = $hxEnums["format.tmx.TmxOrientation"] = { __ename__ : true, __constructs__ : ["Orthogonal","Isometric","Staggered","Hexagonal","Unknown"]
 	,Orthogonal: {_hx_index:0,__enum__:"format.tmx.TmxOrientation",toString:$estr}
 	,Isometric: {_hx_index:1,__enum__:"format.tmx.TmxOrientation",toString:$estr}
@@ -13111,7 +13321,7 @@ var gameObjects_Body = function() {
 	this.layerArmR.addChild(this.armR);
 	this.armR.set_smooth(false);
 	this.body = new com_gEngine_display_BasicSprite("skins");
-	this.body.timeline.playAnimation("ivanka");
+	this.body.timeline.playAnimation("policeWoman");
 	this.display.addChild(this.body);
 	this.body.set_smooth(false);
 	this.armL = new com_gEngine_display_BasicSprite("ivankaArm");
@@ -16080,14 +16290,14 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Jackolantern","Untitled_1","bullets","drop","intro","ivanka","ivankaArm","ivankaFace","neutron","pig","proton","pumpkinBlood","rainDrop","skins","tiles","weapons"];
+	this.names = ["Jackolantern","Untitled_1","bullets","drop","intro","ivanka","ivankaArm","ivankaFace","light","lightFocal","neutron","pig","policeCar","proton","pumpkinBlood","rainDrop","skins","tiles","weapons"];
 	this.weaponsDescription = { name : "weapons", original_height : 6, original_width : 30, files : ["weapons.png"], type : "image"};
 	this.weaponsName = "weapons";
 	this.weapons = null;
 	this.tilesDescription = { name : "tiles", original_height : 100, original_width : 100, files : ["tiles.png"], type : "image"};
 	this.tilesName = "tiles";
 	this.tiles = null;
-	this.skinsDescription = { name : "skins", original_height : 47, original_width : 16, files : ["skins.png"], type : "image"};
+	this.skinsDescription = { name : "skins", original_height : 72, original_width : 18, files : ["skins.png"], type : "image"};
 	this.skinsName = "skins";
 	this.skins = null;
 	this.rainDropDescription = { name : "rainDrop", original_height : 9, original_width : 3, files : ["rainDrop.png"], type : "image"};
@@ -16099,12 +16309,21 @@ var kha__$Assets_ImageList = function() {
 	this.protonDescription = { name : "proton", original_height : 100, original_width : 100, files : ["proton.png"], type : "image"};
 	this.protonName = "proton";
 	this.proton = null;
+	this.policeCarDescription = { name : "policeCar", original_height : 31, original_width : 82, files : ["policeCar.png"], type : "image"};
+	this.policeCarName = "policeCar";
+	this.policeCar = null;
 	this.pigDescription = { name : "pig", original_height : 148, original_width : 54, files : ["pig.png"], type : "image"};
 	this.pigName = "pig";
 	this.pig = null;
 	this.neutronDescription = { name : "neutron", original_height : 13, original_width : 14, files : ["neutron.png"], type : "image"};
 	this.neutronName = "neutron";
 	this.neutron = null;
+	this.lightFocalDescription = { name : "lightFocal", original_height : 31, original_width : 56, files : ["lightFocal.png"], type : "image"};
+	this.lightFocalName = "lightFocal";
+	this.lightFocal = null;
+	this.lightDescription = { name : "light", original_height : 56, original_width : 56, files : ["light.png"], type : "image"};
+	this.lightName = "light";
+	this.light = null;
 	this.ivankaFaceDescription = { name : "ivankaFace", original_height : 26, original_width : 20, files : ["ivankaFace.png"], type : "image"};
 	this.ivankaFaceName = "ivankaFace";
 	this.ivankaFace = null;
@@ -16232,6 +16451,30 @@ kha__$Assets_ImageList.prototype = {
 		this.ivankaFace.unload();
 		this.ivankaFace = null;
 	}
+	,light: null
+	,lightName: null
+	,lightDescription: null
+	,lightLoad: function(done,failure) {
+		kha_Assets.loadImage("light",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "lightLoad"});
+	}
+	,lightUnload: function() {
+		this.light.unload();
+		this.light = null;
+	}
+	,lightFocal: null
+	,lightFocalName: null
+	,lightFocalDescription: null
+	,lightFocalLoad: function(done,failure) {
+		kha_Assets.loadImage("lightFocal",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "lightFocalLoad"});
+	}
+	,lightFocalUnload: function() {
+		this.lightFocal.unload();
+		this.lightFocal = null;
+	}
 	,neutron: null
 	,neutronName: null
 	,neutronDescription: null
@@ -16255,6 +16498,18 @@ kha__$Assets_ImageList.prototype = {
 	,pigUnload: function() {
 		this.pig.unload();
 		this.pig = null;
+	}
+	,policeCar: null
+	,policeCarName: null
+	,policeCarDescription: null
+	,policeCarLoad: function(done,failure) {
+		kha_Assets.loadImage("policeCar",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "policeCarLoad"});
+	}
+	,policeCarUnload: function() {
+		this.policeCar.unload();
+		this.policeCar = null;
 	}
 	,proton: null
 	,protonName: null
@@ -38244,6 +38499,9 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		atlas.add(new com_loading_basicResources_SparrowLoader("pumpkinBlood","pumpkinBlood_xml"));
 		atlas.add(new com_loading_basicResources_ImageLoader("ivankaArm"));
 		atlas.add(new com_loading_basicResources_ImageLoader("ivankaFace"));
+		atlas.add(new com_loading_basicResources_ImageLoader("lightFocal"));
+		atlas.add(new com_loading_basicResources_ImageLoader("policeCar"));
+		atlas.add(new com_loading_basicResources_ImageLoader("light"));
 		resources.add(atlas);
 		resources.add(new com_loading_basicResources_FontLoader("fofbb_reg_ttf"));
 		resources.add(new com_g3d_Object3dLoader("pumpkin_ogex"));
@@ -38337,6 +38595,21 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 				this.simulationLayer.addChild(drop.display);
 				this.addChild(drop);
 			}
+		} else if(object.type == "asset") {
+			var display = new com_gEngine_display_BasicSprite(object.properties.getString("asset"));
+			display.scaleX = object.width / display.width() * 4;
+			display.scaleY = object.height / display.height() * 4;
+			display.offsetY = -display.height();
+			display.x = object.x * 4;
+			display.y = object.y * 4;
+			display.set_rotation(object.rotation * Math.PI / 180);
+			this.simulationLayer.addChild(display);
+			if(object.properties.exists("blend")) {
+				if(object.properties.getString("blend") == "add") {
+					display.blend = 2;
+				}
+			}
+			display.set_smooth(!(object.properties.exists("smooth") && object.properties.getString("smooth") == "false"));
 		}
 	}
 	,update: function(dt) {
