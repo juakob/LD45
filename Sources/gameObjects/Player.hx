@@ -77,16 +77,6 @@ class Player extends Body {
  
     override function update(dt:Float) {
         
-
-        
-         if(Input.i.isKeyCodePressed(KeyCode.X)){
-             if(display.scaleX>0){
-                  weapon.shoot(collision.x-50,collision.y+37,Sides.LEFT);
-             }else{
-                  weapon.shoot(collision.x+70,collision.y+37,Sides.RIGHT);
-             }
-           
-        }
         if(collision.velocityX!=0 && collision.isTouching(Sides.BOTTOM)){
             display.rotation=Math.PI/40*Math.sin(TimeManager.time*10);
             armL.rotation= display.rotation*4;

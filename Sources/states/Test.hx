@@ -56,6 +56,7 @@ class Test extends State {
     var simulationLayer:Layer;
     var room:String;
     var fromRoom:String;
+    var touchJoystick:VirtualGamepad;
     public function new(room:String,fromRoom:String=null) {
         super();
         this.room = room;
@@ -148,6 +149,7 @@ class Test extends State {
         pumpkinKillText.color=Color.Orange;
         pumpkinKillText.text=pumpkinKill+"";
         hudLayer.addChild(pumpkinKillText);
+
         createTouchJoystick();
     }
     function createTouchJoystick() {
@@ -156,6 +158,7 @@ class Test extends State {
         left.smooth=false;
         left.x=border;
         left.scaleX=left.scaleY=2;
+        left.alpha=0.25;
         left.y=720-border-left.height()*2;
         hudLayer.addChild(left);
 
@@ -166,6 +169,8 @@ class Test extends State {
         right.scaleX=right.scaleY=2;
         right.offsetX=-right.width();
         right.scaleX*=-1;
+        right.alpha=0.25;
+
         right.y=720-border-right.height()*2;
         hudLayer.addChild(right);
 
@@ -174,12 +179,13 @@ class Test extends State {
         up.x=1280-border-up.width()*2;
         up.scaleX=up.scaleY=2;
         up.recenter();
+        up.alpha=0.25;
         //up.offsetX=-up.width();
         up.rotation=Math.PI/2;
         up.y=720-border-up.height()*2;
         hudLayer.addChild(up);
         
-        var touchJoystick=new VirtualGamepad();
+        touchJoystick=new VirtualGamepad();
         touchJoystick.addButton(XboxJoystick.LEFT_DPAD,left.x+left.width(),left.y+left.height(),left.width());
         touchJoystick.addButton(XboxJoystick.RIGHT_DPAD,right.x+right.width(),right.y+right.height(),right.width());
         touchJoystick.addButton(XboxJoystick.A,1280-up.width()-border,up.y+up.height(),up.width());
@@ -287,7 +293,9 @@ class Test extends State {
         (cast b.userData).die();
     }
     override function destroy() {
+        this.touchJoystick.destroy();
         super.destroy();
         GameGlobals.clear();
+        
     }
 }
