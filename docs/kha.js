@@ -1643,6 +1643,9 @@ com_framework_utils_Input.prototype = {
 	,joysticks: null
 	,mousePosition: null
 	,screenScale: null
+	,getGamepad: function(index) {
+		return this.joysticks[index];
+	}
 	,subscibeInput: function() {
 		kha_input_Keyboard.get().notify($bind(this,this.onKeyDown),$bind(this,this.onKeyUp));
 		kha_input_Mouse.get().notify($bind(this,this.onMouseDown),$bind(this,this.onMouseUp),$bind(this,this.onMouseMove),null);
@@ -1657,6 +1660,7 @@ com_framework_utils_Input.prototype = {
 		kha_input_Gamepad.notifyOnConnect($bind(this,this.onConnect),$bind(this,this.onDisconnect));
 	}
 	,onConnect: function(aId) {
+		haxe_Log.trace("gamepad " + aId,{ fileName : "com/framework/utils/Input.hx", lineNumber : 87, className : "com.framework.utils.Input", methodName : "onConnect"});
 		this.joysticks[aId].onConnect();
 	}
 	,onDisconnect: function(gamePad) {
@@ -1825,8 +1829,14 @@ com_framework_utils_JoystickProxy.prototype = {
 	,pressed: null
 	,released: null
 	,gamepad: null
+	,onAxisChange: null
+	,onButtonChange: null
 	,id: null
 	,active: null
+	,notify: function(onAxisChange,onButtonChange) {
+		this.onAxisChange = onAxisChange;
+		this.onButtonChange = onButtonChange;
+	}
 	,onConnect: function() {
 		if(!this.active) {
 			this.gamepad = kha_input_Gamepad.get(this.id);
@@ -1847,6 +1857,9 @@ com_framework_utils_JoystickProxy.prototype = {
 	}
 	,onAxis: function(id,value) {
 		this.axes[id] = value;
+		if(this.onAxisChange != null) {
+			this.onAxisChange(id,value);
+		}
 	}
 	,onButton: function(id,value) {
 		this.buttons[id] = value;
@@ -1854,6 +1867,9 @@ com_framework_utils_JoystickProxy.prototype = {
 			this.released.push(id);
 		} else {
 			this.pressed.push(id);
+		}
+		if(this.onButtonChange != null) {
+			this.onButtonChange(id,value);
 		}
 	}
 	,update: function() {
@@ -1869,6 +1885,8 @@ com_framework_utils_JoystickProxy.prototype = {
 			var i = _g++;
 			this.buttons[i] = 0;
 		}
+		this.onButtonChange = null;
+		this.onAxisChange = null;
 	}
 	,buttonPressed: function(id) {
 		var _g = 0;
@@ -1961,6 +1979,227 @@ com_framework_utils_State.prototype = $extend(com_framework_utils_Entity.prototy
 	}
 	,__class__: com_framework_utils_State
 });
+var com_framework_utils_VirtualGamepad = function() {
+	this.scaleY = 1;
+	this.scaleX = 1;
+	kha_input_Surface.get().notify($bind(this,this.onTouchStart),$bind(this,this.onTouchEnd),$bind(this,this.onTouchMove));
+	kha_input_Keyboard.get().notify($bind(this,this.onKeyDown),$bind(this,this.onKeyUp));
+	this.buttonsTouch = [];
+	this.sticksTouch = [];
+	this.globalStick = new com_framework_utils_VirtualStick();
+	this.keyButton = new haxe_ds_IntMap();
+};
+$hxClasses["com.framework.utils.VirtualGamepad"] = com_framework_utils_VirtualGamepad;
+com_framework_utils_VirtualGamepad.__name__ = "com.framework.utils.VirtualGamepad";
+com_framework_utils_VirtualGamepad.prototype = {
+	width: null
+	,height: null
+	,scaleX: null
+	,scaleY: null
+	,buttonsTouch: null
+	,sticksTouch: null
+	,globalStick: null
+	,keyButton: null
+	,onAxisChange: null
+	,onButtonChange: null
+	,destroy: function() {
+		kha_input_Surface.get().remove($bind(this,this.onTouchStart),$bind(this,this.onTouchEnd),$bind(this,this.onTouchMove));
+		kha_input_Keyboard.get().remove($bind(this,this.onKeyDown),$bind(this,this.onKeyUp),null);
+		this.onAxisChange = null;
+		this.onButtonChange = null;
+	}
+	,addButton: function(id,x,y,radio) {
+		var button = new com_framework_utils_VirtualButton();
+		button.id = id;
+		button.x = x;
+		button.y = y;
+		button.radio = radio;
+		this.buttonsTouch.push(button);
+	}
+	,addKeyButton: function(id,key) {
+		this.keyButton.h[key] = id;
+	}
+	,addStick: function(idX,idY,x,y,radio) {
+		var stick = new com_framework_utils_VirtualStick();
+		stick.idX = idX;
+		stick.idY = idY;
+		stick.x = x;
+		stick.y = y;
+		stick.radio = radio;
+		this.sticksTouch.push(stick);
+	}
+	,globalStickData: function(idX,idY,radio) {
+		this.globalStick.idX = idX;
+		this.globalStick.idY = idY;
+		this.globalStick.radio = radio;
+	}
+	,notify: function(onAxis,onButton) {
+		this.onAxisChange = onAxis;
+		this.onButtonChange = onButton;
+	}
+	,onTouchStart: function(id,x,y) {
+		this.scaleX = com_framework_utils_Input.i.screenScale.x;
+		this.scaleY = com_framework_utils_Input.i.screenScale.y;
+		var _g = 0;
+		var _g1 = this.buttonsTouch;
+		while(_g < _g1.length) {
+			var button = _g1[_g];
+			++_g;
+			if(button.handleInput(x * this.scaleX,y * this.scaleY)) {
+				button.active = true;
+				button.touchId = id;
+				this.onButtonChange(button.id,1);
+				haxe_Log.trace("button active " + id,{ fileName : "com/framework/utils/VirtualGamepad.hx", lineNumber : 86, className : "com.framework.utils.VirtualGamepad", methodName : "onTouchStart"});
+				return;
+			}
+		}
+		var _g2 = 0;
+		var _g3 = this.sticksTouch;
+		while(_g2 < _g3.length) {
+			var stick = _g3[_g2];
+			++_g2;
+			if(stick.handleInput(x * this.scaleX,y * this.scaleY)) {
+				this.onAxisChange(stick.idX,stick.axisX);
+				this.onAxisChange(stick.idY,stick.axisY);
+				stick.active = true;
+				stick.touchId = id;
+				return;
+			}
+		}
+		if(!this.globalStick.active) {
+			this.globalStick.active = true;
+			this.globalStick.x = x * this.scaleX;
+			this.globalStick.y = y * this.scaleY;
+			this.globalStick.axisX = 0;
+			this.globalStick.axisY = 0;
+			this.globalStick.touchId = id;
+			haxe_Log.trace("globalStick active " + id,{ fileName : "com/framework/utils/VirtualGamepad.hx", lineNumber : 108, className : "com.framework.utils.VirtualGamepad", methodName : "onTouchStart"});
+		}
+	}
+	,onTouchMove: function(id,x,y) {
+		this.scaleX = com_framework_utils_Input.i.screenScale.x;
+		this.scaleY = com_framework_utils_Input.i.screenScale.y;
+		var _g = 0;
+		var _g1 = this.sticksTouch;
+		while(_g < _g1.length) {
+			var stick = _g1[_g];
+			++_g;
+			if(stick.touchId == id) {
+				stick.handleInput(x * this.scaleX,y * this.scaleY);
+				this.onAxisChange(stick.idX,stick.axisX);
+				this.onAxisChange(stick.idY,stick.axisY);
+				stick.active = true;
+				return;
+			}
+		}
+		if(this.globalStick.touchId == id) {
+			this.globalStick.handleInputNoBound(x * this.scaleX,y * this.scaleY);
+			this.onAxisChange(this.globalStick.idX,this.globalStick.axisX);
+			this.onAxisChange(this.globalStick.idY,this.globalStick.axisY);
+		}
+	}
+	,onTouchEnd: function(id,x,y) {
+		var _g = 0;
+		var _g1 = this.buttonsTouch;
+		while(_g < _g1.length) {
+			var button = _g1[_g];
+			++_g;
+			if(button.touchId == id) {
+				button.active = false;
+				this.onButtonChange(button.id,0);
+				button.touchId = -1;
+				return;
+			}
+		}
+		var _g2 = 0;
+		var _g3 = this.sticksTouch;
+		while(_g2 < _g3.length) {
+			var stick = _g3[_g2];
+			++_g2;
+			if(stick.touchId == id) {
+				this.onAxisChange(stick.idX,0);
+				this.onAxisChange(stick.idY,0);
+				stick.active = false;
+				stick.touchId = -1;
+				return;
+			}
+		}
+		if(this.globalStick.touchId == id) {
+			this.onAxisChange(this.globalStick.idX,0);
+			this.onAxisChange(this.globalStick.idY,0);
+			this.globalStick.active = false;
+			this.globalStick.touchId = -1;
+			return;
+		}
+	}
+	,onKeyDown: function(key) {
+		var id = this.keyButton.h[key];
+		this.onButtonChange(id,1);
+	}
+	,onKeyUp: function(key) {
+		var id = this.keyButton.h[key];
+		this.onButtonChange(id,0);
+	}
+	,__class__: com_framework_utils_VirtualGamepad
+};
+var com_framework_utils_VirtualButton = function() {
+	this.touchId = -1;
+};
+$hxClasses["com.framework.utils.VirtualButton"] = com_framework_utils_VirtualButton;
+com_framework_utils_VirtualButton.__name__ = "com.framework.utils.VirtualButton";
+com_framework_utils_VirtualButton.prototype = {
+	touchId: null
+	,id: null
+	,x: null
+	,y: null
+	,radio: null
+	,active: null
+	,handleInput: function(x,y) {
+		return (x - this.x) * (x - this.x) + (y - this.y) * (y - this.y) < this.radio * this.radio;
+	}
+	,__class__: com_framework_utils_VirtualButton
+};
+var com_framework_utils_VirtualStick = function() {
+	this.touchId = -1;
+};
+$hxClasses["com.framework.utils.VirtualStick"] = com_framework_utils_VirtualStick;
+com_framework_utils_VirtualStick.__name__ = "com.framework.utils.VirtualStick";
+com_framework_utils_VirtualStick.prototype = {
+	touchId: null
+	,idX: null
+	,idY: null
+	,x: null
+	,y: null
+	,radio: null
+	,axisX: null
+	,axisY: null
+	,active: null
+	,handleInput: function(x,y) {
+		var sqrDistance = (x - this.x) * (x - this.x) + (y - this.y) * (y - this.y);
+		if(sqrDistance < this.radio * this.radio) {
+			var length = Math.sqrt(sqrDistance);
+			this.axisX = (x - this.x) / length;
+			this.axisY = -((y - this.y) / length);
+			return true;
+		}
+		return false;
+	}
+	,handleInputNoBound: function(x,y) {
+		var sqrDistance = (x - this.x) * (x - this.x) + (y - this.y) * (y - this.y);
+		var length = Math.sqrt(sqrDistance);
+		if(length > this.radio) {
+			this.axisX = (x - this.x) / length;
+			this.axisY = -((y - this.y) / length);
+			this.x = x - this.axisX;
+			this.y = y - this.axisY;
+		}
+		return true;
+	}
+	,__class__: com_framework_utils_VirtualStick
+};
+var com_framework_utils_XboxJoystick = function() { };
+$hxClasses["com.framework.utils.XboxJoystick"] = com_framework_utils_XboxJoystick;
+com_framework_utils_XboxJoystick.__name__ = "com.framework.utils.XboxJoystick";
 var com_fx_Emitter = function() {
 	this.accelerationX = 0;
 	this.gravity = 0;
@@ -8293,7 +8532,7 @@ com_gEngine_painters_Painter.prototype = {
 		var g = canvas.get_g4();
 		this.vertexBuffer.unlock(vertexCount);
 		if(clear) {
-			g.clear(kha__$Color_Color_$Impl_$.fromFloats(this.red,this.green,this.blue,this.alpha));
+			g.clear(kha__$Color_Color_$Impl_$.fromFloats(this.red,this.green,this.blue,this.alpha),1);
 		}
 		g.setVertexBuffer(this.vertexBuffer);
 		g.setIndexBuffer(this.indexBuffer);
@@ -8375,9 +8614,6 @@ com_gEngine_painters_Painter.prototype = {
 		this.vertexBuffer.unlock(count);
 	}
 	,destroy: function() {
-		this.vertexBuffer.delete();
-		this.indexBuffer.delete();
-		this.pipeline.delete();
 	}
 	,adjustRenderArea: function(area) {
 	}
@@ -13729,20 +13965,44 @@ gameObjects_Player.__super__ = gameObjects_Body;
 gameObjects_Player.prototype = $extend(gameObjects_Body.prototype,{
 	weapon: null
 	,interact: null
+	,onButtonChange: function(id,value) {
+		if(id == 14) {
+			if(value == 1) {
+				this.collision.accelerationX = -this.maxSpeed * 4;
+				this.display.scaleX = Math.abs(this.display.scaleX);
+			} else if(this.collision.accelerationX < 0) {
+				this.collision.accelerationX = 0;
+			}
+		}
+		if(id == 15) {
+			if(value == 1) {
+				this.collision.accelerationX = this.maxSpeed * 4;
+				this.display.scaleX = -Math.abs(this.display.scaleX);
+			} else if(this.collision.accelerationX > 0) {
+				this.collision.accelerationX = 0;
+			}
+		}
+		if(id == 0) {
+			if(value == 1) {
+				this.collision.velocityY = -1000;
+			}
+		}
+		if(id == 2) {
+			if(value == 1) {
+				if(this.display.scaleX > 0) {
+					this.weapon.shoot(this.collision.x - 50,this.collision.y + 37,1);
+				} else {
+					this.weapon.shoot(this.collision.x + 70,this.collision.y + 37,2);
+				}
+			}
+		}
+		if(id == 12) {
+			this.interact = value == 1;
+		}
+	}
+	,onAxisChange: function(id,value) {
+	}
 	,update: function(dt) {
-		if(com_framework_utils_Input.i.isKeyCodeDown(37)) {
-			this.collision.accelerationX = -this.maxSpeed * 4;
-			this.display.scaleX = Math.abs(this.display.scaleX);
-		} else if(com_framework_utils_Input.i.isKeyCodeDown(39)) {
-			this.collision.accelerationX = this.maxSpeed * 4;
-			this.display.scaleX = -Math.abs(this.display.scaleX);
-		} else {
-			this.collision.accelerationX = 0;
-		}
-		if(com_framework_utils_Input.i.isKeyCodePressed(32)) {
-			this.collision.velocityY = -1000;
-		}
-		this.interact = com_framework_utils_Input.i.isKeyCodePressed(38);
 		if(com_framework_utils_Input.i.isKeyCodePressed(88)) {
 			if(this.display.scaleX > 0) {
 				this.weapon.shoot(this.collision.x - 50,this.collision.y + 37,1);
@@ -16471,7 +16731,7 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.names = ["Untitled","bodyDead","bullets","drop","faceDead","guts","intro","ivanka","ivankaArm","ivankaFace","light","lightFocal","neutron","policeCar","pumpkinBlood","rainDrop","skins","tiles","tree","weapons"];
+	this.names = ["Untitled","bodyDead","bullets","drop","faceDead","guts","intro","ivanka","ivankaArm","ivankaFace","light","lightFocal","moveButton","neutron","policeCar","pumpkinBlood","rainDrop","skins","tiles","tree","weapons"];
 	this.weaponsDescription = { name : "weapons", original_height : 6, original_width : 30, files : ["weapons.png"], type : "image"};
 	this.weaponsName = "weapons";
 	this.weapons = null;
@@ -16496,6 +16756,9 @@ var kha__$Assets_ImageList = function() {
 	this.neutronDescription = { name : "neutron", original_height : 13, original_width : 14, files : ["neutron.png"], type : "image"};
 	this.neutronName = "neutron";
 	this.neutron = null;
+	this.moveButtonDescription = { name : "moveButton", original_height : 100, original_width : 100, files : ["moveButton.png"], type : "image"};
+	this.moveButtonName = "moveButton";
+	this.moveButton = null;
 	this.lightFocalDescription = { name : "lightFocal", original_height : 31, original_width : 56, files : ["lightFocal.png"], type : "image"};
 	this.lightFocalName = "lightFocal";
 	this.lightFocal = null;
@@ -16682,6 +16945,18 @@ kha__$Assets_ImageList.prototype = {
 	,lightFocalUnload: function() {
 		this.lightFocal.unload();
 		this.lightFocal = null;
+	}
+	,moveButton: null
+	,moveButtonName: null
+	,moveButtonDescription: null
+	,moveButtonLoad: function(done,failure) {
+		kha_Assets.loadImage("moveButton",function(image) {
+			done();
+		},failure,{ fileName : "kha/internal/AssetsBuilder.hx", lineNumber : 126, className : "kha._Assets.ImageList", methodName : "moveButtonLoad"});
+	}
+	,moveButtonUnload: function() {
+		this.moveButton.unload();
+		this.moveButton = null;
 	}
 	,neutron: null
 	,neutronName: null
@@ -38702,6 +38977,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		atlas.add(new com_loading_basicResources_ImageLoader("faceDead"));
 		atlas.add(new com_loading_basicResources_ImageLoader("bodyDead"));
 		atlas.add(new com_loading_basicResources_ImageLoader("guts"));
+		atlas.add(new com_loading_basicResources_ImageLoader("moveButton"));
 		resources.add(atlas);
 		resources.add(new com_loading_basicResources_FontLoader("fofbb_reg_ttf"));
 		resources.add(new com_g3d_Object3dLoader("gun3d_ogex"));
@@ -38728,7 +39004,7 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 			_gthis.simulationLayer.addChild(layerTilemap.createDisplay(tileLayer));
 		},$bind(this,this.parseMapObjects));
 		this.stage.cameras[0].limits(0,0,this.worldMap.widthIntTiles * 40,this.worldMap.heightInTiles * 40);
-		var tmp = new com_gEngine_shaders_ShRgbSplit(com_gEngine_display_Blend.blendDefault());
+		var tmp = new com_gEngine_shaders_ShRgbSplit(com_gEngine_display_Blend.blendMultipass());
 		var tmp1 = com_gEngine_display_Blend.blendDefault();
 		this.simulationLayer.filter = new com_gEngine_Filter([tmp,new com_gEngine_shaders_ShFilmGrain(tmp1)],0.5,.5,0.5,1,false);
 		gameObjects_GameGlobals.bulletCollisions = this.bullets = new com_collision_platformer_CollisionGroup();
@@ -38755,6 +39031,44 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 		this.pumpkinKillText.color = -23296;
 		this.pumpkinKillText.set_text(this.pumpkinKill + "");
 		this.hudLayer.addChild(this.pumpkinKillText);
+		this.createTouchJoystick();
+	}
+	,createTouchJoystick: function() {
+		var border = 20;
+		var left = new com_gEngine_display_BasicSprite("moveButton");
+		left.set_smooth(false);
+		left.x = border;
+		left.scaleX = left.scaleY = 2;
+		left.y = 720 - border - left.height() * 2;
+		this.hudLayer.addChild(left);
+		var right = new com_gEngine_display_BasicSprite("moveButton");
+		right.set_smooth(false);
+		right.x = border + right.width() * 2 + border * 4;
+		right.scaleX = right.scaleY = 2;
+		right.offsetX = -right.width();
+		right.scaleX *= -1;
+		right.y = 720 - border - right.height() * 2;
+		this.hudLayer.addChild(right);
+		var up = new com_gEngine_display_BasicSprite("moveButton");
+		up.set_smooth(false);
+		up.x = 1280 - border - up.width() * 2;
+		up.scaleX = up.scaleY = 2;
+		up.recenter();
+		up.set_rotation(Math.PI / 2);
+		up.y = 720 - border - up.height() * 2;
+		this.hudLayer.addChild(up);
+		var touchJoystick = new com_framework_utils_VirtualGamepad();
+		touchJoystick.addButton(14,left.x + left.width(),left.y + left.height(),left.width());
+		touchJoystick.addButton(15,right.x + right.width(),right.y + right.height(),right.width());
+		touchJoystick.addButton(0,1280 - up.width() - border,up.y + up.height(),up.width());
+		touchJoystick.addKeyButton(14,37);
+		touchJoystick.addKeyButton(15,39);
+		touchJoystick.addKeyButton(12,38);
+		touchJoystick.addKeyButton(0,32);
+		touchJoystick.addKeyButton(2,88);
+		touchJoystick.notify(($_=this.ivanka,$bind($_,$_.onAxisChange)),($_=this.ivanka,$bind($_,$_.onButtonChange)));
+		var gamepad = com_framework_utils_Input.i.getGamepad(0);
+		gamepad.notify(($_=this.ivanka,$bind($_,$_.onAxisChange)),($_=this.ivanka,$bind($_,$_.onButtonChange)));
 	}
 	,parseMapObjects: function(layerTilemap,object) {
 		if(object.type == "enemy") {
@@ -38900,6 +39214,28 @@ com_collision_platformer_Sides.TOP = 4;
 com_collision_platformer_Sides.BOTTOM = 8;
 com_collision_platformer_Sides.ALL = 15;
 com_framework_utils_Input.TOUCH_MAX = 6;
+com_framework_utils_XboxJoystick.A = 0;
+com_framework_utils_XboxJoystick.B = 1;
+com_framework_utils_XboxJoystick.X = 2;
+com_framework_utils_XboxJoystick.Y = 3;
+com_framework_utils_XboxJoystick.LB = 4;
+com_framework_utils_XboxJoystick.RB = 5;
+com_framework_utils_XboxJoystick.LT = 6;
+com_framework_utils_XboxJoystick.RT = 7;
+com_framework_utils_XboxJoystick.SELECT = 8;
+com_framework_utils_XboxJoystick.START = 9;
+com_framework_utils_XboxJoystick.LEFT_ANALOG = 10;
+com_framework_utils_XboxJoystick.RIGHT_ANALOG = 11;
+com_framework_utils_XboxJoystick.UP_DPAD = 12;
+com_framework_utils_XboxJoystick.DOWN_DPAD = 13;
+com_framework_utils_XboxJoystick.LEFT_DPAD = 14;
+com_framework_utils_XboxJoystick.RIGHT_DPAD = 15;
+com_framework_utils_XboxJoystick.AXIS_LEFTX = 0;
+com_framework_utils_XboxJoystick.AXIS_LEFTY = 1;
+com_framework_utils_XboxJoystick.AXIS_RIGHTX = 2;
+com_framework_utils_XboxJoystick.AXIS_RIGHTY = 3;
+com_framework_utils_XboxJoystick.ANALOG_LT = 4;
+com_framework_utils_XboxJoystick.ANALOG_RT = 5;
 com_gEngine_GEngine.initialIndex = 2;
 com_gEngine_GEngine.drawCount = 0;
 com_gEngine_GEngine.extraInfo = "";
