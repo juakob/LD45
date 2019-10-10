@@ -1,5 +1,7 @@
 package states;
 
+import com.framework.utils.XboxJoystick;
+import com.framework.utils.VirtualGamepad;
 import com.soundLib.SoundManager.SM;
 import com.loading.basicResources.SoundLoader;
 import format.swf.Data.BlendMode;
@@ -77,6 +79,7 @@ class Test extends State {
         atlas.add(new ImageLoader("faceDead"));
         atlas.add(new ImageLoader("bodyDead"));
         atlas.add(new ImageLoader("guts"));
+        atlas.add(new ImageLoader("moveButton"));
         resources.add(atlas);
         resources.add(new FontLoader("fofbb_reg_ttf"));
         resources.add(new Object3dLoader("gun3d_ogex"));
@@ -87,7 +90,6 @@ class Test extends State {
     override function init() {
         SM.playMusic("rain");
         stageColor(0.5,.5,0.5);
-       
         simulationLayer=new Layer();
         var backgroundLayer=new Layer();
         simulationLayer.addChild(backgroundLayer);
@@ -112,7 +114,7 @@ class Test extends State {
         );
         stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
 
-       simulationLayer.filter=new Filter([new ShRgbSplit(Blend.blendDefault()),new ShFilmGrain(Blend.blendDefault())],0.5,.5,0.5,1,false);
+       simulationLayer.filter=new Filter([new ShRgbSplit(Blend.blendMultipass()),new ShFilmGrain(Blend.blendDefault())],0.5,.5,0.5,1,false);
 
         GameGlobals.bulletCollisions=bullets=new CollisionGroup();
        // stage.defaultCamera().offsetX=-1280/2;
@@ -146,7 +148,50 @@ class Test extends State {
         pumpkinKillText.color=Color.Orange;
         pumpkinKillText.text=pumpkinKill+"";
         hudLayer.addChild(pumpkinKillText);
-    
+        createTouchJoystick();
+    }
+    function createTouchJoystick() {
+        var border:Int=20;
+        var left=new BasicSprite("moveButton");
+        left.smooth=false;
+        left.x=border;
+        left.scaleX=left.scaleY=2;
+        left.y=720-border-left.height()*2;
+        hudLayer.addChild(left);
+
+  
+        var right=new BasicSprite("moveButton");
+        right.smooth=false;
+        right.x=border+right.width()*2+border*4;
+        right.scaleX=right.scaleY=2;
+        right.offsetX=-right.width();
+        right.scaleX*=-1;
+        right.y=720-border-right.height()*2;
+        hudLayer.addChild(right);
+
+         var up=new BasicSprite("moveButton");
+        up.smooth=false;
+        up.x=1280-border-up.width()*2;
+        up.scaleX=up.scaleY=2;
+        up.recenter();
+        //up.offsetX=-up.width();
+        up.rotation=Math.PI/2;
+        up.y=720-border-up.height()*2;
+        hudLayer.addChild(up);
+        
+        var touchJoystick=new VirtualGamepad();
+        touchJoystick.addButton(XboxJoystick.LEFT_DPAD,left.x+left.width(),left.y+left.height(),left.width());
+        touchJoystick.addButton(XboxJoystick.RIGHT_DPAD,right.x+right.width(),right.y+right.height(),right.width());
+        touchJoystick.addButton(XboxJoystick.A,1280-up.width()-border,up.y+up.height(),up.width());
+        touchJoystick.addKeyButton(XboxJoystick.LEFT_DPAD,KeyCode.Left);
+        touchJoystick.addKeyButton(XboxJoystick.RIGHT_DPAD,KeyCode.Right);
+        touchJoystick.addKeyButton(XboxJoystick.UP_DPAD,KeyCode.Up);
+        touchJoystick.addKeyButton(XboxJoystick.A,KeyCode.Space);
+        touchJoystick.addKeyButton(XboxJoystick.X,KeyCode.X);
+        touchJoystick.notify(ivanka.onAxisChange,ivanka.onButtonChange);
+
+        var gamepad=Input.i.getGamepad(0);
+        gamepad.notify(ivanka.onAxisChange,ivanka.onButtonChange);
     }
     function parseMapObjects(layerTilemap:Tilemap,object:TmxObject){
         if(object.type=="enemy"){

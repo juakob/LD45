@@ -1,5 +1,6 @@
 package gameObjects;
 
+import com.framework.utils.XboxJoystick;
 import com.TimeManager;
 import com.collision.platformer.Sides;
 import kha.input.KeyCode;
@@ -15,6 +16,7 @@ import com.framework.utils.Entity;
 class Player extends Body {
     var weapon:Gun;
     public var interact:Bool;
+    
     public function new(x:Float,y:Float) {
         super();
         weapon=new Gun();
@@ -29,25 +31,54 @@ class Player extends Body {
        weapon.display.y=5+9;
 
     }
+    public function onButtonChange(id:Int,value:Float) {
+        if(id==XboxJoystick.LEFT_DPAD){
+            if(value==1){
+                collision.accelerationX=-maxSpeed*4;
+                display.scaleX=Math.abs(display.scaleX);
+            }else{
+                if(collision.accelerationX<0){
+                    collision.accelerationX=0;
+                }
+            }
+        }
+        if(id==XboxJoystick.RIGHT_DPAD){
+            if(value==1){
+                collision.accelerationX=maxSpeed*4;
+                display.scaleX=-Math.abs(display.scaleX);
+            }else{
+                if(collision.accelerationX>0){
+                    collision.accelerationX=0;
+                }
+            }
+        }
+         if(id==XboxJoystick.A){
+            if(value==1){
+               collision.velocityY=-1000;
+            }
+        }
+        if(id==XboxJoystick.X){
+            if(value==1){
+               if(display.scaleX>0){
+                  weapon.shoot(collision.x-50,collision.y+37,Sides.LEFT);
+                }else{
+                  weapon.shoot(collision.x+70,collision.y+37,Sides.RIGHT);
+                }
+            }
+        }
+        if(id==XboxJoystick.UP_DPAD){
+            interact=(value==1);
+        }
+  
+    }
+    public function onAxisChange(id:Int,value:Float) {
+        
+    }
  
     override function update(dt:Float) {
         
 
-        if(Input.i.isKeyCodeDown(KeyCode.Left)){
-            collision.accelerationX=-maxSpeed*4;
-            
-            display.scaleX=Math.abs(display.scaleX);
-        }else
-        if(Input.i.isKeyCodeDown(KeyCode.Right)){
-            collision.accelerationX=maxSpeed*4;
-             display.scaleX=-Math.abs(display.scaleX);
-        }else{
-            collision.accelerationX=0;
-        }
-        if(Input.i.isKeyCodePressed(KeyCode.Space)){
-            collision.velocityY=-1000;
-        }
-        interact=(Input.i.isKeyCodePressed(KeyCode.Up));
+        
          if(Input.i.isKeyCodePressed(KeyCode.X)){
              if(display.scaleX>0){
                   weapon.shoot(collision.x-50,collision.y+37,Sides.LEFT);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="53" height="18" tilewidth="10" tileheight="10" infinite="0" nextlayerid="18" nextobjectid="104">
+<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="53" height="18" tilewidth="10" tileheight="10" infinite="0" nextlayerid="19" nextobjectid="149">
  <tileset firstgid="1" name="tiles" tilewidth="10" tileheight="10" spacing="2" margin="2" tilecount="64" columns="8">
   <image source="tiles.png" width="100" height="100"/>
  </tileset>
@@ -27,7 +27,7 @@
    <image width="4" height="9" source="guts.png"/>
   </tile>
  </tileset>
- <layer id="17" name="Tile Layer 4" width="53" height="18">
+ <layer id="17" name="Tile Layer 4" width="53" height="18" locked="1">
   <properties>
    <property name="noCollision" value=""/>
   </properties>
@@ -49,161 +49,160 @@
 35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,
 35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,
 35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,
-35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35,35
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <objectgroup id="15" name="Object Layer 2" locked="1">
-  <object id="44" type="asset" gid="68" x="418" y="178" width="77.5" height="165.5">
+  <object id="44" type="asset" gid="68" x="417.5" y="164" width="77.5" height="165.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="69" type="asset" gid="68" x="368.25" y="165.75" width="77.5" height="156">
+  <object id="69" type="asset" gid="68" x="367.75" y="151.75" width="77.5" height="156">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="70" type="asset" gid="68" x="316.75" y="165.75" width="91" height="150">
+  <object id="70" type="asset" gid="68" x="316.25" y="151.75" width="91" height="150">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="71" type="asset" gid="68" x="273.75" y="164.25" width="83.5" height="139.5">
+  <object id="71" type="asset" gid="68" x="273.25" y="150.25" width="83.5" height="139.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="72" type="asset" gid="68" x="147.25" y="159.75" width="77.5" height="149.5">
+  <object id="72" type="asset" gid="68" x="146.75" y="145.75" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="73" type="asset" gid="68" x="190.25" y="163.75" width="77.5" height="169">
+  <object id="73" type="asset" gid="68" x="189.75" y="149.75" width="77.5" height="169">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="74" type="asset" gid="68" x="233.25" y="164.25" width="77.5" height="149.5">
+  <object id="74" type="asset" gid="68" x="232.75" y="150.25" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="75" type="asset" gid="68" x="88.25" y="168.25" width="101" height="149.5">
+  <object id="75" type="asset" gid="68" x="87.75" y="154.25" width="101" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="76" type="asset" gid="68" x="52.75" y="157.25" width="77.5" height="149.5">
+  <object id="76" type="asset" gid="68" x="52.25" y="143.25" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="77" type="asset" gid="68" x="-7.75" y="163.75" width="77.5" height="149.5">
+  <object id="77" type="asset" gid="68" x="-8.25" y="149.75" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="78" type="asset" gid="68" x="22.75" y="170.25" width="77.5" height="161.5">
+  <object id="78" type="asset" gid="68" x="22.25" y="156.25" width="77.5" height="161.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="79" type="asset" gid="68" x="-41.25" y="157.75" width="77.5" height="149.5">
+  <object id="79" type="asset" gid="68" x="-41.75" y="143.75" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="80" type="asset" gid="68" x="387.875" y="166" width="77.5" height="165.5">
+  <object id="80" type="asset" gid="68" x="387.375" y="152" width="77.5" height="165.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="81" type="asset" gid="68" x="350.125" y="171.75" width="77.5" height="156">
+  <object id="81" type="asset" gid="68" x="349.625" y="157.75" width="77.5" height="156">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="82" type="asset" gid="68" x="298.625" y="171.75" width="91" height="150">
+  <object id="82" type="asset" gid="68" x="298.125" y="157.75" width="91" height="150">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="83" type="asset" gid="68" x="255.625" y="170.25" width="83.5" height="139.5">
+  <object id="83" type="asset" gid="68" x="255.125" y="156.25" width="83.5" height="139.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="84" type="asset" gid="68" x="129.125" y="165.75" width="77.5" height="149.5">
+  <object id="84" type="asset" gid="68" x="128.625" y="151.75" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="85" type="asset" gid="68" x="163.625" y="180.25" width="77.5" height="169">
+  <object id="85" type="asset" gid="68" x="163.125" y="166.25" width="77.5" height="169">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="86" type="asset" gid="68" x="225.625" y="177.25" width="77.5" height="149.5">
+  <object id="86" type="asset" gid="68" x="225.125" y="163.25" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="87" type="asset" gid="68" x="53.625" y="174.75" width="101" height="149.5">
+  <object id="87" type="asset" gid="68" x="53.125" y="160.75" width="101" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="88" type="asset" gid="68" x="34.625" y="163.25" width="77.5" height="149.5">
+  <object id="88" type="asset" gid="68" x="34.125" y="149.25" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="89" type="asset" gid="68" x="-25.875" y="169.75" width="77.5" height="149.5">
+  <object id="89" type="asset" gid="68" x="-26.375" y="155.75" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="90" type="asset" gid="68" x="4.625" y="176.25" width="77.5" height="161.5">
+  <object id="90" type="asset" gid="68" x="4.125" y="162.25" width="77.5" height="161.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="91" type="asset" gid="68" x="-59.375" y="163.75" width="77.5" height="149.5">
+  <object id="91" type="asset" gid="68" x="-59.875" y="149.75" width="77.5" height="149.5">
    <properties>
     <property name="asset" value="tree"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
  </objectgroup>
- <layer id="3" name="background" width="53" height="18">
+ <layer id="3" name="background" width="53" height="18" locked="1">
   <properties>
    <property name="noCollision" value=""/>
   </properties>
   <data encoding="csv">
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,19,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,19,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,19,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,19,
@@ -220,15 +219,15 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,9,10,11,19,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,17,18,11,19,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,19,19,19,19,19,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="7" name="transparent" width="53" height="18">
+ <layer id="7" name="transparent" width="53" height="18" locked="1">
   <properties>
    <property name="noCollision" value=""/>
   </properties>
   <data encoding="csv">
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,
@@ -245,12 +244,12 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="1" name="collision" width="53" height="18">
   <data encoding="csv">
-3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,43,
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,43,
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,43,
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,43,
@@ -267,101 +266,102 @@
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,43,
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,43,
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49
+49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,
+19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19
 </data>
  </layer>
- <objectgroup id="6" name="info">
-  <object id="95" type="asset" gid="71" x="436.25" y="73.75" width="4" height="9">
+ <objectgroup id="6" name="info" locked="1">
+  <object id="95" type="asset" gid="71" x="436.25" y="63.1136" width="4" height="9">
    <properties>
     <property name="asset" value="guts"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="96" type="asset" gid="71" x="436.75" y="66.25" width="4" height="9">
+  <object id="96" type="asset" gid="71" x="436.75" y="55.6136" width="4" height="9">
    <properties>
     <property name="asset" value="guts"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="97" type="asset" gid="71" x="436.75" y="58" width="4" height="9">
+  <object id="97" type="asset" gid="71" x="436.75" y="47.3636" width="4" height="9">
    <properties>
     <property name="asset" value="guts"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="99" type="asset" gid="71" x="434.585" y="47.1954" width="4" height="9" rotation="-270.173">
+  <object id="99" type="asset" gid="71" x="434.585" y="36.559" width="4" height="9" rotation="-270.173">
    <properties>
     <property name="asset" value="guts"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="100" type="asset" gid="69" x="433.682" y="89.4461" width="8" height="10">
+  <object id="100" type="asset" gid="69" x="433.682" y="78.8097" width="8" height="10">
    <properties>
     <property name="asset" value="bodyDead"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="102" type="asset" gid="71" x="440.614" y="76.3578" width="4" height="9" rotation="-539.778">
+  <object id="102" type="asset" gid="71" x="440.614" y="65.7214" width="4" height="9" rotation="-539.778">
    <properties>
     <property name="asset" value="guts"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="103" type="asset" gid="70" x="433.5" y="81.8636" width="11" height="11" rotation="-21.0375">
+  <object id="103" type="asset" gid="70" x="433.5" y="71.2273" width="11" height="11" rotation="-21.0375">
    <properties>
     <property name="asset" value="faceDead"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="24" type="door" x="500" y="145.333">
+  <object id="24" type="door" x="500" y="134.697">
    <properties>
     <property name="goTo" value="room2"/>
    </properties>
   </object>
-  <object id="25" type="player" x="124" y="138.833" width="22.0003" height="19.6667"/>
-  <object id="27" type="rain" x="83" y="-19.6667" width="385.03" height="180.333"/>
-  <object id="29" type="rain" x="417.167" y="-19.8335" width="102.667" height="69.7503"/>
-  <object id="34" type="asset" gid="67" x="3" y="160.667" width="82" height="31">
+  <object id="25" type="player" x="124" y="128.197" width="22.0003" height="19.6667"/>
+  <object id="34" type="asset" gid="67" x="3" y="150.03" width="82" height="31">
    <properties>
     <property name="asset" value="policeCar"/>
     <property name="smooth" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="30" type="asset" gid="65" x="450.667" y="175.167" width="84" height="70.1667">
+  <object id="27" type="rain" x="83" y="-10.303" width="385.03" height="160.333"/>
+  <object id="29" type="rain" x="417.167" y="-10.4699" width="102.667" height="49.7503"/>
+  <object id="39" type="rain" x="24.5002" y="-9.6362" width="36.333" height="132.833"/>
+  <object id="40" type="rain" x="-0.99985" y="-9.63603" width="22.333" height="144.083"/>
+  <object id="41" type="rain" x="61.0002" y="-10.136" width="21.9997" height="143.999"/>
+  <object id="30" type="asset" gid="65" x="450.667" y="164.53" width="84" height="70.1667">
    <properties>
     <property name="asset" value="lightFocal"/>
     <property name="blend" value="add"/>
    </properties>
   </object>
-  <object id="37" type="asset" gid="66" x="68.3333" y="154.667" width="18" height="14">
+  <object id="42" type="asset" gid="65" x="404" y="165.03" width="84" height="73.1666">
+   <properties>
+    <property name="asset" value="lightFocal"/>
+    <property name="blend" value="add"/>
+   </properties>
+  </object>
+  <object id="37" type="asset" gid="66" x="68.3333" y="144.03" width="18" height="14">
    <properties>
     <property name="asset" value="light"/>
     <property name="blend" value="add"/>
    </properties>
   </object>
-  <object id="38" type="asset" gid="65" x="203.615" y="186.487" width="65.5086" height="137.206" rotation="272.822">
+  <object id="38" type="asset" gid="65" x="198.949" y="175.517" width="65.5086" height="137.206" rotation="272.822">
    <properties>
     <property name="asset" value="lightFocal"/>
     <property name="blend" value="add"/>
    </properties>
   </object>
-  <object id="42" type="asset" gid="65" x="404" y="175.667" width="84" height="73.1666">
-   <properties>
-    <property name="asset" value="lightFocal"/>
-    <property name="blend" value="add"/>
-   </properties>
-  </object>
-  <object id="39" type="rain" x="24.5002" y="-19.4998" width="36.333" height="153.333"/>
-  <object id="40" type="rain" x="-0.99985" y="-19.4997" width="22.333" height="164.583"/>
-  <object id="41" type="rain" x="61.0002" y="-19.4997" width="21.9997" height="163.999"/>
-  <object id="35" type="asset" gid="66" x="-2.33333" y="154" width="13.6667" height="14.3333">
+  <object id="35" type="asset" gid="66" x="-2.33333" y="143.364" width="13.6667" height="14.3333">
    <properties>
     <property name="asset" value="light"/>
     <property name="blend" value="add"/>
     <property name="multiply" type="color" value="#ffff0000"/>
    </properties>
   </object>
-  <object id="43" type="asset" gid="66" x="24.5" y="143.833" width="38.6667" height="26.3333">
+  <object id="43" type="asset" gid="66" x="24.5" y="133.197" width="38.6667" height="26.3333">
    <properties>
     <property name="asset" value="light"/>
     <property name="blend" value="add"/>
