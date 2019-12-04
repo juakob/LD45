@@ -1,5 +1,6 @@
 package;
 
+import states.Intro;
 import kha.math.Random;
 import kha.WindowMode;
 import kha.FramebufferOptions;
@@ -18,6 +19,7 @@ import js.Browser.navigator;
 class Main {
 	
 	public static function main() {
+		#if hotml new hotml.Client(); #end
 		#if (kha_html5 && js)
 		//make html5 canvas resizable
 		var phone:Bool = ( window.orientation != null) || (navigator.userAgent.indexOf('IEMobile') != -1);

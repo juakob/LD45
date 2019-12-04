@@ -1,5 +1,10 @@
 package states;
 
+import gameObjects.Enemy;
+import com.gEngine.shaders.ShHighPassFilter;
+import com.gEngine.shaders.ShBlurPass;
+import kha.audio1.AudioChannel;
+import kha.Sound;
 import com.framework.utils.XboxJoystick;
 import com.framework.utils.VirtualGamepad;
 import com.soundLib.SoundManager.SM;
@@ -33,6 +38,8 @@ import com.collision.platformer.CollisionTileMap;
 import com.loading.basicResources.TilesheetLoader;
 import com.gEngine.display.Blend;
 import com.gEngine.shaders.ShRgbSplit;
+import com.gEngine.shaders.ShRender;
+import com.gEngine.shaders.ShAlpha;
 import com.gEngine.Filter;
 import com.loading.basicResources.ImageLoader;
 import com.gEngine.display.Layer;
@@ -47,6 +54,7 @@ class Test extends State {
     var worldMap:Tilemap;
     var ivanka:Player;
     var enemiesCollisions:CollisionGroup;
+    var rainCollisions:CollisionGroup;
     var doors:CollisionGroup;
     var bullets:CollisionGroup;
     var hudLayer:StaticLayer;
@@ -57,6 +65,7 @@ class Test extends State {
     var room:String;
     var fromRoom:String;
     var touchJoystick:VirtualGamepad;
+    var rainSound:AudioChannel;
     public function new(room:String,fromRoom:String=null) {
         super();
         this.room = room;
@@ -81,15 +90,14 @@ class Test extends State {
         atlas.add(new ImageLoader("bodyDead"));
         atlas.add(new ImageLoader("guts"));
         atlas.add(new ImageLoader("moveButton"));
+        atlas.add(new FontLoader("fofbb_reg",30));
         resources.add(atlas);
-        resources.add(new FontLoader("fofbb_reg_ttf"));
         resources.add(new Object3dLoader("gun3d_ogex"));
         resources.add(new SoundLoader("rain",false));
         
     }
 
     override function init() {
-        SM.playMusic("rain");
         stageColor(0.5,.5,0.5);
         simulationLayer=new Layer();
         var backgroundLayer=new Layer();
@@ -102,6 +110,7 @@ class Test extends State {
 
         enemiesCollisions=new CollisionGroup();
         doors=new CollisionGroup();
+        rainCollisions = new CollisionGroup();
 
         worldMap=new Tilemap(room+"_tmx","tiles",4);
         worldMap.init(
@@ -114,6 +123,7 @@ class Test extends State {
             parseMapObjects
         );
         stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
+        
 
        simulationLayer.filter=new Filter([new ShRgbSplit(Blend.blendMultipass()),new ShFilmGrain(Blend.blendDefault())],0.5,.5,0.5,1,false);
 
@@ -153,7 +163,7 @@ class Test extends State {
         createTouchJoystick();
     }
     function createTouchJoystick() {
-        var border:Int=20;
+       var border:Int=20; /*
         var left=new BasicSprite("moveButton");
         left.smooth=false;
         left.x=border;
@@ -183,12 +193,12 @@ class Test extends State {
         //up.offsetX=-up.width();
         up.rotation=Math.PI/2;
         up.y=720-border-up.height()*2;
-        hudLayer.addChild(up);
+        hudLayer.addChild(up);*/
         
         touchJoystick=new VirtualGamepad();
-        touchJoystick.addButton(XboxJoystick.LEFT_DPAD,left.x+left.width(),left.y+left.height(),left.width());
-        touchJoystick.addButton(XboxJoystick.RIGHT_DPAD,right.x+right.width(),right.y+right.height(),right.width());
-        touchJoystick.addButton(XboxJoystick.A,1280-up.width()-border,up.y+up.height(),up.width());
+       // touchJoystick.addButton(XboxJoystick.LEFT_DPAD,left.x+left.width(),left.y+left.height(),left.width());
+       // touchJoystick.addButton(XboxJoystick.RIGHT_DPAD,right.x+right.width(),right.y+right.height(),right.width());
+      //  touchJoystick.addButton(XboxJoystick.A,1280-up.width()-border,up.y+up.height(),up.width());
         touchJoystick.addKeyButton(XboxJoystick.LEFT_DPAD,KeyCode.Left);
         touchJoystick.addKeyButton(XboxJoystick.RIGHT_DPAD,KeyCode.Right);
         touchJoystick.addKeyButton(XboxJoystick.UP_DPAD,KeyCode.Up);
@@ -235,11 +245,21 @@ class Test extends State {
         }else
         if(object.type=="rain"){
             var drops:Int=Std.int(object.width*object.height*4/1000);
+           
             for(i in 0...drops){
                 var drop=new fx.Drop(object.y*4,(object.y+object.height)*4,object.x*4,(object.x+object.width)*4,800+Math.random()*200);
                 simulationLayer.addChild(drop.display);
                 addChild(drop);
             }
+        }else 
+        if(object.type=="sound"){
+            if(rainSound==null){rainSound = SM.playFx("rain",true);}
+            var rainBox=new CollisionBox();
+            rainBox.x=object.x*4;
+            rainBox.y=object.y*4;
+            rainBox.width=object.width*4;
+            rainBox.height=object.height*4;
+            rainCollisions.add(rainBox);
         }else
         if(object.type=="asset"){
              var display=new BasicSprite(object.properties.get("asset"));
@@ -264,12 +284,25 @@ class Test extends State {
     }
     override function update(dt:Float) {
         super.update(dt);
+       
         CollisionEngine.collide(worldMap.collision,ivanka.collision);
         CollisionEngine.collide(worldMap.collision,enemiesCollisions);
         enemiesCollisions.overlap(bullets,enemyVsBullet);
         enemiesCollisions.overlap(ivanka.collision,enemyVsIvanka);
         if(ivanka.interact) ivanka.collision.overlap(doors,ivankaVsDoors);
          bullets.collide(worldMap.collision,bulletsVsMap);
+         if(rainCollisions.colliders.length>0){
+             if(!rainCollisions.overlap(ivanka.collision)){
+                 if(rainSound.volume>0.5){
+                        rainSound.volume-=0.5*dt;
+                     }
+                     
+             }else{
+                 if(rainSound.volume<1){
+                        rainSound.volume+=0.5*dt;
+                    }
+             }
+         }
         stage.defaultCamera().setTarget(ivanka.display.x,ivanka.display.y);
 
         if(Input.i.isKeyCodePressed(KeyCode.R)){
@@ -278,7 +311,8 @@ class Test extends State {
         pumpkinIcon.rotation=Math.PI/4*Math.sin(TimeManager.time);
     }
     function enemyVsBullet(a:ICollider,b:ICollider) {
-        (cast a.userData).damage();
+        var enemy:Enemy=(cast a.userData);
+        enemy.damage();
         (cast b.userData).die();
         ++pumpkinKill;
         pumpkinKillText.text=pumpkinKill+"";
