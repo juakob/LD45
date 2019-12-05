@@ -128,9 +128,7 @@ class Test extends State {
        simulationLayer.filter=new Filter([new ShRgbSplit(Blend.blendMultipass()),new ShFilmGrain(Blend.blendDefault())],0.5,.5,0.5,1,false);
 
         GameGlobals.bulletCollisions=bullets=new CollisionGroup();
-       // stage.defaultCamera().offsetX=-1280/2;
-       // stage.defaultCamera().offsetX=-720/2;
-       // stage.defaultCamera().rotation=Math.PI/4;
+        
 
         GameGlobals.blood=new Blood(this,simulationLayer);
         
@@ -290,7 +288,7 @@ class Test extends State {
         enemiesCollisions.overlap(bullets,enemyVsBullet);
         enemiesCollisions.overlap(ivanka.collision,enemyVsIvanka);
         if(ivanka.interact) ivanka.collision.overlap(doors,ivankaVsDoors);
-         bullets.collide(worldMap.collision,bulletsVsMap);
+         bullets.overlap(worldMap.collision,bulletsVsMap);
          if(rainCollisions.colliders.length>0){
              if(!rainCollisions.overlap(ivanka.collision)){
                  if(rainSound.volume>0.5){
@@ -309,6 +307,7 @@ class Test extends State {
             changeState(new Intro());
         }
         pumpkinIcon.rotation=Math.PI/4*Math.sin(TimeManager.time);
+        
     }
     function enemyVsBullet(a:ICollider,b:ICollider) {
         var enemy:Enemy=(cast a.userData);
