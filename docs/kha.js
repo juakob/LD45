@@ -600,13 +600,13 @@ com_collision_platformer_CollisionBox.prototype = {
 	,collisionType: function() {
 		return com_collision_platformer_CollisionType.Box;
 	}
-	,isTouching: function(aSide) {
-		return (aSide & this.touching) > 0;
+	,isTouching: function(side) {
+		return (side & this.touching) > 0;
 	}
-	,update: function(aDt) {
+	,update: function(dt) {
 		this.touching = 0;
-		this.velocityX += this.accelerationX * aDt;
-		this.velocityY += this.accelerationY * aDt;
+		this.velocityX += this.accelerationX * dt;
+		this.velocityY += this.accelerationY * dt;
 		if(Math.abs(this.velocityX) > this.maxVelocityX) {
 			if(this.velocityX > 0) {
 				this.velocityX = this.maxVelocityX;
@@ -621,8 +621,8 @@ com_collision_platformer_CollisionBox.prototype = {
 				this.velocityY = -this.maxVelocityY;
 			}
 		}
-		this.x += this.velocityX * aDt;
-		this.y += this.velocityY * aDt;
+		this.x += this.velocityX * dt;
+		this.y += this.velocityY * dt;
 		if(this.accelerationX == 0) {
 			this.velocityX *= this.dragX;
 			if(Math.abs(this.velocityX) < 70) {
@@ -636,12 +636,12 @@ com_collision_platformer_CollisionBox.prototype = {
 			}
 		}
 	}
-	,collide: function(aCollider,NotifyCallback) {
-		if(aCollider == this) {
+	,collide: function(collider,notifyCallback) {
+		if(collider == this) {
 			return false;
 		}
-		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Box) {
-			var boxCollider = aCollider;
+		if(collider.collisionType() == com_collision_platformer_CollisionType.Box) {
+			var boxCollider = collider;
 			var myPonderation = 0.5;
 			var colliderPonderation = 0.5;
 			if(this.Static) {
@@ -652,180 +652,68 @@ com_collision_platformer_CollisionBox.prototype = {
 				colliderPonderation = 0;
 			}
 			if(this.overlapVsBox(boxCollider)) {
-				var overlapX;
-				var overlapY;
-				if(this.x < boxCollider.x) {
-					overlapX = boxCollider.x - (this.x + this.width);
-					if(this.y < boxCollider.y) {
-						overlapY = boxCollider.y - (this.y + this.height);
-						if(overlapY > overlapX) {
-							if((this.collisionAllow & 8) > 0 && (boxCollider.collisionAllow & 4) > 0) {
-								boxCollider.y -= overlapY * colliderPonderation;
-								this.y += overlapY * myPonderation;
-								if(boxCollider.velocityY < 0) {
-									boxCollider.velocityY = 0;
-								}
-								if(this.velocityY > 0) {
-									this.velocityY = 0;
-								}
-								this.touching |= 8;
-								boxCollider.touching |= 4;
-								if(NotifyCallback != null) {
-									NotifyCallback(this,boxCollider);
-								}
-								return true;
-							}
-						} else if((this.collisionAllow & 2) > 0 && (boxCollider.collisionAllow & 1) > 0) {
-							boxCollider.x -= overlapX * colliderPonderation;
-							this.x += overlapX * myPonderation;
-							if(boxCollider.velocityX < 0) {
-								boxCollider.velocityX = 0;
-							}
-							if(this.velocityX > 0) {
-								this.velocityX = 0;
-							}
-							this.touching |= 2;
-							boxCollider.touching |= 1;
-							if(NotifyCallback != null) {
-								NotifyCallback(this,boxCollider);
-							}
-							return true;
-						}
-					} else {
-						overlapY = this.y - (boxCollider.y + boxCollider.height);
-						if(overlapY > overlapX) {
-							if((this.collisionAllow & 4) > 0 && (boxCollider.collisionAllow & 8) > 0) {
-								boxCollider.y += overlapY * colliderPonderation;
-								this.y -= overlapY * myPonderation;
-								if(boxCollider.velocityY > 0) {
-									boxCollider.velocityY = 0;
-								}
-								if(this.velocityY < 0) {
-									this.velocityY = 0;
-								}
-								this.touching |= 4;
-								boxCollider.touching |= 8;
-								if(NotifyCallback != null) {
-									NotifyCallback(this,boxCollider);
-								}
-								return true;
-							}
-						} else if((this.collisionAllow & 2) > 0 && (boxCollider.collisionAllow & 1) > 0) {
-							boxCollider.x -= overlapX * colliderPonderation;
-							this.x += overlapX * myPonderation;
-							if(boxCollider.velocityX < 0) {
-								boxCollider.velocityX = 0;
-							}
-							if(this.velocityX > 0) {
-								this.velocityX = 0;
-							}
-							this.touching |= 2;
-							boxCollider.touching |= 1;
-							if(NotifyCallback != null) {
-								NotifyCallback(this,boxCollider);
-							}
-							return true;
-						}
-					}
-				} else {
-					overlapX = this.x - (boxCollider.x + boxCollider.width);
-					if(this.y < boxCollider.y) {
-						overlapY = boxCollider.y - (this.y + this.height);
-						if(overlapY > overlapX) {
-							if((this.collisionAllow & 8) > 0 && (boxCollider.collisionAllow & 4) > 0) {
-								boxCollider.y -= overlapY * colliderPonderation;
-								this.y += overlapY * myPonderation;
-								if(boxCollider.velocityY < 0) {
-									boxCollider.velocityY = 0;
-								}
-								if(this.velocityY > 0) {
-									this.velocityY = 0;
-								}
-								this.touching |= 8;
-								boxCollider.touching |= 4;
-								if(NotifyCallback != null) {
-									NotifyCallback(this,boxCollider);
-								}
-								return true;
-							}
-						} else if((this.collisionAllow & 1) > 0 && (boxCollider.collisionAllow & 2) > 0) {
-							boxCollider.x += overlapX * colliderPonderation;
-							this.x -= overlapX * myPonderation;
-							if(boxCollider.velocityX > 0) {
-								boxCollider.velocityX = 0;
-							}
-							if(this.velocityX < 0) {
-								this.velocityX = 0;
-							}
-							this.touching |= 1;
-							boxCollider.touching |= 2;
-							if(NotifyCallback != null) {
-								NotifyCallback(this,boxCollider);
-							}
-							return true;
-						}
-					} else {
-						overlapY = this.y - (boxCollider.y + boxCollider.height);
-						if(overlapY > overlapX) {
-							if((this.collisionAllow & 4) > 0 && (boxCollider.collisionAllow & 8) > 0) {
-								boxCollider.y += overlapY * colliderPonderation;
-								this.y -= overlapY * myPonderation;
-								if(boxCollider.velocityY > 0) {
-									boxCollider.velocityY = 0;
-								}
-								if(this.velocityY < 0) {
-									this.velocityY = 0;
-								}
-								this.touching |= 4;
-								boxCollider.touching |= 8;
-								if(NotifyCallback != null) {
-									NotifyCallback(this,boxCollider);
-								}
-								return true;
-							}
-						} else if((this.collisionAllow & 1) > 0 && (boxCollider.collisionAllow & 2) > 0) {
-							boxCollider.x += overlapX * colliderPonderation;
-							this.x -= overlapX * myPonderation;
-							if(boxCollider.velocityX > 0) {
-								boxCollider.velocityX = 0;
-							}
-							if(this.velocityX < 0) {
-								this.velocityX = 0;
-							}
-							this.touching |= 1;
-							boxCollider.touching |= 2;
-							if(NotifyCallback != null) {
-								NotifyCallback(this,boxCollider);
-							}
-							return true;
-						}
-					}
+				var overlapX = this.width * 0.5 + boxCollider.width * 0.5 - Math.abs(this.x + this.width * 0.5 - (boxCollider.x + boxCollider.width * 0.5));
+				var overlapY = this.height * 0.5 + boxCollider.height * 0.5 - Math.abs(this.y + this.height * 0.5 - (boxCollider.y + boxCollider.height * 0.5));
+				var overlapXSmaller = overlapX < overlapY;
+				var myCollisionNeededX = 1;
+				var colliderNeededX = 2;
+				var myCollisionNeededY = 4;
+				var colliderNeededY = 8;
+				if(this.x + this.width * 0.5 < boxCollider.x + boxCollider.width * 0.5) {
+					myCollisionNeededX = 2;
+					colliderNeededX = 1;
+					overlapX *= -1;
+				}
+				if(this.y + this.height * 0.5 < boxCollider.y + boxCollider.height * 0.5) {
+					myCollisionNeededY = 8;
+					colliderNeededY = 4;
+					overlapY *= -1;
+				}
+				if(overlapXSmaller && (this.collisionAllow & myCollisionNeededX) > 0 && (boxCollider.collisionAllow & colliderNeededX) > 0) {
+					this.x += overlapX * myPonderation;
+					boxCollider.x -= overlapX * colliderPonderation;
+					boxCollider.velocityX = 0;
+					this.velocityX = 0;
+					this.touching |= myCollisionNeededX;
+					boxCollider.touching |= colliderNeededX;
+					return true;
+				} else if((this.collisionAllow & myCollisionNeededY) > 0 && (boxCollider.collisionAllow & colliderNeededY) > 0) {
+					this.y += overlapY * myPonderation;
+					boxCollider.y -= overlapY * colliderPonderation;
+					boxCollider.velocityY = 0;
+					this.velocityY = 0;
+					this.touching |= myCollisionNeededY;
+					boxCollider.touching |= colliderNeededY;
+					return true;
 				}
 			}
 			return false;
-		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.TileMap) {
-			return aCollider.collide(this,NotifyCallback);
-		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
-			return aCollider.collide(this,NotifyCallback);
+		} else if(collider.collisionType() == com_collision_platformer_CollisionType.TileMap) {
+			return collider.collide(this,notifyCallback);
+		} else if(collider.collisionType() == com_collision_platformer_CollisionType.Group) {
+			return collider.collide(this,notifyCallback);
 		}
 		return false;
 	}
-	,overlap: function(aCollider,NotifyCallback) {
-		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Box) {
-			if(this.overlapVsBox(aCollider)) {
+	,overlap: function(collider,NotifyCallback) {
+		if(collider.collisionType() == com_collision_platformer_CollisionType.Box) {
+			var box = collider;
+			if(box.x < this.x + this.width && box.x + box.width > this.x && box.y < this.y + this.height && box.y + box.height > this.y) {
 				if(NotifyCallback != null) {
-					NotifyCallback(this,aCollider);
+					NotifyCallback(this,collider);
 				}
 				return true;
 			}
-		} else if(aCollider.collisionType() == com_collision_platformer_CollisionType.Group) {
-			aCollider.overlap(this,NotifyCallback);
+		} else if(collider.collisionType() == com_collision_platformer_CollisionType.TileMap) {
+			return collider.overlap(this,NotifyCallback);
+		} else if(collider.collisionType() == com_collision_platformer_CollisionType.Group) {
+			collider.overlap(this,NotifyCallback);
 		}
 		return false;
 	}
-	,overlapVsBox: function(aBox) {
-		if(aBox.x < this.x + this.width && aBox.x + aBox.width > this.x && aBox.y < this.y + this.height) {
-			return aBox.y + aBox.height > this.y;
+	,overlapVsBox: function(box) {
+		if(box.x < this.x + this.width && box.x + box.width > this.x && box.y < this.y + this.height) {
+			return box.y + box.height > this.y;
 		} else {
 			return false;
 		}
@@ -998,6 +886,7 @@ com_collision_platformer_CollisionTileMap.prototype = {
 		return 0;
 	}
 	,overlap: function(aCollider,NotifyCallback) {
+		var toReturn = false;
 		if(aCollider.collisionType() == com_collision_platformer_CollisionType.Box) {
 			var box = aCollider;
 			var minX = box.x / this.tileWidth | 0;
@@ -1013,12 +902,12 @@ com_collision_platformer_CollisionTileMap.prototype = {
 						this.helperTile.collisionAllow = this.edges[tileX + tileY * this.widthIntTiles];
 						this.helperTile.x = tileX * this.tileWidth;
 						this.helperTile.y = tileY * this.tileHeight;
-						this.helperTile.overlap(box,NotifyCallback);
+						toReturn = this.helperTile.overlap(box,NotifyCallback) || toReturn;
 					}
 				}
 			}
 		}
-		return false;
+		return toReturn;
 	}
 	,collisionType: function() {
 		return com_collision_platformer_CollisionType.TileMap;
@@ -1437,7 +1326,7 @@ com_framework_utils_Input.prototype = {
 		kha_input_Gamepad.notifyOnConnect($bind(this,this.onConnect),$bind(this,this.onDisconnect));
 	}
 	,onConnect: function(aId) {
-		haxe_Log.trace("gamepad " + aId,{ fileName : "com/framework/utils/Input.hx", lineNumber : 87, className : "com.framework.utils.Input", methodName : "onConnect"});
+		haxe_Log.trace("gamepad " + aId,{ fileName : "com/framework/utils/Input.hx", lineNumber : 83, className : "com.framework.utils.Input", methodName : "onConnect"});
 		this.joysticks[aId].onConnect();
 	}
 	,onDisconnect: function(gamePad) {
@@ -1722,7 +1611,7 @@ com_framework_utils_VirtualGamepad.prototype = {
 				button.active = true;
 				button.touchId = id;
 				this.onButtonChange(button.id,1);
-				haxe_Log.trace("button active " + id,{ fileName : "com/framework/utils/VirtualGamepad.hx", lineNumber : 91, className : "com.framework.utils.VirtualGamepad", methodName : "onTouchStart"});
+				haxe_Log.trace("button active " + id,{ fileName : "com/framework/utils/VirtualGamepad.hx", lineNumber : 85, className : "com.framework.utils.VirtualGamepad", methodName : "onTouchStart"});
 				return;
 			}
 		}
@@ -1746,7 +1635,7 @@ com_framework_utils_VirtualGamepad.prototype = {
 			this.globalStick.axisX = 0;
 			this.globalStick.axisY = 0;
 			this.globalStick.touchId = id;
-			haxe_Log.trace("globalStick active " + id,{ fileName : "com/framework/utils/VirtualGamepad.hx", lineNumber : 113, className : "com.framework.utils.VirtualGamepad", methodName : "onTouchStart"});
+			haxe_Log.trace("globalStick active " + id,{ fileName : "com/framework/utils/VirtualGamepad.hx", lineNumber : 105, className : "com.framework.utils.VirtualGamepad", methodName : "onTouchStart"});
 		}
 	}
 	,onTouchMove: function(id,x,y) {
@@ -2868,7 +2757,7 @@ com_g3d_Object3dLoader.prototype = {
 	,load: function(callback) {
 		this.onLoad = callback;
 		++this.neededResources;
-		kha_Assets.loadBlob(this.name,$bind(this,this.loadBlob),null,{ fileName : "com/g3d/Object3dLoader.hx", lineNumber : 24, className : "com.g3d.Object3dLoader", methodName : "load"});
+		kha_Assets.loadBlob(this.name,$bind(this,this.loadBlob),null,{ fileName : "com/g3d/Object3dLoader.hx", lineNumber : 21, className : "com.g3d.Object3dLoader", methodName : "load"});
 	}
 	,loadLocal: function(callback) {
 		this.onLoad = callback;
@@ -2892,7 +2781,7 @@ com_g3d_Object3dLoader.prototype = {
 				ss = StringTools.replace(ss," ","_");
 				kha_Assets.loadImage(ss.split(".")[0],function(i) {
 					_gthis.somthingLoaded();
-				},null,{ fileName : "com/g3d/Object3dLoader.hx", lineNumber : 43, className : "com.g3d.Object3dLoader", methodName : "loadBlob"});
+				},null,{ fileName : "com/g3d/Object3dLoader.hx", lineNumber : 39, className : "com.g3d.Object3dLoader", methodName : "loadBlob"});
 			}
 		}
 		this.somthingLoaded();
@@ -4488,7 +4377,7 @@ var com_gEngine_GEngine = function(oversample,antiAlias) {
 	this.renderTargetPool = new com_helpers_RenderTargetPool();
 	this.textures = [];
 	this.createPainters();
-	haxe_Log.trace(kha_System.windowWidth() + "x" + kha_System.windowHeight(),{ fileName : "com/gEngine/GEngine.hx", lineNumber : 99, className : "com.gEngine.GEngine", methodName : "new"});
+	haxe_Log.trace(kha_System.windowWidth() + "x" + kha_System.windowHeight(),{ fileName : "com/gEngine/GEngine.hx", lineNumber : 96, className : "com.gEngine.GEngine", methodName : "new"});
 	this.createBuffer(kha_System.windowWidth(),kha_System.windowHeight());
 	var recTexture = kha_Image.createRenderTarget(1,1);
 	recTexture.get_g2().begin(true,-1);
@@ -4505,7 +4394,7 @@ com_gEngine_GEngine.init = function(virtualWidth,virtualHeight,oversample,antiAl
 	com_gEngine_GEngine.virtualWidth = virtualWidth;
 	com_gEngine_GEngine.virtualHeight = virtualHeight;
 	com_gEngine_GEngine.i = new com_gEngine_GEngine(oversample,antiAlias);
-	kha_Assets.loadFont("mainfont",com_gEngine_GEngine.setFont,null,{ fileName : "com/gEngine/GEngine.hx", lineNumber : 183, className : "com.gEngine.GEngine", methodName : "init"});
+	kha_Assets.loadFont("mainfont",com_gEngine_GEngine.setFont,null,{ fileName : "com/gEngine/GEngine.hx", lineNumber : 179, className : "com.gEngine.GEngine", methodName : "init"});
 };
 com_gEngine_GEngine.setFont = function(aFont) {
 	com_gEngine_GEngine.get_i().font = aFont;
@@ -7700,7 +7589,7 @@ com_loading_basicResources_DataLoader.prototype = {
 	,load: function(callback) {
 		kha_Assets.loadBlob(this.name,function(b) {
 			callback();
-		},null,{ fileName : "com/loading/basicResources/DataLoader.hx", lineNumber : 18, className : "com.loading.basicResources.DataLoader", methodName : "load"});
+		},null,{ fileName : "com/loading/basicResources/DataLoader.hx", lineNumber : 15, className : "com.loading.basicResources.DataLoader", methodName : "load"});
 	}
 	,loadLocal: function(callback) {
 		callback();
@@ -7772,7 +7661,7 @@ com_loading_basicResources_TilesheetLoader.prototype = {
 		kha_Assets.loadImage(this.imageName,function(image) {
 			_gthis.fromSpriteSheet();
 			callback();
-		},null,{ fileName : "com/loading/basicResources/TilesheetLoader.hx", lineNumber : 34, className : "com.loading.basicResources.TilesheetLoader", methodName : "load"});
+		},null,{ fileName : "com/loading/basicResources/TilesheetLoader.hx", lineNumber : 31, className : "com.loading.basicResources.TilesheetLoader", methodName : "load"});
 	}
 	,loadLocal: function(callback) {
 		this.fromSpriteSheet();
@@ -7852,7 +7741,7 @@ com_loading_basicResources_FontLoader.prototype = $extend(com_loading_basicResou
 		kha_Assets.loadFont(this.imageName,function(font) {
 			_gthis.fromKhaFont();
 			callback();
-		},null,{ fileName : "com/loading/basicResources/FontLoader.hx", lineNumber : 29, className : "com.loading.basicResources.FontLoader", methodName : "load"});
+		},null,{ fileName : "com/loading/basicResources/FontLoader.hx", lineNumber : 27, className : "com.loading.basicResources.FontLoader", methodName : "load"});
 	}
 	,loadLocal: function(callback) {
 		this.fromKhaFont();
@@ -8004,7 +7893,7 @@ com_loading_basicResources_SoundLoader.prototype = {
 	,uncompress: null
 	,load: function(callback) {
 		this.onLoad = callback;
-		kha_Assets.loadSound(this.name,$bind(this,this.onSoundLoad),null,{ fileName : "com/loading/basicResources/SoundLoader.hx", lineNumber : 21, className : "com.loading.basicResources.SoundLoader", methodName : "load"});
+		kha_Assets.loadSound(this.name,$bind(this,this.onSoundLoad),null,{ fileName : "com/loading/basicResources/SoundLoader.hx", lineNumber : 20, className : "com.loading.basicResources.SoundLoader", methodName : "load"});
 	}
 	,loadLocal: function(callback) {
 		this.onLoad = callback;
@@ -8055,8 +7944,8 @@ com_loading_basicResources_SparrowLoader.prototype = $extend(com_loading_basicRe
 			kha_Assets.loadBlob(_gthis.dataName,function(b) {
 				_gthis.fromSpriteSheet();
 				callback();
-			},null,{ fileName : "com/loading/basicResources/SparrowLoader.hx", lineNumber : 25, className : "com.loading.basicResources.SparrowLoader", methodName : "load"});
-		},null,{ fileName : "com/loading/basicResources/SparrowLoader.hx", lineNumber : 24, className : "com.loading.basicResources.SparrowLoader", methodName : "load"});
+			},null,{ fileName : "com/loading/basicResources/SparrowLoader.hx", lineNumber : 23, className : "com.loading.basicResources.SparrowLoader", methodName : "load"});
+		},null,{ fileName : "com/loading/basicResources/SparrowLoader.hx", lineNumber : 22, className : "com.loading.basicResources.SparrowLoader", methodName : "load"});
 	}
 	,fromSpriteSheet: function() {
 		var text = Reflect.field(kha_Assets.blobs,this.dataName);
@@ -9701,7 +9590,9 @@ gameObjects_Player.prototype = $extend(gameObjects_Body.prototype,{
 		}
 		if(id == 0) {
 			if(value == 1) {
-				this.collision.velocityY = -1000;
+				if(this.collision.isTouching(8)) {
+					this.collision.velocityY = -1000;
+				}
 			}
 		}
 		if(id == 2) {
@@ -14993,7 +14884,8 @@ $hxClasses["kha.audio1.AudioChannel"] = kha_audio1_AudioChannel;
 kha_audio1_AudioChannel.__name__ = "kha.audio1.AudioChannel";
 kha_audio1_AudioChannel.__isInterface__ = true;
 kha_audio1_AudioChannel.prototype = {
-	get_volume: null
+	stop: null
+	,get_volume: null
 	,set_volume: null
 	,__class__: kha_audio1_AudioChannel
 };
@@ -15232,6 +15124,10 @@ kha_audio2_AudioChannel.prototype = {
 		}
 		while(requestedSamplesIndex < requestedLength) requestedSamples[requestedSamplesIndex++] = 0;
 	}
+	,stop: function() {
+		this.myPosition = 0;
+		this.stopped = true;
+	}
 	,get_volume: function() {
 		return this.myVolume;
 	}
@@ -15335,6 +15231,10 @@ kha_audio2_ResamplingAudioChannel.prototype = $extend(kha_audio2_AudioChannel.pr
 		}
 		while(requestedSamplesIndex < requestedLength) requestedSamples[requestedSamplesIndex++] = 0;
 	}
+	,stop: function() {
+		this.myPosition = 0;
+		this.stopped = true;
+	}
 	,get_volume: function() {
 		return this.myVolume;
 	}
@@ -15366,6 +15266,9 @@ kha_audio2_StreamChannel.prototype = {
 			while(_g < length) samples[_g++] = 0;
 			return;
 		}
+	}
+	,stop: function() {
+		this.atend = true;
 	}
 	,get_volume: function() {
 		return this.myVolume;
@@ -15414,6 +15317,14 @@ kha_audio2_VirtualStreamChannel.prototype = {
 			break;
 		}
 		this.lastTickTime = now;
+	}
+	,stop: function() {
+		if(kha_SystemImpl.mobileAudioPlaying) {
+			this.aeChannel.stop();
+		} else {
+			this.updatePosition();
+			this.mode = 0;
+		}
 	}
 	,length: null
 	,get_length: function() {
@@ -19691,6 +19602,15 @@ kha_js_AEAudioChannel.prototype = {
 		this.stopped = false;
 		this.element.play();
 	}
+	,stop: function() {
+		try {
+			this.element.pause();
+			this.element.currentTime = 0;
+			this.stopped = true;
+		} catch( e ) {
+			haxe_Log.trace(((e) instanceof js__$Boot_HaxeError) ? e.val : e,{ fileName : "kha/js/AEAudioChannel.hx", lineNumber : 37, className : "kha.js.AEAudioChannel", methodName : "stop"});
+		}
+	}
 	,length: null
 	,get_length: function() {
 		if(isFinite(this.element.duration)) {
@@ -19987,6 +19907,11 @@ kha_js_MobileWebAudioChannel.prototype = {
 			this.startTime = kha_js_MobileWebAudio._context.currentTime;
 			this.source.start();
 		}
+	}
+	,stop: function() {
+		this.paused = false;
+		this.stopped = true;
+		this.source.stop();
 	}
 	,get_volume: function() {
 		return this.gain.gain.value;
@@ -21156,14 +21081,14 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	}
 	,update: function(dt) {
 		com_framework_utils_State.prototype.update.call(this,dt);
-		com_collision_platformer_CollisionEngine.collide(this.worldMap.collision,this.ivanka.collision);
+		com_collision_platformer_CollisionEngine.collide(this.ivanka.collision,this.worldMap.collision);
 		com_collision_platformer_CollisionEngine.collide(this.worldMap.collision,this.enemiesCollisions);
 		this.enemiesCollisions.overlap(this.bullets,$bind(this,this.enemyVsBullet));
 		this.enemiesCollisions.overlap(this.ivanka.collision,$bind(this,this.enemyVsIvanka));
 		if(this.ivanka.interact) {
 			this.ivanka.collision.overlap(this.doors,$bind(this,this.ivankaVsDoors));
 		}
-		this.bullets.collide(this.worldMap.collision,$bind(this,this.bulletsVsMap));
+		this.bullets.overlap(this.worldMap.collision,$bind(this,this.bulletsVsMap));
 		if(this.rainCollisions.colliders.length > 0) {
 			if(!this.rainCollisions.overlap(this.ivanka.collision)) {
 				if(this.rainSound.get_volume() > 0.5) {
@@ -21198,6 +21123,9 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	}
 	,destroy: function() {
 		this.touchJoystick.destroy();
+		if(this.rainSound != null) {
+			this.rainSound.stop();
+		}
 		com_framework_utils_State.prototype.destroy.call(this);
 		gameObjects_GameGlobals.clear();
 	}
