@@ -54,7 +54,9 @@ class Player extends Body {
         }
          if(id==XboxJoystick.A){
             if(value==1){
-               collision.velocityY=-1000;
+                if(collision.isTouching(Sides.BOTTOM)){
+                     collision.velocityY=-1000;
+                }
             }
         }
         if(id==XboxJoystick.X){

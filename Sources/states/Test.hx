@@ -1,5 +1,6 @@
 package states;
 
+import com.collision.platformer.Sides;
 import gameObjects.Enemy;
 import com.gEngine.shaders.ShHighPassFilter;
 import com.gEngine.shaders.ShBlurPass;
@@ -280,10 +281,13 @@ class Test extends State {
              display.smooth=!(object.properties.exists("smooth")&&object.properties.get("smooth")=="false");
         }
     }
+    var goDown:Bool;
     override function update(dt:Float) {
         super.update(dt);
+        
+        
        
-        CollisionEngine.collide(worldMap.collision,ivanka.collision);
+        CollisionEngine.collide(ivanka.collision,worldMap.collision);
         CollisionEngine.collide(worldMap.collision,enemiesCollisions);
         enemiesCollisions.overlap(bullets,enemyVsBullet);
         enemiesCollisions.overlap(ivanka.collision,enemyVsIvanka);
@@ -327,6 +331,8 @@ class Test extends State {
     }
     override function destroy() {
         this.touchJoystick.destroy();
+
+        if(rainSound!=null)rainSound.stop();
         super.destroy();
         GameGlobals.clear();
         
