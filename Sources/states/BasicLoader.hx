@@ -45,12 +45,13 @@ class BasicLoader extends State
 	function onAllLoaded() {
 		allLoaded = true;
 	}
-	override function onUpdate(aDt:Float):Void 
+	override function update(aDt:Float):Void 
 	{
 		bar.scaleX=Assets.progress *GEngine.virtualWidth-50*2;
 		if (allLoaded) {
 			Simulation.i.manualLoad = true;
 			changeState(new Intro()); 	
 		}
+		super.update(aDt);
 	}
 }

@@ -9,7 +9,7 @@ import kha.math.FastVector2;
 import kha.math.FastVector4;
 import kha.math.FastMatrix4;
 import com.gEngine.display.Layer;
-import com.gEngine.display.BasicSprite;
+import com.gEngine.display.Sprite;
 import com.framework.utils.Entity;
 
 class Body extends Entity {
@@ -17,24 +17,24 @@ class Body extends Entity {
     public var collision:CollisionBox;
     var maxSpeed:Float=400;
     var layerArmR:Layer;
-    var armL:BasicSprite;
-    var armR:BasicSprite;
-    var body:BasicSprite;
+    var armL:Sprite;
+    var armR:Sprite;
+    var body:Sprite;
     
     public function new() {
         super();
         display=new Layer();
         layerArmR=new Layer();
         display.addChild(layerArmR);
-         armR=new BasicSprite("ivankaArm");
+         armR=new Sprite("ivankaArm");
         layerArmR.addChild(armR);
         armR.smooth=false;
 
-        body=new BasicSprite("skins");
+        body=new Sprite("skins");
         body.timeline.playAnimation("policeWoman");
         display.addChild(body);
         body.smooth=false;
-        armL=new BasicSprite("ivankaArm");
+        armL=new Sprite("ivankaArm");
         display.addChild(armL);
         armL.smooth=false;
 

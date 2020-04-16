@@ -2,16 +2,16 @@ package gameObjects;
 
 import com.collision.platformer.Sides;
 import com.collision.platformer.CollisionBox;
-import com.gEngine.display.BasicSprite;
+import com.gEngine.display.Sprite;
 import com.framework.utils.Entity;
 
 class Bullet extends Entity {
-	var display:BasicSprite;
+	var display:Sprite;
 	var collision:CollisionBox;
 
 	public function new() {
 		super();
-		display = new BasicSprite("bullets");
+		display = new Sprite("bullets");
 		display.scaleX = display.scaleY = 4;
 		display.smooth = false;
 		collision = new CollisionBox();

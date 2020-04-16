@@ -6,7 +6,7 @@ import com.fx.Emitter;
 import com.framework.utils.Entity;
 import com.gEngine.display.Layer;
 import com.framework.utils.State;
-import com.gEngine.display.BasicSprite;
+import com.gEngine.display.Sprite;
 
 class Blood {
     var bloodPool:Entity;
@@ -30,7 +30,7 @@ class Blood {
             emitter.angularVelocityMin=-3;
             emitter.angularVelocityMax=3;
             for(i in 0...20){
-                var display=new BasicSprite("pumpkinBlood");
+                var display=new Sprite("pumpkinBlood");
                 display.smooth=false;
                 display.timeline.gotoAndStop(i%display.timeline.totalFrames);
                 var particle:Particle=new Particle(display);

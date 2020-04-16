@@ -24,7 +24,7 @@ import com.g3d.Object3d;
 import com.g3d.Object3dLoader;
 import kha.input.KeyCode;
 import com.framework.utils.Input;
-import com.gEngine.display.BasicSprite;
+import com.gEngine.display.Sprite;
 import com.gEngine.display.StaticLayer;
 import fx.Blood;
 import com.collision.platformer.ICollider;
@@ -134,7 +134,7 @@ class Test extends State {
         GameGlobals.blood=new Blood(this,simulationLayer);
         
         
-        var ivankaFace:BasicSprite=new BasicSprite("ivankaFace");
+        var ivankaFace:Sprite=new Sprite("ivankaFace");
         ivankaFace.x=ivankaFace.y=20;
         ivankaFace.scaleX=ivankaFace.scaleY=4;
         ivankaFace.smooth=false;
@@ -163,7 +163,7 @@ class Test extends State {
     }
     function createTouchJoystick() {
        var border:Int=20; /*
-        var left=new BasicSprite("moveButton");
+        var left=new Sprite("moveButton");
         left.smooth=false;
         left.x=border;
         left.scaleX=left.scaleY=2;
@@ -172,7 +172,7 @@ class Test extends State {
         hudLayer.addChild(left);
 
   
-        var right=new BasicSprite("moveButton");
+        var right=new Sprite("moveButton");
         right.smooth=false;
         right.x=border+right.width()*2+border*4;
         right.scaleX=right.scaleY=2;
@@ -183,7 +183,7 @@ class Test extends State {
         right.y=720-border-right.height()*2;
         hudLayer.addChild(right);
 
-         var up=new BasicSprite("moveButton");
+         var up=new Sprite("moveButton");
         up.smooth=false;
         up.x=1280-border-up.width()*2;
         up.scaleX=up.scaleY=2;
@@ -261,7 +261,7 @@ class Test extends State {
             rainCollisions.add(rainBox);
         }else
         if(object.type=="asset"){
-             var display=new BasicSprite(object.properties.get("asset"));
+             var display=new Sprite(object.properties.get("asset"));
              display.scaleX=(object.width/display.width())*4;
              display.scaleY=(object.height/display.height())*4;
              display.offsetY=-display.height();// origin at the bottom?
@@ -284,7 +284,7 @@ class Test extends State {
     var goDown:Bool;
     override function update(dt:Float) {
         super.update(dt);
-        
+        stage.defaultCamera().limits(0,0,worldMap.widthIntTiles*40,worldMap.heightInTiles*40);
         
        
         CollisionEngine.collide(ivanka.collision,worldMap.collision);

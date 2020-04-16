@@ -1,6 +1,6 @@
 package gameObjects;
 
-import com.gEngine.display.BasicSprite;
+import com.gEngine.display.Sprite;
 import com.framework.utils.Entity;
 
 @:enum
@@ -10,11 +10,11 @@ abstract WeaponType(String) {
     var alien="alien";
 }
 class Gun extends Entity {
-    public var display:BasicSprite;
+    public var display:Sprite;
     var bullets:Entity;
     public function new() {
         super();
-        display=new BasicSprite("weapons");
+        display=new Sprite("weapons");
         display.smooth=false;
         display.timeline.playAnimation(cast pistol);
         bullets=new Entity();

@@ -1,12 +1,12 @@
 package fx;
 
 import kha.math.Random;
-import com.gEngine.display.BasicSprite;
+import com.gEngine.display.Sprite;
 import com.framework.utils.Entity;
 
 class Drop extends Entity {
 
-    public var display:BasicSprite;
+    public var display:Sprite;
     
     var speed:Float;
     var dropHeight:Float;
@@ -23,7 +23,7 @@ class Drop extends Entity {
         this.maxX=maxX;
 
         this.speed=speed;
-        display=new BasicSprite("drop");
+        display=new Sprite("drop");
         display.scaleX=display.scaleY=4;
         display.timeline.playAnimation("fall",false);
         display.timeline.frameRate=1/(Random.getFloatIn(15,30));

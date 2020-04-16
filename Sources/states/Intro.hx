@@ -2,7 +2,7 @@ package states;
 
 import com.gEngine.GEngine;
 import com.loading.basicResources.FontLoader;
-import com.gEngine.display.BasicSprite;
+import com.gEngine.display.Sprite;
 import kha.input.KeyCode;
 import com.framework.utils.Input;
 import com.loading.basicResources.ImageLoader;
@@ -10,7 +10,7 @@ import com.loading.Resources;
 import com.framework.utils.State;
 
 class Intro extends State {
-    var intro:BasicSprite;
+    var intro:Sprite;
     override function load(resources:Resources) {
         resources.add(new ImageLoader("intro"));
       //  resources.add(new FontLoader("mainfont"));
@@ -19,7 +19,7 @@ class Intro extends State {
         super();
     }
     override function init() {
-        intro=new BasicSprite("intro");
+        intro=new Sprite("intro");
         intro.smooth=false;
         intro.scaleX=intro.scaleY=4;
        stage.addChild(intro);
