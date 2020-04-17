@@ -96,23 +96,20 @@ var Main = function() { };
 $hxClasses["Main"] = Main;
 Main.__name__ = "Main";
 Main.main = function() {
-	if(window.orientation != null || window.navigator.userAgent.indexOf("IEMobile") != -1) {
-		haxe_Log.trace("phone",{ fileName : "Main.hx", lineNumber : 27, className : "Main", methodName : "main"});
-		window.document.documentElement.style.padding = "0";
-		window.document.documentElement.style.margin = "0";
-		window.document.body.style.padding = "0";
-		window.document.body.style.margin = "0";
-		var canvas = js_Boot.__cast(window.document.getElementById("khanvas") , HTMLCanvasElement);
-		canvas.style.display = "block";
-		var resize = function() {
-			canvas.width = window.innerWidth * window.devicePixelRatio | 0;
-			canvas.height = window.innerHeight * window.devicePixelRatio | 0;
-			canvas.style.width = window.document.documentElement.clientWidth + "px";
-			canvas.style.height = window.document.documentElement.clientHeight + "px";
-		};
-		window.onresize = resize;
-		resize();
-	}
+	window.document.documentElement.style.padding = "0";
+	window.document.documentElement.style.margin = "0";
+	window.document.body.style.padding = "0";
+	window.document.body.style.margin = "0";
+	var canvas = js_Boot.__cast(window.document.getElementById("khanvas") , HTMLCanvasElement);
+	canvas.style.display = "block";
+	var resize = function() {
+		canvas.width = window.innerWidth * window.devicePixelRatio | 0;
+		canvas.height = window.innerHeight * window.devicePixelRatio | 0;
+		canvas.style.width = window.document.documentElement.clientWidth + "px";
+		canvas.style.height = window.document.documentElement.clientHeight + "px";
+	};
+	window.onresize = resize;
+	resize();
 	kha_System.start(new kha_SystemOptions("coalTest",1280,720,new kha_WindowOptions("MECHANGREJO",0,0,1280,720,null,true,1,0),new kha_FramebufferOptions(60,true,32,16,8,0)),function(w) {
 		kha_math_Random.init(0);
 		new com_framework_Simulation(states_BasicLoader,1280,720,1,0);
@@ -1741,6 +1738,14 @@ com_framework_utils_VirtualGamepad.prototype = {
 		this.onAxisChange = null;
 		this.onButtonChange = null;
 	}
+	,addButton: function(id,x,y,radio) {
+		var button = new com_framework_utils_VirtualButton();
+		button.id = id;
+		button.x = x;
+		button.y = y;
+		button.radio = radio;
+		this.buttonsTouch.push(button);
+	}
 	,addKeyButton: function(id,key) {
 		this.keyButton.h[key] = id;
 	}
@@ -1761,7 +1766,6 @@ com_framework_utils_VirtualGamepad.prototype = {
 				button.touchId = id;
 				this.onButtonChange(button.id,1);
 				haxe_Log.trace("button active " + id,{ fileName : "com/framework/utils/VirtualGamepad.hx", lineNumber : 85, className : "com.framework.utils.VirtualGamepad", methodName : "onTouchStart"});
-				return;
 			}
 		}
 		var _g2 = 0;
@@ -1774,7 +1778,6 @@ com_framework_utils_VirtualGamepad.prototype = {
 				this.onAxisChange(stick.idY,stick.axisY);
 				stick.active = true;
 				stick.touchId = id;
-				return;
 			}
 		}
 		if(!this.globalStick.active) {
@@ -1819,7 +1822,6 @@ com_framework_utils_VirtualGamepad.prototype = {
 				button.active = false;
 				this.onButtonChange(button.id,0);
 				button.touchId = -1;
-				return;
 			}
 		}
 		var _g2 = 0;
@@ -1832,7 +1834,6 @@ com_framework_utils_VirtualGamepad.prototype = {
 				this.onAxisChange(stick.idY,0);
 				stick.active = false;
 				stick.touchId = -1;
-				return;
 			}
 		}
 		if(this.globalStick.touchId == id) {
@@ -1840,7 +1841,6 @@ com_framework_utils_VirtualGamepad.prototype = {
 			this.onAxisChange(this.globalStick.idY,0);
 			this.globalStick.active = false;
 			this.globalStick.touchId = -1;
-			return;
 		}
 	}
 	,onKeyDown: function(key) {
@@ -4256,6 +4256,12 @@ com_gEngine_DrawArea.prototype = {
 	,minY: null
 	,maxY: null
 	,maxX: null
+	,get_x: function() {
+		return this.minX;
+	}
+	,get_y: function() {
+		return this.minY;
+	}
 	,get_width: function() {
 		return this.maxX - this.minX;
 	}
@@ -4291,22 +4297,6 @@ var com_gEngine_Filter = function(filters,r,g,b,a,cropScreen) {
 	this.cropScreen = cropScreen;
 	this.renderPass = [];
 	this.drawArea = new com_helpers_MinMax();
-	if(!this.cropScreen) {
-		var _this = this.drawArea.min;
-		_this.x = 0;
-		_this.y = 0;
-		var _this1 = this.drawArea.max;
-		var x = com_gEngine_GEngine.get_i().width;
-		var y = com_gEngine_GEngine.get_i().height;
-		if(y == null) {
-			y = 0;
-		}
-		if(x == null) {
-			x = 0;
-		}
-		_this1.x = x;
-		_this1.y = y;
-	}
 	if(filters != null) {
 		this.setPasses(filters);
 	}
@@ -4350,6 +4340,22 @@ com_gEngine_Filter.prototype = {
 		while(_g1 < _g2.length) _g1++;
 	}
 	,filterStart: function(display,paintMode,transform) {
+		if(!this.cropScreen) {
+			var _this = this.drawArea.min;
+			_this.x = 0;
+			_this.y = 0;
+			var _this1 = this.drawArea.max;
+			var x = paintMode.camera.width;
+			var y = paintMode.camera.height;
+			if(y == null) {
+				y = 0;
+			}
+			if(x == null) {
+				x = 0;
+			}
+			_this1.x = x;
+			_this1.y = y;
+		}
 		if(this.renderPass.length == 0) {
 			return;
 		}
@@ -4364,32 +4370,32 @@ com_gEngine_Filter.prototype = {
 		com_gEngine_GEngine.get_i().beginCanvas();
 		g4.clear(kha__$Color_Color_$Impl_$.fromFloats(this.red,this.green,this.blue,this.alpha));
 		if(this.cropScreen) {
-			var _this = this.drawArea;
-			var _this1 = _this.min;
-			var x = Infinity;
-			var y = Infinity;
-			if(y == null) {
-				y = 0;
-			}
-			if(x == null) {
-				x = 0;
-			}
-			_this1.x = x;
-			_this1.y = y;
-			var _this2 = _this.max;
-			var x1 = -Infinity;
-			var y1 = -Infinity;
+			var _this2 = this.drawArea;
+			var _this3 = _this2.min;
+			var x1 = Infinity;
+			var y1 = Infinity;
 			if(y1 == null) {
 				y1 = 0;
 			}
 			if(x1 == null) {
 				x1 = 0;
 			}
-			_this2.x = x1;
-			_this2.y = y1;
-			_this.minZ = Infinity;
-			_this.maxZ = -Infinity;
-			_this.isEmpty = true;
+			_this3.x = x1;
+			_this3.y = y1;
+			var _this4 = _this2.max;
+			var x2 = -Infinity;
+			var y2 = -Infinity;
+			if(y2 == null) {
+				y2 = 0;
+			}
+			if(x2 == null) {
+				x2 = 0;
+			}
+			_this4.x = x2;
+			_this4.y = y2;
+			_this2.minZ = Infinity;
+			_this2.maxZ = -Infinity;
+			_this2.isEmpty = true;
 			display.getDrawArea(this.drawArea,transform);
 			if(paintMode.hasRenderArea()) {
 				this.drawArea.intersection(paintMode.getRenderArea());
@@ -4529,7 +4535,7 @@ var com_gEngine_GEngine = function(oversample,antiAlias) {
 	this.currentRenderTargetId = -1;
 	this.oversample = 1;
 	this.directRender = true;
-	this.clearColor = kha__$Color_Color_$Impl_$.fromFloats(0,0,0,1);
+	this.clearColor = kha__$Color_Color_$Impl_$.fromFloats(1,0,0,1);
 	this.antiAliasing = antiAlias;
 	this.oversample = oversample;
 	com_gEngine_PainterGarbage.init();
@@ -4608,12 +4614,13 @@ com_gEngine_GEngine.prototype = {
 		}
 		this.realWidth = this.mTempBuffer.get_realWidth();
 		this.realHeight = this.mTempBuffer.get_realHeight();
+		var renderScale = 1;
 		this.realU = this.width / this.realWidth;
 		this.realV = this.height / this.realHeight;
 		this.scaleWidth = this.width / this.realWidth;
 		this.scaleHeigth = this.height / this.realHeight;
-		var right = this.width;
-		var bottom = this.height;
+		var right = com_gEngine_GEngine.virtualWidth / this.scaleWidth / renderScale;
+		var bottom = com_gEngine_GEngine.virtualHeight / this.scaleHeigth / renderScale;
 		this.modelViewMatrix = new kha_math_FastMatrix4(2 / right,0,0,-right / right,0,2.0 / (0 - bottom),0,-bottom / (0 - bottom),0,0,-0.0004,-1.,0,0,0,1);
 		return true;
 	}
@@ -6451,6 +6458,11 @@ com_gEngine_display_Sprite.prototype = {
 	,filter: null
 	,timeline: null
 	,paintInfo: null
+	,recenter: function() {
+		var rec = this.localDrawArea();
+		this.pivotX = rec.get_x() + rec.get_width() / 2;
+		this.pivotY = rec.get_y() + rec.get_height() / 2;
+	}
 	,set_rotation: function(value) {
 		if(value != this.rotation) {
 			this.rotation = value;
@@ -6957,6 +6969,9 @@ com_gEngine_display_Sprite.prototype = {
 			area.maxZ = multvec_z3;
 		}
 		area.isEmpty = false;
+	}
+	,localDrawArea: function() {
+		return this.animationData.frames[this.timeline.currentFrame].drawArea;
 	}
 	,width: function() {
 		return this.animationData.frames[this.timeline.currentFrame].drawArea.get_width();
@@ -12783,8 +12798,6 @@ var kha__$Assets_ImageList = function() {
 	this.bullets = null;
 	this.bodyDeadDescription = { name : "bodyDead", original_height : 10, file_sizes : [156], original_width : 8, files : ["bodyDead.png"], type : "image"};
 	this.bodyDead = null;
-	this.Untitled_1Description = { name : "Untitled_1", original_height : 2048, file_sizes : [1107793], original_width : 1024, files : ["Untitled-1.png"], type : "image"};
-	this.Untitled_1 = null;
 	this.UntitledDescription = { name : "Untitled", original_height : 64, file_sizes : [6026], original_width : 64, files : ["Untitled.png"], type : "image"};
 	this.Untitled = null;
 };
@@ -12796,8 +12809,6 @@ kha__$Assets_ImageList.prototype = {
 	}
 	,Untitled: null
 	,UntitledDescription: null
-	,Untitled_1: null
-	,Untitled_1Description: null
 	,bodyDead: null
 	,bodyDeadDescription: null
 	,bullets: null
@@ -21732,6 +21743,47 @@ states_Test.prototype = $extend(com_framework_utils_State.prototype,{
 	}
 	,createTouchJoystick: function() {
 		this.touchJoystick = new com_framework_utils_VirtualGamepad();
+		if(window.orientation != null || window.navigator.userAgent.indexOf("IEMobile") != -1) {
+			var left = new com_gEngine_display_Sprite("moveButton");
+			left.set_smooth(false);
+			left.x = 20;
+			left.scaleX = left.scaleY = 2;
+			left.alpha = 0.25;
+			left.y = 700 - left.height() * 2;
+			this.hudLayer.addChild(left);
+			var right = new com_gEngine_display_Sprite("moveButton");
+			right.set_smooth(false);
+			right.x = 20 + right.width() * 2 + 80;
+			right.scaleX = right.scaleY = 2;
+			right.offsetX = -right.width();
+			right.scaleX *= -1;
+			right.alpha = 0.25;
+			right.y = 700 - right.height() * 2;
+			this.hudLayer.addChild(right);
+			var up = new com_gEngine_display_Sprite("moveButton");
+			up.set_smooth(false);
+			up.x = 1260 - up.width() * 2;
+			up.scaleX = up.scaleY = 2;
+			up.recenter();
+			up.alpha = 0.25;
+			up.set_rotation(Math.PI / 2);
+			up.y = 700 - up.height() * 2;
+			this.hudLayer.addChild(up);
+			var fire = new com_gEngine_display_Sprite("moveButton");
+			fire.set_smooth(false);
+			fire.x = 1240 - up.width() * 4;
+			fire.scaleX = fire.scaleY = 2;
+			fire.alpha = 0.25;
+			fire.offsetX = -fire.width();
+			fire.scaleX *= -1;
+			fire.y = 700 - fire.height() * 2;
+			this.hudLayer.addChild(fire);
+			this.touchJoystick.addButton(14,left.x + left.width(),left.y + left.height(),left.width());
+			this.touchJoystick.addButton(15,right.x + right.width(),right.y + right.height(),right.width());
+			this.touchJoystick.addButton(0,1280 - up.width() - 20,up.y + up.height(),up.width());
+			this.touchJoystick.addButton(12,1280 - up.width() - 20,up.y + up.height(),up.width());
+			this.touchJoystick.addButton(2,fire.x + fire.width(),fire.y + fire.width(),fire.width());
+		}
 		this.touchJoystick.addKeyButton(14,37);
 		this.touchJoystick.addKeyButton(15,39);
 		this.touchJoystick.addKeyButton(12,38);

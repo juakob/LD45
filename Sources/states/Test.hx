@@ -162,42 +162,60 @@ class Test extends State {
         createTouchJoystick();
     }
     function createTouchJoystick() {
-       var border:Int=20; /*
-        var left=new Sprite("moveButton");
-        left.smooth=false;
-        left.x=border;
-        left.scaleX=left.scaleY=2;
-        left.alpha=0.25;
-        left.y=720-border-left.height()*2;
-        hudLayer.addChild(left);
-
-  
-        var right=new Sprite("moveButton");
-        right.smooth=false;
-        right.x=border+right.width()*2+border*4;
-        right.scaleX=right.scaleY=2;
-        right.offsetX=-right.width();
-        right.scaleX*=-1;
-        right.alpha=0.25;
-
-        right.y=720-border-right.height()*2;
-        hudLayer.addChild(right);
-
-         var up=new Sprite("moveButton");
-        up.smooth=false;
-        up.x=1280-border-up.width()*2;
-        up.scaleX=up.scaleY=2;
-        up.recenter();
-        up.alpha=0.25;
-        //up.offsetX=-up.width();
-        up.rotation=Math.PI/2;
-        up.y=720-border-up.height()*2;
-        hudLayer.addChild(up);*/
-        
         touchJoystick=new VirtualGamepad();
-       // touchJoystick.addButton(XboxJoystick.LEFT_DPAD,left.x+left.width(),left.y+left.height(),left.width());
-       // touchJoystick.addButton(XboxJoystick.RIGHT_DPAD,right.x+right.width(),right.y+right.height(),right.width());
-      //  touchJoystick.addButton(XboxJoystick.A,1280-up.width()-border,up.y+up.height(),up.width());
+        #if js
+        if(( js.Browser.window.orientation != null) || (js.Browser.navigator.userAgent.indexOf('IEMobile') != -1)){
+            var border:Int=20; 
+            var left=new Sprite("moveButton");
+            left.smooth=false;
+            left.x=border;
+            left.scaleX=left.scaleY=2;
+            left.alpha=0.25;
+            left.y=720-border-left.height()*2;
+            hudLayer.addChild(left);
+
+    
+            var right=new Sprite("moveButton");
+            right.smooth=false;
+            right.x=border+right.width()*2+border*4;
+            right.scaleX=right.scaleY=2;
+            right.offsetX=-right.width();
+            right.scaleX*=-1;
+            right.alpha=0.25;
+
+            right.y=720-border-right.height()*2;
+            hudLayer.addChild(right);
+
+            var up=new Sprite("moveButton");
+            up.smooth=false;
+            up.x=1280-border-up.width()*2;
+            up.scaleX=up.scaleY=2;
+            up.recenter();
+            up.alpha=0.25;
+            //up.offsetX=-up.width();
+            up.rotation=Math.PI/2;
+            up.y=720-border-up.height()*2;
+            hudLayer.addChild(up);
+
+            var fire=new Sprite("moveButton");
+            fire.smooth=false;
+            fire.x=1280-border*2-up.width()*4;
+            fire.scaleX=fire.scaleY=2;
+          
+            fire.alpha=0.25;
+            fire.offsetX=-fire.width();
+            fire.scaleX*=-1;
+            fire.y=720-border-fire.height()*2;
+            hudLayer.addChild(fire);
+            
+            
+            touchJoystick.addButton(XboxJoystick.LEFT_DPAD,left.x+left.width(),left.y+left.height(),left.width());
+            touchJoystick.addButton(XboxJoystick.RIGHT_DPAD,right.x+right.width(),right.y+right.height(),right.width());
+            touchJoystick.addButton(XboxJoystick.A,1280-up.width()-border,up.y+up.height(),up.width());
+            touchJoystick.addButton(XboxJoystick.UP_DPAD,1280-up.width()-border,up.y+up.height(),up.width());
+            touchJoystick.addButton(XboxJoystick.X,fire.x+fire.width(),fire.y+fire.width(),fire.width());
+        }
+        #end
         touchJoystick.addKeyButton(XboxJoystick.LEFT_DPAD,KeyCode.Left);
         touchJoystick.addKeyButton(XboxJoystick.RIGHT_DPAD,KeyCode.Right);
         touchJoystick.addKeyButton(XboxJoystick.UP_DPAD,KeyCode.Up);

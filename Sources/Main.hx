@@ -22,25 +22,21 @@ class Main {
 		#if hotml new hotml.Client(); #end
 		#if (kha_html5 && js)
 		//make html5 canvas resizable
-		var phone:Bool = ( window.orientation != null) || (navigator.userAgent.indexOf('IEMobile') != -1);
-		if (phone) {
-			trace("phone");
-			document.documentElement.style.padding = "0";
-			document.documentElement.style.margin = "0";
-			document.body.style.padding = "0";
-			document.body.style.margin = "0";
-			var canvas:CanvasElement = cast(document.getElementById("khanvas"), CanvasElement);
-			canvas.style.display = "block";
+		document.documentElement.style.padding = "0";
+		document.documentElement.style.margin = "0";
+		document.body.style.padding = "0";
+		document.body.style.margin = "0";
+		var canvas:CanvasElement = cast(document.getElementById("khanvas"), CanvasElement);
+		canvas.style.display = "block";
 
-			var resize = function() {
-				canvas.width = Std.int(window.innerWidth * window.devicePixelRatio);
-				canvas.height = Std.int(window.innerHeight * window.devicePixelRatio);
-				canvas.style.width = document.documentElement.clientWidth + "px";
-				canvas.style.height = document.documentElement.clientHeight + "px";
-			}
-			window.onresize = resize;
-			resize();
+		var resize = function() {
+			canvas.width = Std.int(window.innerWidth * window.devicePixelRatio);
+			canvas.height = Std.int(window.innerHeight * window.devicePixelRatio);
+			canvas.style.width = document.documentElement.clientWidth + "px";
+			canvas.style.height = document.documentElement.clientHeight + "px";
 		}
+		window.onresize = resize;
+		resize();
 		#end
 		
 		var windowsOptions=new WindowOptions("MECHANGREJO",0,0,1280,720,null,true,WindowFeatures.FeatureResizable,WindowMode.Windowed);
